@@ -61,14 +61,6 @@ const inStep = (id, sel) => '[data-step="' + id + '"] ' + sel;
 const btn = (id, v) => inStep(id, '[data-v="' + v.replace(/"/g, '\\"') + '"]');
 async function next(page) { await page.click("#next"); }
 
-/* Year, month, and today's date, so the age tests hold whatever day they run. */
-const NOW = new Date(), Y = NOW.getFullYear(), M = NOW.getMonth() + 1;
-async function birth(page, year, month) {
-  await page.click(inStep("gate", '[data-part="decades"] [data-v="' + Math.floor(year / 10) * 10 + '"]'));
-  await page.click(inStep("gate", '[data-part="years"] [data-v="' + year + '"]'));
-  await page.click(inStep("gate", '[data-key="bmonth"] [data-v="' + month + '"]'));
-}
-
 const PLAN = {
   a: ["Several times", "Moderate"], b: ["Often", "Serious"], n: ["Once or twice", "Minor"], c: ["Never"], d: ["Does not apply"],
   o: ["Several times", "Serious"], e: ["Often", "Moderate"], f: ["Never"], g: ["Once or twice", "Not a problem"], h: ["Does not apply"],
@@ -78,8 +70,6 @@ const PLAN = {
 async function walkAll(page, shot) {
   await at(page, "intro", shot);
   await page.click("#start");
-  await at(page, "gate", shot);
-  await birth(page, 2001, M === 5 ? 4 : 5);
   await at(page, "consent", shot);
   await page.click(inStep("consent", ".agree"));
   await at(page, "home", shot);
@@ -241,8 +231,6 @@ function rowOf(r) {
   await check("skipping every question still sends a valid record", async () => {
     const t = await open(browser, { mobile: true });
     await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, 1985, 1);
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
@@ -266,38 +254,6 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
-  await check("a respondent under 18 is stopped at the gate and nothing is sent", async () => {
-    const t = await open(browser, { mobile: true });
-    await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, Y - 16, 1);
-    await at(t.page, "young");
-    assert.ok(await t.page.locator("#next").isHidden());
-    assert.ok(await t.page.locator("#chap").isDisabled());
-    assert.strictEqual(await t.page.evaluate(() => window.__survey.answers.consent), false);
-    assert.strictEqual(await t.page.evaluate(() => window.__survey.answers.age18), false);
-    await t.page.click("#prev");
-    await at(t.page, "gate");
-    assert.strictEqual(t.posts.length, 0);
-    await t.ctx.close();
-  });
-
-  await check("turning 18 this month asks whether the birthday has passed", async () => {
-    const t = await open(browser, {});
-    await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, Y - 18, M);
-    assert.ok(await t.page.locator(inStep("gate", '[data-part="passed"]')).isVisible());
-    assert.strictEqual(await t.page.evaluate(() => window.__survey.answers.age18), null);
-    await t.page.click(btn("gate", "no"));
-    await at(t.page, "young");
-    await t.page.click("#prev");
-    await at(t.page, "gate");
-    await t.page.click(btn("gate", "yes"));
-    await at(t.page, "consent");
-    await t.ctx.close();
-  });
-
   for (const vp of [{ width: 1366, height: 768 }, { width: 1280, height: 720 }, { width: 1440, height: 900 }, { width: 360, height: 640 }, { width: 390, height: 844 }]) {
     await check("the Start button is in view without scrolling at " + vp.width + "x" + vp.height, async () => {
       const t = await open(browser, { viewport: vp, mobile: vp.width < 700 });
@@ -311,9 +267,8 @@ function rowOf(r) {
     const t = await open(browser, { host: PREVIEW });
     assert.strictEqual(await t.page.evaluate(() => window.__survey.live), false);
     assert.ok((await t.page.locator("#flag").textContent()).indexOf("Preview") === 0);
+    assert.strictEqual(await t.page.locator("#h-intro").textContent(), "VSUrvey");
     await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, 1999, 3);
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
@@ -331,8 +286,6 @@ function rowOf(r) {
     assert.strictEqual(await t.page.evaluate(() => window.__survey.live), false);
     assert.ok((await t.page.locator("#flag").textContent()).indexOf("Not open yet") === 0);
     await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, 1999, 3);
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
@@ -347,8 +300,6 @@ function rowOf(r) {
   await check("?test=1 sends a record marked as a test, even before the survey opens", async () => {
     const t = await open(browser, { query: "?test=1", closed: true });
     await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, 1999, 3);
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
@@ -365,10 +316,8 @@ function rowOf(r) {
   await check("arrow keys move between steps, and the parts menu jumps", async () => {
     const t = await open(browser, {});
     await t.page.click("#start");
-    await at(t.page, "gate");
-    assert.ok(await t.page.locator("#chap").isDisabled(), "the menu stays shut before consent");
-    await birth(t.page, 1990, 8);
     await at(t.page, "consent");
+    assert.ok(await t.page.locator("#chap").isDisabled(), "the menu stays shut before consent");
     await t.page.keyboard.press("Tab");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
@@ -385,11 +334,92 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
+  for (const vp of [{ width: 360, height: 640 }, { width: 360, height: 740 }, { width: 390, height: 844 }, { width: 412, height: 915 }, { width: 1280, height: 720 }, { width: 1366, height: 768 }]) {
+    await check("at the gate, the box to tick and Next are in view without scrolling at " + vp.width + "x" + vp.height, async () => {
+      const mobile = vp.width < 700;
+      const t = await open(browser, { viewport: vp, mobile });
+      await t.page.click("#start");
+      await at(t.page, "consent");
+      const r = await t.page.evaluate(() => {
+        const a = document.querySelector('[data-step="consent"] .agree').getBoundingClientRect();
+        const n = document.getElementById("next").getBoundingClientRect();
+        const p = document.querySelector('[data-step="consent"]');
+        return { agreeTop: a.top, agreeBottom: a.bottom, nextTop: n.top, nextBottom: n.bottom, h: innerHeight, scrolled: p.scrollTop };
+      });
+      const limit = mobile ? Math.min(r.nextTop - 4, r.h - 84) : r.h;
+      assert.ok(r.agreeTop >= 0 && r.agreeBottom <= limit, "the box to tick is hidden: " + JSON.stringify(r));
+      assert.ok(r.nextBottom <= r.h, "Next is off screen: " + JSON.stringify(r));
+      assert.strictEqual(r.scrolled, 0);
+      await t.ctx.close();
+    });
+  }
+
+  for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 664 }, { width: 412, height: 720 }, { width: 1366, height: 768 }]) {
+    await check("from home to the pass, every answer is in view without scrolling at " + vp.width + "x" + vp.height, async () => {
+      const mobile = vp.width < 700;
+      const t = await open(browser, { viewport: vp, mobile, reduced: true });
+      await t.page.click("#start");
+      await at(t.page, "consent");
+      await t.page.click(inStep("consent", ".agree"));
+      await at(t.page, "home");
+      for (const id of ["home", "year", "faculty", "org", "scholarship", "firstGen"]) {
+        await t.page.evaluate(x => window.__survey.go(x), id);
+        await at(t.page, id);
+        const hidden = await t.page.evaluate(({ id, mobile }) => {
+          const p = document.querySelector('[data-step="' + id + '"]'), pr = p.getBoundingClientRect();
+          const n = document.getElementById("next").getBoundingClientRect();
+          const bottom = mobile ? Math.min(innerHeight - 84, n.top) : Math.min(pr.bottom, innerHeight);
+          return Array.from(p.querySelectorAll("[data-v]")).filter(e => { const b = e.getBoundingClientRect(); return b.bottom > bottom + 1 || b.top < pr.top - 1; }).map(e => e.dataset.v);
+        }, { id, mobile });
+        assert.deepStrictEqual(hidden, [], id + ": answers below the fold");
+      }
+      await t.ctx.close();
+    });
+  }
+
+  await check("the guard keeps the gate shut until the box is ticked, and nothing about age is asked", async () => {
+    const t = await open(browser, { mobile: true });
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    assert.strictEqual(await t.page.locator("#gate-say span").textContent(), "Are you a student?");
+    assert.strictEqual(await t.page.locator(".scene.gate-open").count(), 0, "the gate starts closed");
+    await t.page.click("#next", { force: true });
+    assert.strictEqual(await current(t.page), "consent", "Next does not pass the gate before the box is ticked");
+    await t.page.click(inStep("consent", ".agree"));
+    assert.strictEqual(await t.page.locator("#gate-say span").textContent(), "Come in!");
+    assert.strictEqual(await t.page.locator(".scene.gate-open").count(), 1, "the gate opens");
+    await at(t.page, "home");
+    const a = await t.page.evaluate(() => window.__survey.answers);
+    assert.strictEqual(a.consent, true);
+    assert.strictEqual(a.age18, true);
+    assert.ok(a.startedAt);
+    await t.ctx.close();
+  });
+
+  await check("only the eyes follow the pointer", async () => {
+    const t = await open(browser, {});
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.mouse.move(5, 5);
+    await t.page.mouse.move(1300, 700, { steps: 8 });
+    await t.page.waitForTimeout(700);
+    const moved = await t.page.evaluate(() => {
+      const out = { pupils: 0, others: [] };
+      document.querySelectorAll('[data-box="gate"] svg *').forEach(el => {
+        const tr = getComputedStyle(el).transform;
+        if (!tr || tr === "none" || el.closest(".arm, .say, .wave, .bubble")) return;
+        if (el.classList.contains("pupil")) out.pupils++; else out.others.push(el.tagName + "." + el.getAttribute("class"));
+      });
+      return out;
+    });
+    assert.ok(moved.pupils >= 2, "the guard's eyes follow the pointer");
+    assert.deepStrictEqual(moved.others, [], "nothing else in the scene moves with the pointer");
+    await t.ctx.close();
+  });
+
   await check("the walk works with reduced motion", async () => {
     const t = await open(browser, { reduced: true, mobile: true });
     await t.page.click("#start");
-    await at(t.page, "gate");
-    await birth(t.page, 1995, 2);
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");

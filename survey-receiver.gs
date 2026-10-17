@@ -1,5 +1,5 @@
 /**
- * Istorya sa VSU: survey response receiver and volunteer form (scenes-v2)
+ * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (scenes-v2)
  * Project CAMPUS, decisions D-037, D-039, D-110, and D-111
  *
  * Receives one JSON record per response from the scenes survey page and
@@ -55,6 +55,7 @@ var FACULTIES = ["Faculty of Agriculture and Food Science", "Faculty of Computin
   "Faculty of Forestry and Environmental Science", "Faculty of Humanities and Social Sciences",
   "Faculty of Management and Economics", "Faculty of Natural and Mathematical Sciences", "Faculty of Nursing",
   "Faculty of Teacher Education", "Faculty of Veterinary Medicine", "Another unit"];
+var VOLUNTEER_TITLE = "VSUrvey: interview volunteers";
 var VOLUNTEER_THANKS = "Thank you. I'll message you to set a time. Your survey answers stay separate from your name.";
 var FACULTY_TITLE = "Faculty";
 var FACULTY_HELP = "Optional. Pick the faculty your department or institute is part of. If it isn't one of these, choose Another unit.";
@@ -157,7 +158,7 @@ function doPost(e) {
   }
 }
 
-function doGet() { return reply_({ ok: true, service: "Istorya sa VSU receiver", version: VERSION_PREFIX }); }
+function doGet() { return reply_({ ok: true, service: "VSUrvey receiver", version: VERSION_PREFIX }); }
 
 function reply_(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
@@ -179,7 +180,7 @@ function setup() { sheet_(); }
  * months after they sign up if they aren't interviewed (D-111).
  */
 function createVolunteerForm() {
-  var form = FormApp.create("Istorya sa VSU: interview volunteers");
+  var form = FormApp.create(VOLUNTEER_TITLE);
   form.setDescription(VOLUNTEER_DESCRIPTION);
   form.addTextItem().setTitle("What should I call you?").setHelpText("A first name or a nickname is enough.").setRequired(true);
   form.addTextItem().setTitle("How can I reach you?").setHelpText("A mobile number, a Messenger name, or an email address.").setRequired(true);
@@ -202,11 +203,13 @@ function createVolunteerForm() {
 
 /**
  * Brings the existing volunteer form up to date without changing its link:
- * the retention sentence (D-111) and a fixed faculty list in place of the
- * free-text "College or department", and the thank-you note. Safe to run more than once.
+ * the survey's new name, the retention sentence (D-111), a fixed faculty list
+ * in place of the free-text "College or department", and the thank-you note.
+ * Safe to run more than once.
  */
 function updateVolunteerForm() {
   var form = FormApp.openById(VOLUNTEER_FORM_ID);
+  form.setTitle(VOLUNTEER_TITLE);
   form.setDescription(VOLUNTEER_DESCRIPTION);
   form.setConfirmationMessage(VOLUNTEER_THANKS);
   var items = form.getItems();

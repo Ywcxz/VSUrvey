@@ -1,6 +1,6 @@
 # istorya-sa-vsu
 
-Istorya sa VSU: the Project CAMPUS student survey, in the scenes format (D-037).
+VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, in the scenes format (D-037).
 
 - `index.html` is the whole survey: one self-contained page.
 - `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet and keeps the separate interview-volunteer form up to date. Its first lines say how to set it up or update it.
