@@ -71,7 +71,8 @@ async function next(page) { await page.click("#next"); }
 const PLAN = {
   a: ["Several times", "Moderate"], b: ["Often", "Serious"], n: ["Once or twice", "Minor"], c: ["Never"], d: ["Does not apply"],
   o: ["Several times", "Serious"], e: ["Often", "Moderate"], f: ["Never"], g: ["Once or twice", "Not a problem"], h: ["Does not apply"],
-  i: ["Several times", "Moderate"], j: ["Never"], k: ["Once or twice", "Minor"], l: ["Never"], m: ["Often", "Serious"]
+  i: ["Several times", "Moderate"], j: ["Never"], k: ["Once or twice", "Minor"], l: ["Never"], m: ["Often", "Serious"],
+  p: ["Several times", "Serious"]
 };
 
 async function walkAll(page, shot) {
@@ -100,12 +101,26 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "mainSource", shot);
   await page.click(btn("mainSource", "Messenger group chats"));
+  await at(page, "networks", shot);
+  await page.click(btn("networks", "Smart or TNT"));
+  await page.click(btn("networks", "DITO"));
+  await next(page);
+  await at(page, "load", shot);
+  await page.click(btn("load", "Data for certain apps only"));
+  await page.click(btn("load", "Calls and texts"));
+  await next(page);
+  await at(page, "loadApps", shot);
+  await page.click(btn("loadApps", "Facebook and Messenger"));
+  await page.click(btn("loadApps", "TikTok"));
+  await next(page);
   await at(page, "dataSpend", shot);
   await page.click(btn("dataSpend", "₱50 to ₱99"));
   await at(page, "dataSchool", shot);
   await page.click(btn("dataSchool", "About half"));
-  await at(page, "online", shot);
-  await page.click(btn("online", "Both"));
+  await at(page, "onlineCampus", shot);
+  await page.click(btn("onlineCampus", "Both"));
+  await at(page, "onlineHome", shot);
+  await page.click(btn("onlineHome", "Piso Wi-Fi"));
   await at(page, "scenario", shot);
   await page.click(btn("scenario", "Asked in a student Facebook group"));
   const order = (await page.evaluate(() => window.__survey.steps())).filter(id => id.indexOf("m-") === 0);
@@ -145,6 +160,8 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "postPreference", shot);
   await page.click(btn("postPreference", "Under a made-up name other members can't link to me"));
+  await at(page, "wantBack", shot);
+  await page.click(btn("wantBack", "A fix, or a reason it can't be fixed"));
   await at(page, "keepAway", shot);
   await page.click(btn("keepAway", "Uses too much mobile data"));
   await next(page);
@@ -192,8 +209,14 @@ function rowOf(r) {
       assert.strictEqual(r.mainSource, "Messenger group chats");
       assert.strictEqual(r.dataSpend, "₱50 to ₱99");
       assert.strictEqual(r.dataSchool, "About half");
-      assert.strictEqual(r.online, "Both");
-      assert.strictEqual(Object.keys(r.board).length, 15);
+      assert.deepStrictEqual(r.networks, ["Smart or TNT", "DITO"]);
+      assert.deepStrictEqual(r.load, ["Data for certain apps only", "Calls and texts"]);
+      assert.deepStrictEqual(r.loadApps, ["Facebook and Messenger", "TikTok"]);
+      assert.strictEqual(r.onlineCampus, "Both");
+      assert.strictEqual(r.onlineHome, "Piso Wi-Fi");
+      assert.ok(!("online" in r), "the old online field is gone");
+      assert.strictEqual(r.wantBack, "A fix, or a reason it can't be fixed");
+      assert.strictEqual(Object.keys(r.board).length, 16);
       assert.deepStrictEqual(r.board.b, { often: "Often", matters: "Serious" });
       assert.deepStrictEqual(r.board.c, { often: "Never", matters: null });
       assert.strictEqual(r.pins.length, 3);
@@ -217,6 +240,13 @@ function rowOf(r) {
       assert.strictEqual(row["away: unlisted"], "");
       assert.strictEqual(row["n often"], "Once or twice");
       assert.strictEqual(row["o matters"], "Serious");
+      assert.strictEqual(row["p often"], "Several times");
+      assert.strictEqual(row["network: DITO"], true);
+      assert.strictEqual(row["network: unlisted"], "");
+      assert.strictEqual(row["load: Calls and texts"], true);
+      assert.strictEqual(row["loadApps: TikTok"], true);
+      assert.strictEqual(row.onlineHome, "Piso Wi-Fi");
+      assert.strictEqual(row.wantBack, "A fix, or a reason it can't be fixed");
       assert.strictEqual(row["pin1 why"], "Hard to find");
       assert.strictEqual(row.age18, true);
       assert.strictEqual(row.test, false);
@@ -230,12 +260,36 @@ function rowOf(r) {
     const t = await open(browser, {});
     const vals = await t.page.evaluate(() => {
       const get = (step, key) => Array.from(document.querySelectorAll('[data-step="' + step + '"] [data-key="' + key + '"] [data-v]')).map(b => b.dataset.v);
-      return { sources: get("sources", "sources"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
+      return { networks: get("networks", "networks"), load: get("load", "load"), apps: get("loadApps", "loadApps"), sources: get("sources", "sources"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
     });
     assert.deepStrictEqual(vals.sources.slice().sort(), receiver.SOURCES.slice().sort());
+    assert.deepStrictEqual(vals.networks.slice().sort(), receiver.NETWORKS.slice().sort());
+    assert.deepStrictEqual(vals.load.slice().sort(), receiver.LOAD.slice().sort());
+    assert.deepStrictEqual(vals.apps.slice().sort(), receiver.LOAD_APPS.slice().sort());
     assert.deepStrictEqual(vals.pull.slice().sort(), receiver.WOULD_USE.slice().sort());
     assert.deepStrictEqual(vals.away.slice().sort(), receiver.AWAY.slice().sort());
     assert.deepStrictEqual(vals.moments.slice().sort(), receiver.MOMENTS.slice().sort());
+    await t.ctx.close();
+  });
+
+  await check("no SIM skips the questions about load and spending, and clears them", async () => {
+    const t = await open(browser, { mobile: true });
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "home");
+    await t.page.evaluate(() => window.__survey.go("networks"));
+    await at(t.page, "networks");
+    await t.page.click(btn("networks", "Globe, TM, or GOMO"));
+    await t.page.click(btn("networks", "No SIM or mobile data"));
+    const a = await t.page.evaluate(() => window.__survey.answers.networks);
+    assert.deepStrictEqual(a, ["No SIM or mobile data"], "No SIM clears the networks picked before it");
+    await next(t.page);
+    await at(t.page, "onlineCampus");
+    await t.page.click(btn("onlineCampus", "Campus Wi-Fi"));
+    await at(t.page, "onlineHome");
+    const steps = await t.page.evaluate(() => window.__survey.steps());
+    for (const id of ["load", "loadApps", "dataSpend", "dataSchool"]) assert.ok(steps.indexOf(id) < 0, id + " is skipped");
     await t.ctx.close();
   });
 
@@ -410,8 +464,8 @@ function rowOf(r) {
       };
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
-      await t.page.evaluate(() => { window.__survey.answers.sources = ["Email", "Campus bulletin boards"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["sources", "mainSource", "dataSpend", "dataSchool", "online", "scenario", "map", "coins", "story", "trust", "postedAnonymously", "wouldUse", "postPreference", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      await t.page.evaluate(() => { const a = window.__survey.answers; a.sources = ["Email", "Campus bulletin boards"]; a.load = ["Data for certain apps only"]; });
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["sources", "mainSource", "networks", "load", "loadApps", "dataSpend", "dataSchool", "onlineCampus", "onlineHome", "scenario", "map", "coins", "story", "trust", "postedAnonymously", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);

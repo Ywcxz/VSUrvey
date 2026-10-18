@@ -35,10 +35,13 @@
 var SHEET_NAME = "Responses v2";
 var VARIANT = "scenes";
 var VERSION_PREFIX = "scenes-v2";
-var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"];
+var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"];
 var SOURCES = ["Official VSU website or portal", "Official VSU Facebook pages",
   "Unofficial student Facebook groups or pages", "Messenger group chats", "Email",
   "Campus bulletin boards", "Friends and classmates", "Other", "None of these"];
+var NETWORKS = ["Smart or TNT", "Globe, TM, or GOMO", "DITO", "Another network", "No SIM or mobile data"];
+var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "I don't buy load"];
+var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "Games", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
   "Notices and deadlines in one place", "Scholarships and opportunities in one place",
   "Events in one place", "Questions about my subjects", "My class schedule and rooms in one place",
@@ -68,13 +71,17 @@ function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
     "residence", "year", "faculty", "org", "scholarship", "firstGen"];
   multiHeaders_(h, "uses", SOURCES);
-  h.push("mainSource", "dataSpend", "dataSchool", "online", "scenario");
+  h.push("mainSource");
+  multiHeaders_(h, "network", NETWORKS);
+  multiHeaders_(h, "load", LOAD);
+  multiHeaders_(h, "loadApps", LOAD_APPS);
+  h.push("dataSpend", "dataSchool", "onlineCampus", "onlineHome", "scenario");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
   MOMENTS.forEach(function (k) { h.push(k + " coins"); });
   for (var i = 1; i <= MAX_PINS; i++) h.push("pin" + i + " near", "pin" + i + " why", "pin" + i + " x", "pin" + i + " y");
   h.push("trust", "postedAnonymously");
   multiHeaders_(h, "wouldUse", WOULD_USE);
-  h.push("postPreference");
+  h.push("postPreference", "wantBack");
   multiHeaders_(h, "away", AWAY);
   h.push("story", "mayQuote", "comment", "raw");
   return h;
@@ -115,7 +122,11 @@ function row_(r, now) {
     r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.year), cell_(r.faculty, 100),
     cell_(r.org), cell_(r.scholarship), cell_(r.firstGen)];
   multiCells_(row, r.sources, SOURCES, r.sourcesOther);
-  row.push(cell_(r.mainSource), cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.online), cell_(r.scenario));
+  row.push(cell_(r.mainSource));
+  multiCells_(row, r.networks, NETWORKS, "");
+  multiCells_(row, r.load, LOAD, "");
+  multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
+  row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.onlineCampus), cell_(r.onlineHome), cell_(r.scenario));
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
   MOMENTS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });
   for (var i = 0; i < MAX_PINS; i++) {
@@ -124,7 +135,7 @@ function row_(r, now) {
   }
   row.push(num_(r.trust, 1, 5), cell_(r.postedAnonymously));
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
-  row.push(cell_(r.postPreference));
+  row.push(cell_(r.postPreference), cell_(r.wantBack));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
   row.push(cell_(r.story, 5000), r.mayQuote === true, cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
@@ -227,4 +238,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, SOURCES: SOURCES, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, SOURCES: SOURCES, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
