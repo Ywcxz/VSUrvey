@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1E4D3A">
 <meta name="robots" content="noindex">
-<meta name="description" content="VSUrvey: a survey of VSU Main Campus students about student life and VSU's services, for Project CAMPUS, an independent proposal. Not an official VSU survey.">
-<title>VSUrvey: student life and VSU's services</title>
+<meta name="description" content="VSUrvey: Student Life and Services, a survey of VSU Main Campus students for Project CAMPUS, an independent proposal. Not an official VSU survey.">
+<title>VSUrvey: Student Life and Services</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,300..800&display=swap" rel="stylesheet">
@@ -254,7 +254,11 @@ a{color:var(--sea)}
 .title p{font-size:clamp(16px,2.2vw,19px);margin:0 auto;max-width:30ch;color:var(--scene-ink-soft)}
 .box.intro .panel{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 .startrow{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));margin:14px -18px 0;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);align-items:center}
-@media (max-height:700px){ .intro .stage{--stage-h:34vh} .title h1{font-size:clamp(40px,12vw,64px)} .title p{font-size:15px} .intro-p{font-size:15px} .hero .t span{width:36px;height:36px;margin:-18px 0 0 -18px} .hero .t svg{width:18px;height:18px} }
+@media (max-height:700px){ .intro .stage{--stage-h:34vh} .title h1{font-size:clamp(40px,12vw,64px)} .title p{font-size:15px} .letter p{font-size:15px;margin-bottom:8px} @media (max-width:700px){ .hero .t.mid{display:none} }
+.title .label{margin-bottom:6px;font-size:13px} .hero .t span{width:36px;height:36px;margin:-18px 0 0 -18px} .hero .t svg{width:18px;height:18px} }
+.letter p{margin:0 0 10px;max-width:60ch}
+.letter .sign{font:700 15px/1.2 var(--display);margin-bottom:4px}
+.title .label{display:inline-block;margin:0 0 12px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);color:var(--scene-ink);font:700 14px/1.2 var(--display);max-width:none}
 .how{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:12px 14px;border-radius:16px;background:var(--tile);font-size:14.5px}
 .how svg{flex:none;width:22px;height:22px;margin-top:1px}
 
@@ -442,6 +446,9 @@ a{color:var(--sea)}
   var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
   var SURVEY_VERSION = "scenes-v2";
+  var SURVEY_ID = "student-life-2026";  // VSUrvey is the name for every survey of the series; this is the first
+  var SURVEY_LABEL = "Student Life and Services";
+  var FORM_URL = "";  // the same survey as a Google Form, once it exists; the first screen then offers it
   var OPEN = false;  // set to true only once VSU's permission to run the survey is in hand (D-083); until then even the live address sends nothing, except ?test=1 records
 
   var doc = document, root = doc.documentElement;
@@ -457,6 +464,9 @@ a{color:var(--sea)}
   function calm() { return !!(mqReduce && mqReduce.matches); }
   var PHONE_TEXT = CONTACT_PHONE.replace(/^(\d{4})(\d{3})(\d{4})$/, "$1 $2 $3");
   var PHONE_HREF = "tel:+63" + CONTACT_PHONE.replace(/^0/, "");
+  /* Phones and tablets say "Tap"; computers say "Click". */
+  var TOUCH = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  var TAP = TOUCH ? "Tap" : "Click";
 
   /* ---------- Icons (24 x 24, stroked) ---------- */
   var ICON = {
@@ -709,8 +719,9 @@ a{color:var(--sea)}
     for (var i = 0; i < 5; i++) bars += '<rect x="10" y="' + (11 + i * 7.6) + '" width="54" height="4.2" rx="2.1" fill="#C3D3CB"/><rect class="bar-fill" data-bar="' + i + '" x="10" y="' + (11 + i * 7.6) + '" width="' + [44, 54, 36, 30, 40][i] + '" height="4.2" rx="2.1" fill="' + ["#1F7A8C", "#D9483B", "#7A5BA6", "#F2B33D", "#5E8C4A"][i] + '"/>';
     return stageSvg(
       '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.28)"/>' +
-      '<g><rect x="26" y="22" width="56" height="34" rx="6" fill="#13261D"/><text x="54" y="45" text-anchor="middle" font-size="17" font-weight="800" fill="#F2B33D" font-family="sans-serif">07</text>' +
-      '<circle cx="320" cy="40" r="16" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M320 31v9l6 4" stroke="#13261D" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+      '<g><rect x="30" y="16" width="46" height="46" rx="5" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M30 21a5 5 0 0 1 5-5h36a5 5 0 0 1 5 5v9H30Z" fill="#D9483B" stroke="#13261D" stroke-width="2"/>' +
+      '<text id="pc-mon" x="53" y="27.5" text-anchor="middle" font-size="9" font-weight="800" fill="#FFFFFF" font-family="sans-serif">Oct</text><text id="pc-day" x="53" y="53" text-anchor="middle" font-size="19" font-weight="800" fill="#13261D" font-family="sans-serif">1</text>' +
+      '<circle cx="320" cy="40" r="16" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path id="pc-h" d="M320 40V32" stroke="#13261D" stroke-width="2.6" stroke-linecap="round"/><path id="pc-m" d="M320 40V28" stroke="#13261D" stroke-width="1.8" stroke-linecap="round"/><circle cx="320" cy="40" r="1.6" fill="#13261D"/>' +
       '<rect x="92" y="16" width="176" height="152" rx="14" fill="#F7FBF8" opacity=".55"/></g>' +
       '<g><path d="M124 170 C126 134 148 124 180 124 C212 124 234 134 236 170Z" fill="#7A5BA6" stroke="#13261D" stroke-width="1.5"/>' +
       '<path d="M167 124 l13 15 l13 -15" fill="#F7FBF8" stroke="#13261D" stroke-width="1.2"/><path d="M170 126 l10 22 l10 -22" stroke="#F2B33D" stroke-width="2.2" fill="none"/><rect x="173.5" y="146" width="13" height="16" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.2"/>' +
@@ -811,9 +822,9 @@ a{color:var(--sea)}
     var spots = [[6, 10], [19, 19], [32, 8], [45, 18], [58, 7], [71, 17], [84, 9], [95, 20], [8, 84], [22, 93], [36, 83], [50, 93], [64, 82], [78, 92], [92, 83]];
     var tiles = MOMENTS.map(function (s, i) {
       var p = spots[i];
-      return '<span class="t" style="--x:' + p[0] + "%;--y:" + p[1] + "%;--d:" + (4 + (i % 4) * 3) + '"><span style="background:' + s.bg + ";color:" + (s.ink === "light" ? "#F4F8F5" : "#13261D") + ";animation-delay:" + (120 + i * 60) + 'ms">' + icon(s.icon) + "</span></span>";
+      return '<span class="t' + (p[1] > 14 && p[1] < 50 ? " mid" : "") + '" style="--x:' + p[0] + "%;--y:" + p[1] + "%;--d:" + (4 + (i % 4) * 3) + '"><span style="background:' + s.bg + ";color:" + (s.ink === "light" ? "#F4F8F5" : "#13261D") + ";animation-delay:" + (120 + i * 60) + 'ms">' + icon(s.icon) + "</span></span>";
     }).join("");
-    return '<div class="hero" aria-hidden="true">' + tiles + '</div><div class="title"><h1 id="h-intro" tabindex="-1">VSUrvey</h1><p>Short scenes from a day on campus. Tap what\'s true for you.</p></div>';
+    return '<div class="hero" aria-hidden="true">' + tiles + '</div><div class="title"><h1 id="h-intro" tabindex="-1">VSUrvey</h1><p class="label">' + esc(SURVEY_LABEL) + '</p><p>Short scenes from a day on campus. ' + TAP + ' what\'s true for you.</p></div>';
   }
 
   /* ---------- What is recorded ---------- */
@@ -891,7 +902,7 @@ a{color:var(--sea)}
   step({ id: "scholarship", box: "pass", ch: 2, kind: "tiles", key: "scholarship", cols: "t3", kicker: "Your pass, 4 of 5", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() });
   step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2700,
     beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : 1700; } return 0; } });
-  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: "Tap every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
+  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: TAP + " every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
     opts: OPT.sources.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
   step({ id: "mainSource", box: "news", ch: 3, kind: "pick", key: "mainSource", kicker: "Your phone", prompt: "Which one do you rely on most?", core: true, when: function () { return realSources().length > 1; } });
   step({ id: "dataSpend", box: "data", ch: 4, kind: "tiles", key: "dataSpend", cols: "t3", kicker: "Mobile data, 1 of 3", prompt: "In a usual week of classes, about how much do you spend on mobile data?", core: true,
@@ -906,7 +917,7 @@ a{color:var(--sea)}
     step({ id: "m-" + m.k, box: "m-" + m.k, ch: 6, kind: "moment", k: m.k, kicker: "Scene " + (i + 1) + " of " + MOMENTS.length, prompt: m.title, hint: i === 0 ? "moment" : null, core: true });
   });
   step({ id: "map", box: "map", ch: 7, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", hint: "map" });
-  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: "Tap a jar to drop a coin in. Several in one jar is fine.", hint: "jars" });
+  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", hint: "jars" });
   step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
   step({ id: "trust", box: "trust", ch: 10, kind: "scale", key: "trust", kicker: "In the group chat", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true });
   step({ id: "postedAnonymously", box: "anon", ch: 10, kind: "tiles", key: "postedAnonymously", cols: "t3", kicker: "In the group chat", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() });
@@ -954,8 +965,12 @@ a{color:var(--sea)}
 
   var RENDER = {
     intro: function () {
-      return '<p class="intro-p">This survey asks about student life and VSU\'s services, for Project CAMPUS, an independent proposal by a VSU alumnus. It is not an official VSU survey. Your answers carry no name, so please don\'t name anyone in them.</p>' +
-        '<div class="how">' + icon("tap") + "<span>Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip.</span></div>" +
+      return '<div class="letter"><p>Dear respondent,</p>' +
+        "<p>This survey asks about student life and VSU's services: which campus problems are common, and how serious they are. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
+        "<p>In line with the Data Privacy Act of 2012 (Republic Act No. 10173), your answers carry no name, are used only for this study, and are kept confidential. Please don't name anyone in them.</p>" +
+        '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
+        '<div class="how">' + icon("tap") + "<span>" + (TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
+        (/^https:\/\//.test(FORM_URL) ? '<p class="note">Prefer a plain form? <a href="' + esc(FORM_URL) + '" target="_blank" rel="noopener">Answer in Google Forms instead</a>. Please answer only once.</p>' : "") +
         '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">This might take 5\u201310 minutes.</span></div>';
     },
     consent: function () {
@@ -1306,7 +1321,7 @@ a{color:var(--sea)}
     return y < 236 ? "the highway" : "the shore";
   }
   function addPin(x, y) {
-    if (A.pins.length >= 3) { $("#map-count").textContent = "3 of 3 pins. Tap a pin to choose it, or remove one."; return false; }
+    if (A.pins.length >= 3) { $("#map-count").textContent = "3 of 3 pins. " + TAP + " a pin to choose it, or remove one."; return false; }
     x = Math.max(8, Math.min(312, Math.round(x)));
     y = Math.max(18, Math.min(248, Math.round(y)));
     A.pins.push({ x: x, y: y, near: describe(x, y), why: null });
@@ -1324,7 +1339,7 @@ a{color:var(--sea)}
   }
   function syncMap() {
     var n = A.pins.length, pin = A.pins[activePin];
-    $("#map-count").textContent = n + " of 3 pins" + (n ? ". Tap a pin to choose it." : "");
+    $("#map-count").textContent = n + " of 3 pins" + (n ? ". " + TAP + " a pin to choose it." : "");
     $("#pin-why").hidden = !pin;
     if (pin) $("#why-q").textContent = "What went wrong at pin " + (activePin + 1) + ", near " + pin.near + "?";
     syncStep(stepById.map);
@@ -1765,6 +1780,7 @@ a{color:var(--sea)}
   function record() {
     var r = JSON.parse(JSON.stringify(A));
     r.variant = "scenes";
+    r.survey = SURVEY_ID;
     r.version = SURVEY_VERSION;
     r.sentAt = new Date().toISOString();
     r.test = TEST;
@@ -1811,6 +1827,16 @@ a{color:var(--sea)}
   else if (!LIVE && ON_PRODUCTION) setFlag("Not open yet", ": nothing is sent");
   else if (!LIVE) setFlag("Preview", ": nothing is sent");
   go("intro", 1, true);
+  /* The counter shows today's date and the time where the respondent is. */
+  function tickClock() {
+    var d = new Date(), svg = $(".scene", boxEls.pass);
+    $("#pc-mon", svg).textContent = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
+    $("#pc-day", svg).textContent = String(d.getDate());
+    $("#pc-h", svg).setAttribute("transform", "rotate(" + ((d.getHours() % 12) * 30 + d.getMinutes() / 2) + " 320 40)");
+    $("#pc-m", svg).setAttribute("transform", "rotate(" + (d.getMinutes() * 6) + " 320 40)");
+  }
+  tickClock();
+  setInterval(tickClock, 30000);
   window.__survey.go = function (id) { go(id, 1, true); };
   window.__survey.steps = function () { return list().map(function (s) { return s.id; }); };
   window.__survey.current = function () { return curId; };

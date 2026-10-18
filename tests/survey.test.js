@@ -167,6 +167,10 @@ function rowOf(r) {
       assert.strictEqual(t.posts.length, 1, "expected one POST, got " + t.posts.length);
       const r = JSON.parse(t.posts[0]);
       assert.strictEqual(r.version, "scenes-v2");
+      assert.strictEqual(r.survey, "student-life-2026");
+      assert.strictEqual(rowOf(r).survey, "student-life-2026");
+      const how = await t.page.evaluate(() => document.querySelector(".how span").textContent);
+      assert.ok(how.indexOf(mobile ? "Tap an answer" : "Click an answer") === 0, "the intro says " + (mobile ? "Tap" : "Click") + " on a " + label + ": " + how);
       assert.strictEqual(r.consent, true);
       assert.strictEqual(r.age18, true);
       assert.strictEqual(r.test, false);

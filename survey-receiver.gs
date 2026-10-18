@@ -65,7 +65,7 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
   "once your interview is done, or three months after you sign up if you aren't interviewed.";
 
 function headers_() {
-  var h = ["receivedAt", "startedAt", "sentAt", "variant", "version", "test", "consent", "age18",
+  var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
     "residence", "year", "faculty", "org", "scholarship", "firstGen"];
   multiHeaders_(h, "uses", SOURCES);
   h.push("mainSource", "dataSpend", "dataSchool", "online", "scenario");
@@ -111,7 +111,7 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 function row_(r, now) {
   var board = obj_(r.board), coins = obj_(r.coins);
   var pins = Array.isArray(r.pins) ? r.pins.slice(0, MAX_PINS) : [];
-  var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.variant), cell_(r.version), r.test === true,
+  var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
     r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.year), cell_(r.faculty, 100),
     cell_(r.org), cell_(r.scholarship), cell_(r.firstGen)];
   multiCells_(row, r.sources, SOURCES, r.sourcesOther);
