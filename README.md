@@ -1,4 +1,4 @@
-# istorya-sa-vsu
+# VSUrvey
 
 VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, in the scenes format (D-037).
 

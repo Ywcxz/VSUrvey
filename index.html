@@ -441,7 +441,7 @@ a{color:var(--sea)}
   "use strict";
   /* ---------- Settings ---------- */
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbwIJSs4WGaK4mMbcqgrjOkXLecEtqzOkS2zaivv7rfCqAXFmwhmb0RsWXlfPpLrvuY1MA/exec";  // Apps Script web app (survey-receiver.gs)
-  var PRODUCTION_HOST = "istorya-sa-vsu.vercel.app";  // answers are sent only from this address; previews send nothing
+  var PRODUCTION_HOSTS = ["istorya-sa-vsu.vercel.app"];  // answers are sent only from these addresses; previews send nothing
   var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
   var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
@@ -458,7 +458,7 @@ a{color:var(--sea)}
   function replay(node, cls) { if (!node) return; node.classList.remove(cls); void node.getBoundingClientRect(); node.classList.add(cls); }
   var params = (function () { try { return new URLSearchParams(location.search); } catch (e) { return null; } })();
   var TEST = !!(params && params.get("test") === "1");
-  var ON_PRODUCTION = location.hostname === PRODUCTION_HOST;
+  var ON_PRODUCTION = PRODUCTION_HOSTS.indexOf(location.hostname) >= 0;
   var LIVE = /^https:\/\/script\.google\.com\//.test(ENDPOINT) && ON_PRODUCTION && (OPEN || TEST);
   var mqReduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   function calm() { return !!(mqReduce && mqReduce.matches); }
@@ -1612,7 +1612,7 @@ a{color:var(--sea)}
 
   /* The phone's back button goes back one step, not out of the survey. */
   var guarded = false;
-  function guardHistory() { if (!guarded && window.history && history.pushState) { try { history.pushState({ istorya: 1 }, ""); guarded = true; } catch (e) { guarded = false; } } }
+  function guardHistory() { if (!guarded && window.history && history.pushState) { try { history.pushState({ vsurvey: 1 }, ""); guarded = true; } catch (e) { guarded = false; } } }
   window.addEventListener("popstate", function () {
     if (!guarded) return;
     guarded = false;

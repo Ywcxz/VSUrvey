@@ -1,5 +1,5 @@
 {
-  "name": "istorya-sa-vsu-tests",
+  "name": "vsurvey-tests",
   "private": true,
   "description": "Walks the survey in a headless browser with made-up answers and checks what it would send.",
   "scripts": { "test": "node survey.test.js" },
