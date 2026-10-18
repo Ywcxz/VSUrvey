@@ -51,6 +51,12 @@ async function open(browser, o = {}) {
 }
 
 const current = page => page.evaluate(() => window.__survey.current());
+/* On phones Send sits in the bottom bar; on computers it is the button in the panel. */
+async function sendIt(page) {
+  if (await page.locator("#send").isVisible()) return page.click("#send");
+  assert.strictEqual(await page.locator("#next-lbl").textContent(), "Send", "the bottom bar offers Send on a phone");
+  return page.click("#next");
+}
 async function at(page, id, shot) {
   await page.waitForFunction(x => window.__survey.current() === x, id, { timeout: 8000 });
   await page.waitForTimeout(420);
@@ -144,7 +150,7 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "send", shot);
   await page.fill("#comment", "Will the results be shared with students?");
-  await page.click("#send");
+  await sendIt(page);
   await at(page, "final", shot);
 }
 
@@ -247,7 +253,7 @@ function rowOf(r) {
     }
     await at(t.page, "send");
     assert.ok((await t.page.locator("#skipped").textContent()).indexOf("You skipped") === 0);
-    await t.page.click("#send");
+    await sendIt(t.page);
     await at(t.page, "final");
     const r = JSON.parse(t.posts[0]);
     assert.strictEqual(r.residence, null);
@@ -285,7 +291,7 @@ function rowOf(r) {
     await at(t.page, "home");
     await t.page.evaluate(() => window.__survey.go("send"));
     await at(t.page, "send");
-    await t.page.click("#send");
+    await sendIt(t.page);
     await at(t.page, "final");
     assert.strictEqual(t.posts.length, 0);
     assert.ok(await t.page.locator("#payload").isVisible());
@@ -302,7 +308,7 @@ function rowOf(r) {
     await at(t.page, "home");
     await t.page.evaluate(() => window.__survey.go("send"));
     await at(t.page, "send");
-    await t.page.click("#send");
+    await sendIt(t.page);
     await at(t.page, "final");
     assert.strictEqual(t.posts.length, 0);
     await t.ctx.close();
@@ -316,7 +322,7 @@ function rowOf(r) {
     await at(t.page, "home");
     await t.page.evaluate(() => window.__survey.go("send"));
     await at(t.page, "send");
-    await t.page.click("#send");
+    await sendIt(t.page);
     await at(t.page, "final");
     const r = JSON.parse(t.posts[0]);
     assert.strictEqual(r.test, true);
@@ -384,6 +390,40 @@ function rowOf(r) {
         }, { id, mobile });
         assert.deepStrictEqual(hidden, [], id + ": answers below the fold");
       }
+      await t.ctx.close();
+    });
+  }
+
+  for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 664 }, { width: 412, height: 720 }, { width: 390, height: 844 }, { width: 1366, height: 768 }]) {
+    await check("from the news to Send, every answer is in view without scrolling at " + vp.width + "x" + vp.height, async () => {
+      const mobile = vp.width < 700;
+      const t = await open(browser, { viewport: vp, mobile, reduced: true });
+      await t.page.click("#start");
+      await at(t.page, "consent");
+      await t.page.click(inStep("consent", ".agree"));
+      await at(t.page, "home");
+      const fold = ({ id, mobile }) => {
+        const p = document.querySelector('[data-step="' + id + '"]'), pr = p.getBoundingClientRect();
+        const n = document.getElementById("next"), nr = n.getBoundingClientRect();
+        const bottom = mobile ? Math.min(innerHeight - 84, n.hidden ? innerHeight : nr.top) : Math.min(pr.bottom, innerHeight);
+        return Array.from(p.querySelectorAll("[data-v], textarea, #send")).filter(e => e.offsetParent !== null && true).filter(e => { const b = e.getBoundingClientRect(); return b.bottom > bottom + 1 || b.top < pr.top - 1; }).map(e => e.dataset.v || e.id);
+      };
+      // Nine scenes happened, so the coins step shows nine jars.
+      const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
+      await t.page.evaluate(() => { window.__survey.answers.sources = ["Email", "Campus bulletin boards"]; });
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["sources", "mainSource", "dataSpend", "dataSchool", "online", "scenario", "map", "coins", "story", "trust", "postedAnonymously", "wouldUse", "postPreference", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      for (const id of ids) {
+        await t.page.evaluate(x => window.__survey.go(x), id);
+        await at(t.page, id);
+        if (id.startsWith("m-")) {
+          // "Once or twice" for the first nine scenes, "It never happened" after; the follow-up must fit too.
+          await t.page.click(inStep(id, '[data-key^="often"] .chip:nth-child(' + (scenes.indexOf(id) < 9 ? 2 : 1) + ")"));
+          await t.page.evaluate(x => window.__survey.go(x), id);
+        }
+        if (id === "map") await t.page.click(inStep("map", ".pinpick .chip"));
+        assert.deepStrictEqual(await t.page.evaluate(fold, { id, mobile }), [], id + ": answers below the fold");
+      }
+      if (mobile) assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Send", "Send is in the bottom bar");
       await t.ctx.close();
     });
   }

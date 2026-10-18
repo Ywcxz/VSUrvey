@@ -71,6 +71,11 @@ button,a,input,textarea{touch-action:manipulation}
   .lede.spare{display:none}
 }
 .box[data-size="tall"]{--stage-h:44vh}
+.box[data-size="bare"]{--stage-h:16vh}
+@media (max-height:720px){ .box[data-size="bare"]{--stage-h:12vh} .box[data-size="tall"]{--stage-h:34vh} }
+@media (max-width:699px) and (min-height:721px){ .box[data-size="tall"]{--stage-h:38vh} }
+@media (max-height:680px){ .box[data-size="tall"]{--stage-h:30vh} }
+@media (max-width:699px) and (max-height:760px){ .box[data-size="bare"] .stage{display:none} }
 .box.nostage .stage{display:none}
 .sheet{position:relative;flex:1;min-height:0;background:var(--card);color:var(--ink);border-radius:28px 28px 0 0;box-shadow:var(--shadow)}
 .panel{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 18px calc(96px + env(safe-area-inset-bottom,0px));scrollbar-width:thin;will-change:transform,opacity}
@@ -417,6 +422,56 @@ a{color:var(--sea)}
 .menu-list button[aria-current="step"]{background:var(--pick);box-shadow:inset 0 0 0 2px var(--mango)}
 .menu-list small{font:400 13.5px var(--body);color:var(--ink-soft)}
 
+/* Phones: the later scenes lay their answers out tighter, so every answer is in view without scrolling. */
+@media (max-width:699px){
+  .vigs{gap:8px}
+  .vig{flex-direction:row;align-items:center;gap:8px;padding:6px;border-radius:16px}
+  .vig .art{flex:none;width:50px;aspect-ratio:1/1;border-radius:10px}
+  .vig .lbl{font-size:13px;line-height:1.17;padding:0 12px 0 0}
+  .vig[aria-pressed="true"]::after{top:6px;right:6px;width:18px;height:18px;background-size:12px}
+  .none-row{margin-top:8px}
+  .none-row .chip{padding:7px 14px;min-height:38px;font-size:14.5px}
+  .chips.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .chips.grid2 .chip{border-radius:14px;padding:4px 8px;min-height:40px;font-size:13px;line-height:1.16;text-align:left}
+  .chips.grid2 .chip.icon{gap:7px;padding-left:9px}
+  .chips.grid2 .chip.icon svg{width:17px;height:17px}
+  .mbox .statement{font-size:17px;margin-bottom:10px}
+  .mbox .q{margin-top:10px;margin-bottom:6px;font-size:14.5px}
+  .mbox .chips{gap:6px}
+  .mbox .chip{padding:7px 13px;min-height:40px;font-size:15px}
+  .jars{gap:6px}
+  .jarbox{padding:6px 4px 7px;gap:3px;border-radius:14px}
+  .jar{width:30px;height:34px;border-width:2px;border-top-width:3px;padding:2px 0}
+  .jar i{width:20px;height:3px}
+  .jarbox .ic{top:5px;left:5px;width:20px;height:20px;border-radius:6px}
+  .jarbox .ic svg{width:13px;height:13px}
+  .jarbox .lbl{font-size:11.5px;line-height:1.15;min-height:0}
+  .jarbox .n{font-size:12.5px}
+  .jarbox .minus{top:4px;right:4px;width:24px;height:24px;font-size:15px}
+  .purse{position:sticky;top:-20px;z-index:3;background:var(--card);margin:0 -18px 8px;padding:6px 18px}
+  .purse .coinstack i{width:13px;height:13px}
+  .purse b{font-size:16px}
+  [data-step="send"] .sendrow{display:none}
+  .chips.c4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .mbox .chips.c4 .chip{padding:6px 4px;font-size:13.5px;line-height:1.15;text-align:center;border-radius:14px}
+  .pinpick{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .pinpick .chip{flex:none;padding:6px 11px;min-height:38px;font-size:14px}
+  #pin-why:not([hidden]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:center}
+  #pin-why .q{grid-column:1/-1;margin:10px 0 0}
+  #pin-why .chips.grid2{display:contents}
+  #pin-why .chip{min-height:36px;font-size:14px}
+  #pin-why>p:last-child{margin:0 !important;text-align:center}
+  #comment{min-height:72px}
+}
+@media (max-width:699px) and (max-height:720px){
+  .mbox .statement{font-size:16px;line-height:1.3}
+}
+/* Short phones: once a follow-up question opens, the drawing above gives it room. */
+@media (max-width:699px){ .box[data-box="map"].pinning .pinpick{margin-top:8px} .box[data-box="map"].pinning .kicker,.box[data-box="map"].pinning .count,.box[data-box="map"].pinning #area-q{display:none} }
+@media (max-width:699px) and (max-height:760px){
+  .box.mbox.sev-on{--stage-h:13vh}
+}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
   .idcard.printing{opacity:1;transform:translate(-50%,-50%)}
@@ -467,6 +522,9 @@ a{color:var(--sea)}
   /* Phones and tablets say "Tap"; computers say "Click". */
   var TOUCH = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
   var TAP = TOUCH ? "Tap" : "Click";
+  /* Narrow screens put Send in the bottom bar, where it is always in view. */
+  var mqPhone = window.matchMedia ? window.matchMedia("(max-width: 699px)") : null;
+  function onPhone() { return !!(mqPhone && mqPhone.matches); }
 
   /* ---------- Icons (24 x 24, stroked) ---------- */
   var ICON = {
@@ -902,7 +960,7 @@ a{color:var(--sea)}
   step({ id: "scholarship", box: "pass", ch: 2, kind: "tiles", key: "scholarship", cols: "t3", kicker: "Your pass, 4 of 5", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() });
   step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2700,
     beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : 1700; } return 0; } });
-  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: TAP + " every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
+  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", size: "tight", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: TAP + " every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
     opts: OPT.sources.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
   step({ id: "mainSource", box: "news", ch: 3, kind: "pick", key: "mainSource", kicker: "Your phone", prompt: "Which one do you rely on most?", core: true, when: function () { return realSources().length > 1; } });
   step({ id: "dataSpend", box: "data", ch: 4, kind: "tiles", key: "dataSpend", cols: "t3", kicker: "Mobile data, 1 of 3", prompt: "In a usual week of classes, about how much do you spend on mobile data?", core: true,
@@ -911,20 +969,20 @@ a{color:var(--sea)}
     opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) });
   step({ id: "online", box: "data", ch: 4, kind: "tiles", key: "online", kicker: "Mobile data, 3 of 3", prompt: "During class hours, how do you usually get online?", core: true,
     opts: OPT.online.map(function (o) { return { v: o[0], art: function () { return TILE.net(o[1]); } }; }) });
-  step({ id: "scenario", box: "errand", ch: 5, kind: "vigs", key: "scenario", cols: "v3", kicker: "An office errand", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
+  step({ id: "scenario", box: "errand", ch: 5, kind: "vigs", key: "scenario", cols: "v3", size: "tight", kicker: "An office errand", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
     opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
   MOMENTS.forEach(function (m, i) {
     step({ id: "m-" + m.k, box: "m-" + m.k, ch: 6, kind: "moment", k: m.k, kicker: "Scene " + (i + 1) + " of " + MOMENTS.length, prompt: m.title, hint: i === 0 ? "moment" : null, core: true });
   });
-  step({ id: "map", box: "map", ch: 7, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", hint: "map" });
+  step({ id: "map", box: "map", ch: 7, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", spareLede: true, hint: "map" });
   step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", hint: "jars" });
   step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
   step({ id: "trust", box: "trust", ch: 10, kind: "scale", key: "trust", kicker: "In the group chat", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true });
   step({ id: "postedAnonymously", box: "anon", ch: 10, kind: "tiles", key: "postedAnonymously", cols: "t3", kicker: "In the group chat", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() });
-  step({ id: "wouldUse", box: "net", ch: 11, kind: "chipsMulti", key: "wouldUse", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 1 of 3", prompt: "Picture an online network that VSU runs for its students, faculty, and staff. What would make you use it?", lede: "It's an idea being explored, not a VSU plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "postPreference", box: "net", ch: 11, kind: "tiles", key: "postPreference", kicker: "A network idea, 2 of 3", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+  step({ id: "wouldUse", box: "net", ch: 11, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 1 of 3", prompt: "Picture an online network that VSU runs for its students, faculty, and staff. What would make you use it?", lede: "It's an idea being explored, not a VSU plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "postPreference", box: "net", ch: 11, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 2 of 3", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "keepAway", box: "net", ch: 11, kind: "chipsMulti", key: "keepAway", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 3 of 3", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "keepAway", box: "net", ch: 11, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 3 of 3", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
   step({ id: "send", box: "send", ch: 12, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
   step({ id: "final", box: "final", ch: 12, kind: "final", noMenu: true, when: function () { return sent; } });
 
@@ -1002,12 +1060,12 @@ a{color:var(--sea)}
       return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(m.title) + '</h2><p class="statement">“' + esc(m.text) + "”</p>" +
         '<p class="q" id="q-often-' + m.k + '">In the past 12 months at VSU, how often did this happen to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
         OPT.often.map(function (o, i) { return chipBtn(o[1], o[0], i); }).join("") + "</div>" +
-        '<div class="sev" data-sev="' + m.k + '" hidden><p class="q" id="q-matters-' + m.k + '">How much of a problem was it?</p><div class="chips" data-key="matters:' + m.k + '" role="group" aria-labelledby="q-matters-' + m.k + '">' +
+        '<div class="sev" data-sev="' + m.k + '" hidden><p class="q" id="q-matters-' + m.k + '">How much of a problem was it?</p><div class="chips c4" data-key="matters:' + m.k + '" role="group" aria-labelledby="q-matters-' + m.k + '">' +
         OPT.matters.map(function (o, i) { return chipBtn(o, o, i); }).join("") + "</div></div>";
     },
     map: function (s) {
       return head(s) + '<div class="answers"><p class="count"><span id="map-count">0 of 3 pins</span><span>A sketch, not to scale</span></p>' +
-        '<div id="pin-why" hidden><p class="q" id="why-q">What went wrong at pin 1?</p><div class="chips" data-key="why" role="group" aria-labelledby="why-q">' + OPT.why.map(function (o, i) { return chipBtn(o, o, i); }).join("") + "</div>" +
+        '<div id="pin-why" hidden><p class="q" id="why-q">What went wrong at pin 1?</p><div class="chips grid2" data-key="why" role="group" aria-labelledby="why-q">' + OPT.why.map(function (o, i) { return chipBtn(o, o, i); }).join("") + "</div>" +
         '<p style="margin:12px 0 0"><button type="button" class="linkbtn" id="pin-remove">Remove this pin</button></p></div>' +
         '<p class="q" id="area-q">Or add a pin by area</p><div class="pinpick" data-key="area" role="group" aria-labelledby="area-q">' + AREAS.map(function (a, i) { return '<button type="button" class="chip" data-v="' + i + '">' + esc(a.n) + "</button>"; }).join("") + "</div></div>";
     },
@@ -1025,7 +1083,7 @@ a{color:var(--sea)}
         '</div><div class="range-ends" aria-hidden="true"><span>Not at all</span><span>Completely</span></div></div>';
     },
     chipsMulti: function (s) {
-      return head(s) + '<div class="answers"><div class="chips" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) {
+      return head(s) + '<div class="answers"><div class="chips grid2" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) {
         return '<button type="button" class="chip icon" data-v="' + esc(o[0]) + '" aria-pressed="false" style="--i:' + i + '">' + icon(o[1]) + "<span>" + esc(o[0]) + "</span></button>";
       }).join("") + "</div>" + otherField(s) + "</div>";
     },
@@ -1290,7 +1348,9 @@ a{color:var(--sea)}
   /* Scenes: the calendar marks how often; the backpack carries how much it mattered. */
   function syncMoment(k, what) {
     var box = boxEls["m-" + k], a = A.board[k], panel = panelEls["m-" + k];
-    $('[data-sev="' + k + '"]', panel).hidden = !(a && HAPPENED.indexOf(a.often) >= 0);
+    var sevOn = !!(a && HAPPENED.indexOf(a.often) >= 0);
+    $('[data-sev="' + k + '"]', panel).hidden = !sevOn;
+    boxEls["m-" + k].classList.toggle("sev-on", sevOn);
     if (what !== "matters") {
       var n = a ? MARKS[a.often] || 0 : 0;
       $(".cal-marks", box).innerHTML = MARK_ORDER.slice(0, n).map(function (ci, j) {
@@ -1341,6 +1401,7 @@ a{color:var(--sea)}
     var n = A.pins.length, pin = A.pins[activePin];
     $("#map-count").textContent = n + " of 3 pins" + (n ? ". " + TAP + " a pin to choose it." : "");
     $("#pin-why").hidden = !pin;
+    boxEls.map.classList.toggle("pinning", !!pin);
     if (pin) $("#why-q").textContent = "What went wrong at pin " + (activePin + 1) + ", near " + pin.near + "?";
     syncStep(stepById.map);
   }
@@ -1562,7 +1623,18 @@ a{color:var(--sea)}
   function updateNav() {
     var s = stepById[curId], d = done(s);
     prevBtn.hidden = !prevOf(s) || s.kind === "final";
-    nextBtn.hidden = ["intro", "send", "final"].indexOf(s.kind) >= 0;
+    var sendBar = s.kind === "send" && onPhone();
+    nextBtn.hidden = ["intro", "final"].indexOf(s.kind) >= 0 || (s.kind === "send" && !sendBar);
+    nextBtn.classList.toggle("sendbar", sendBar);
+    if (sendBar) {
+      var sb = $("#send");
+      nextLbl.textContent = sb.textContent === "Send my answers" ? "Send" : sb.textContent;
+      nextBtn.classList.toggle("ready", !sb.disabled);
+      nextBtn.classList.remove("locked");
+      nextBtn.setAttribute("aria-disabled", String(sb.disabled));
+      nextBtn.setAttribute("aria-label", sb.textContent);
+      return;
+    }
     var locked = !!s.lock && !d;
     nextBtn.classList.toggle("locked", locked);
     nextBtn.setAttribute("aria-disabled", String(locked));
@@ -1581,7 +1653,8 @@ a{color:var(--sea)}
 
   window.addEventListener("resize", function () { if (curId) placeTalk(boxEls[stepById[curId].box]); });
   prevBtn.addEventListener("click", function () { goBack(); });
-  nextBtn.addEventListener("click", function () { goNext(); });
+  nextBtn.addEventListener("click", function () { if (nextBtn.classList.contains("sendbar")) { $("#send").click(); return; } goNext(); });
+  if (mqPhone && mqPhone.addEventListener) mqPhone.addEventListener("change", function () { if (curId) updateNav(); });
   $("#start").addEventListener("click", function () { goNext(); });
 
   /* Keyboard: arrows move between steps, Escape closes the menu. */
@@ -1772,6 +1845,7 @@ a{color:var(--sea)}
     var btn = $("#send");
     btn.disabled = sent || sending;
     btn.textContent = sent ? (LIVE ? "Sent" : "Recorded") : "Send my answers";
+    if (curId === "send") updateNav();
   }
   $("#skipped").addEventListener("click", function (e) {
     var b = e.target.closest("[data-jump-to]");
@@ -1795,6 +1869,7 @@ a{color:var(--sea)}
       btn.textContent = LIVE ? "Sent" : "Recorded";
       btn.disabled = true;
       note.textContent = "";
+      updateNav();
       if (!LIVE) { $("#payload").textContent = JSON.stringify(r, null, 2); $("#payload-wrap").hidden = false; }
       setTimeout(function () { go("final", 1); }, calm() ? 0 : 700);
     }
@@ -1802,13 +1877,16 @@ a{color:var(--sea)}
     sending = true;
     btn.disabled = true;
     btn.textContent = "Sending…";
+    updateNav();
     fetch(ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(r) })
       .then(finish)
       .catch(function () {
         sending = false;
         btn.disabled = false;
         btn.textContent = "Try again";
-        note.textContent = "Couldn't send. Check your connection, then tap Try again. Your answers are still here.";
+        note.textContent = "Couldn't send. Check your connection, then " + TAP.toLowerCase() + " Try again. Your answers are still here.";
+        updateNav();
+        if (onPhone()) note.scrollIntoView({ block: "nearest" });
       });
   });
   function buildFinal() {
