@@ -19,7 +19,8 @@ const HTML = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 /* The page ships closed (OPEN = false) until VSU's permission is in hand; most tests open it. */
 const HTML_OPEN = HTML.replace("var OPEN = false;", "var OPEN = true;");
 assert.notStrictEqual(HTML_OPEN, HTML, "index.html must declare var OPEN = false;");
-const PROD = "https://istorya-sa-vsu.vercel.app/";
+const PROD = "https://project-campus-vsurvey.vercel.app/";
+const OLD_PROD = "https://istorya-sa-vsu.vercel.app/";
 const PREVIEW = "https://istorya-preview.example/";
 const SHOTS = process.env.SHOTS || "";
 const EXE = process.env.CHROMIUM || (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined);
@@ -41,7 +42,7 @@ async function open(browser, o = {}) {
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.route("**/*", route => {
     const req = route.request(), u = req.url();
-    if (u.startsWith(PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.closed ? HTML : HTML_OPEN });
+    if (u.startsWith(PROD) || u.startsWith(OLD_PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.closed ? HTML : HTML_OPEN });
     if (u.startsWith("https://script.google.com/")) { posts.push(req.postData()); return route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }); }
     return route.abort();
   });
@@ -266,6 +267,12 @@ function rowOf(r) {
       await t.ctx.close();
     });
   }
+
+  await check("the old address still counts as live during the switch", async () => {
+    const t = await open(browser, { host: OLD_PROD });
+    assert.strictEqual(await t.page.evaluate(() => window.__survey.live), true);
+    await t.ctx.close();
+  });
 
   await check("a preview address sends nothing and shows the record instead", async () => {
     const t = await open(browser, { host: PREVIEW });
