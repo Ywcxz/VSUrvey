@@ -52,6 +52,7 @@ button,a,input,textarea{touch-action:manipulation}
 .chap{min-width:0}
 /* The news questions run long; on short phones their heading steps down a size so the eight channels stay in view. */
 @media (max-width:699px) and (max-height:700px){ .box[data-box="news"] .prompt{font-size:19px} }
+@media (max-width:699px) and (max-height:660px){ .box[data-box="news"] .prompt{font-size:17.5px;line-height:1.12;max-width:none} }
 .chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dots{display:flex;gap:4px;align-items:center;flex:none}
 .dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
@@ -81,6 +82,12 @@ button,a,input,textarea{touch-action:manipulation}
 @media (max-height:680px){ .box[data-size="tall"]{--stage-h:30vh} }
 @media (max-width:699px) and (max-height:760px){ .box[data-size="bare"] .stage{display:none} }
 .box.nostage .stage{display:none}
+/* Hearing from VSU: a short drawing of the topic, kept on phones, with the channel tiles tightened to make room. */
+.box[data-size="news"]{--stage-h:18vh}
+.topic{opacity:0;transition:opacity .3s}
+.topic.on{opacity:1}
+@media (max-width:699px){ .box[data-size="news"]{--stage-h:14vh} .box[data-size="news"] .stage{padding-bottom:4px} }
+@media (max-width:699px) and (max-height:720px){ .box[data-size="news"]{--stage-h:9.5vh} .vigs[data-part="pick"]{gap:6px} .vigs[data-part="pick"] .vig{padding:4px;gap:6px} .vigs[data-part="pick"] .vig .art{width:40px} .box[data-size="news"] .kicker{margin-bottom:2px} }
 /* Parts whose answers run long show their drawing only where the screen has room for it. */
 @media (max-width:699px) and (max-height:760px){ .box.talls .stage{display:none} }
 .sheet{position:relative;flex:1;min-height:0;background:var(--card);color:var(--ink);border-radius:28px 28px 0 0;box-shadow:var(--shadow)}
@@ -88,7 +95,7 @@ button,a,input,textarea{touch-action:manipulation}
 .panel-in{max-width:620px;margin:0 auto}
 .sheet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--card) 62%);pointer-events:none;border-radius:0}
 .box.intro .sheet::after{display:none}
-@media (max-height:720px){ .box.mbox{--stage-h:27vh} }
+@media (max-height:720px){ .box.mbox{--stage-h:13vh} }
 @media (max-width:380px){ .chip{padding:9px 12px;font-size:15px} .tile .lbl,.vig .lbl{font-size:14px} }
 .nudge-me{animation:nudgeMe .6s ease-in-out 2}
 @keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -442,7 +449,12 @@ a{color:var(--sea)}
 .menu-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
 .menu-list button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:14px;border:0;background:var(--tile);color:var(--tile-ink);cursor:pointer;text-align:left;font:650 15.5px/1.2 var(--display)}
 .menu-list button[aria-current="step"]{background:var(--pick);box-shadow:inset 0 0 0 2px var(--mango)}
-.menu-list small{font:400 13.5px var(--body);color:var(--ink-soft)}
+.menu-list small{flex:none;font:400 13.5px var(--body);color:var(--ink-soft)}
+.menu-list .mname{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.mbar{display:block;height:6px;border-radius:3px;background:var(--edge);overflow:hidden;max-width:180px}
+.mbar i{display:block;height:100%;border-radius:3px;background:var(--mango)}
+.menu-total{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;font:650 14px/1.2 var(--body);color:var(--ink-soft)}
+.mbar.big{flex:1;height:8px;max-width:none}
 
 /* Phones: the later scenes lay their answers out tighter, so every answer is in view without scrolling. */
 @media (max-width:699px){
@@ -462,15 +474,16 @@ a{color:var(--sea)}
   .mbox .q{margin-top:10px;margin-bottom:6px;font-size:14.5px}
   .mbox .chips{gap:6px}
   .mbox .chip{padding:7px 13px;min-height:40px;font-size:15px}
-  .jars{gap:6px}
-  .jarbox{padding:6px 4px 7px;gap:3px;border-radius:14px}
-  .jar{width:30px;height:34px;border-width:2px;border-top-width:3px;padding:2px 0}
-  .jar i{width:20px;height:3px}
-  .jarbox .ic{top:5px;left:5px;width:20px;height:20px;border-radius:6px}
+  /* Phones: fifteen jars as two columns of short rows: icon, name, a small jar, and a minus to take a coin back. */
+  .jars{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .jarbox{flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;min-height:38px;padding:4px 30px 4px 5px;border-radius:12px;text-align:left}
+  .jar{flex:none;order:3;width:16px;height:22px;border-width:1.5px;border-top-width:2.5px;border-radius:4px 4px 7px 7px;padding:1px 0;gap:1px}
+  .jar i{width:10px;height:2px}
+  .jarbox .ic{position:static;flex:none;width:20px;height:20px;border-radius:6px}
   .jarbox .ic svg{width:13px;height:13px}
-  .jarbox .lbl{font-size:11.5px;line-height:1.15;min-height:0}
-  .jarbox .n{font-size:12.5px}
-  .jarbox .minus{top:4px;right:4px;width:24px;height:24px;font-size:15px}
+  .jarbox .lbl{order:2;flex:1;font-size:11.5px;line-height:1.15;min-height:0}
+  .jarbox .n{display:none}
+  .jarbox .minus{top:50%;right:4px;width:22px;height:22px;margin-top:-11px;font-size:14px}
   .purse{position:sticky;top:-20px;z-index:3;background:var(--card);margin:0 -18px 8px;padding:6px 18px}
   .purse .coinstack i{width:13px;height:13px}
   .purse b{font-size:16px}
@@ -489,11 +502,11 @@ a{color:var(--sea)}
 @media (max-width:699px) and (max-height:720px){
   .mbox .statement{font-size:16px;line-height:1.3}
 }
-@media (max-width:699px) and (max-height:680px){ .jar{width:26px;height:28px} .jarbox{padding:5px 4px 6px;gap:2px} .jars{gap:5px} }
+@media (max-width:699px) and (max-height:680px){ .jarbox{min-height:34px} }
 /* Short phones: once a follow-up question opens, the drawing above gives it room. */
 @media (max-width:699px){ .box[data-box="map"].pinning .pinpick{margin-top:8px} .box[data-box="map"].pinning .kicker,.box[data-box="map"].pinning .count,.box[data-box="map"].pinning #area-q{display:none} }
 @media (max-width:699px) and (max-height:760px){
-  .box.mbox.sev-on{--stage-h:13vh}
+  .box.mbox{--stage-h:16vh}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -513,7 +526,7 @@ a{color:var(--sea)}
   <button class="nav prev" id="prev" type="button" aria-label="Back" hidden><span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></span><span class="lbl" aria-hidden="true">Back</span></button>
   <button class="nav next" id="next" type="button" hidden><span class="knob"><span class="fill"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span><span class="lbl" id="next-lbl" aria-hidden="true">Next</span></button>
 </div>
-<div class="menu" id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-t" hidden><div class="menu-card"><h2 id="menu-t">Jump to a part</h2><ol class="menu-list" id="menu-list"></ol><button type="button" class="btn ghost" id="menu-close">Close</button></div></div>
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-t" hidden><div class="menu-card"><h2 id="menu-t">Jump to a part</h2><p class="menu-total" id="menu-total"></p><ol class="menu-list" id="menu-list"></ol><button type="button" class="btn ghost" id="menu-close">Close</button></div></div>
 <div class="hand" id="hand" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M12 6a4 4 0 0 1 8 0v18h1a3.5 3.5 0 0 1 7 0v1a3.5 3.5 0 0 1 7 0v1.5a3.5 3.5 0 0 1 7 0V40c0 8-6 14-14 14h-4c-5 0-8-2-10-6L4.5 38c-1.4-2.5-.5-5.2 1.8-6.2 2-.9 4.1-.2 5.2 1.4L12 34Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2.4" stroke-linejoin="round"/></svg></div>
 <script>
 (function () {
@@ -796,13 +809,13 @@ a{color:var(--sea)}
       props: '<rect x="122" y="66" width="116" height="82" rx="6" fill="#F7FBF8"/><path d="M122 72l58 40 58-40" fill="none" stroke="#C9C2B3" stroke-width="3"/><g><circle cx="180" cy="112" r="16" fill="#D9483B"/><path d="m180 101 3.2 6.6 7.3 1.1-5.3 5.1 1.3 7.2-6.5-3.4-6.5 3.4 1.3-7.2-5.3-5.1 7.3-1.1Z" fill="#F2B33D"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="3s" repeatCount="indefinite"/></g><rect x="196" y="140" width="46" height="18" rx="4" fill="#F2B33D"/><rect x="204" y="147" width="30" height="4" rx="2" fill="#13261D" opacity=".6"/>' },
     { k: "h", icon: "folder", title: "Organization handovers", bg: "#E3B04B", ink: "dark", short: "Org know-how lost at turnover", text: "My organization lost files, contacts, or know-how when officers changed.",
       props: '<path d="M104 140 l16 -7" stroke="#1F7A8C" stroke-width="13" stroke-linecap="round"/><path d="M256 140 l-16 -7" stroke="#D9483B" stroke-width="13" stroke-linecap="round"/><path d="M116 134 C130 130 140 128 150 122" stroke="#A0704F" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M244 134 C230 130 220 128 210 122" stroke="#8A5A3C" stroke-width="9" stroke-linecap="round" fill="none"/><g><rect x="146" y="90" width="68" height="50" rx="4" fill="#7A5E44"/><rect x="146" y="90" width="68" height="12" fill="#5C4535"/><rect x="156" y="76" width="14" height="22" fill="#F7FBF8"/><rect x="174" y="72" width="14" height="26" fill="#9ED1DB"/><rect x="192" y="78" width="14" height="20" fill="#F2B33D"/><animateTransform attributeName="transform" type="translate" values="-3 0;3 0;-3 0" dur="4s" repeatCount="indefinite"/></g>' },
-    { k: "i", icon: "house", title: "A place to stay", bg: "#9ED1DB", ink: "dark", short: "Finding housing or a dormmate", text: "I had trouble finding housing or a dormmate.",
+    { k: "i", icon: "house", title: "A place to stay", bg: "#9ED1DB", ink: "dark", short: "Finding housing or a boardmate", text: "I had trouble finding housing or a boardmate.",
       props: '<path d="M124 96 L180 56 L236 96 Z" fill="#D9483B"/><rect x="132" y="96" width="96" height="80" fill="#F7FBF8"/><rect x="144" y="106" width="22" height="18" fill="#1F7A8C"/><rect x="194" y="106" width="22" height="18" fill="#1F7A8C"/><rect x="170" y="140" width="20" height="36" fill="#7A5E44"/><g><path d="M180 126v4" stroke="#13261D" stroke-width="1.5"/><rect x="146" y="128" width="68" height="12" rx="3" fill="#F2B33D"/><text x="180" y="137.5" text-anchor="middle" font-size="9" font-weight="800" fill="#13261D" font-family="sans-serif">Bedspace</text><animateTransform attributeName="transform" type="rotate" values="-3 180 126;3 180 126;-3 180 126" dur="3.5s" repeatCount="indefinite"/></g>' },
     { k: "j", icon: "tag", title: "Buying and selling", bg: "#D9483B", ink: "light", short: "Scams when buying or selling", text: "I was scammed, or nearly scammed, buying or selling something.",
       props: '<rect x="128" y="46" width="104" height="126" rx="10" fill="#F7FBF8"/><rect x="138" y="56" width="84" height="58" rx="6" fill="#9ED1DB"/><rect x="160" y="66" width="40" height="38" rx="2" fill="#4C5BA8"/><rect x="160" y="66" width="7" height="38" fill="#13261D" opacity=".3"/><rect x="138" y="124" width="62" height="6" rx="3" fill="#C9C2B3"/><rect x="138" y="136" width="40" height="6" rx="3" fill="#C9C2B3"/><g><path d="M206 148v-6" stroke="#13261D" stroke-width="1.5"/><rect x="188" y="148" width="38" height="20" rx="4" fill="#F2B33D"/><text x="207" y="162.5" text-anchor="middle" font-size="13" font-weight="800" fill="#13261D" font-family="sans-serif">₱</text><animateTransform attributeName="transform" type="rotate" values="-6 206 142;6 206 142;-6 206 142" dur="3s" repeatCount="indefinite"/></g>' },
     { k: "k", icon: "case", title: "Work and OJT", bg: "#2F6DB5", ink: "light", short: "Finding work or an OJT host", text: "I couldn't find a part-time job, an assistantship, or an OJT host.",
       props: '<rect x="122" y="44" width="116" height="98" rx="6" fill="#F7FBF8"/><rect x="122" y="44" width="116" height="16" rx="6" fill="#1E4D3A"/><rect x="132" y="70" width="42" height="30" fill="#F2B33D"/><rect x="182" y="68" width="46" height="34" fill="#9ED1DB"/><rect x="136" y="106" width="38" height="28" fill="#E7DFD0"/><path d="M138 142v34M222 142v34" stroke="#7A5E44" stroke-width="5"/><g><rect x="184" y="108" width="42" height="28" rx="4" fill="#7A5E44"/><path d="M196 108v-5h18v5" fill="none" stroke="#7A5E44" stroke-width="3"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2.8s" repeatCount="indefinite"/></g>' },
-    { k: "l", icon: "cap", title: "Advice from graduates", bg: "#F2B33D", ink: "dark", short: "Reaching graduates for advice", text: "I wanted advice from a graduate of my program but didn't know how to reach one.",
+    { k: "l", icon: "cap", title: "Advice from seniors", bg: "#F2B33D", ink: "dark", short: "Reaching seniors or graduates", text: "I wanted advice from a senior, a graduating student, or a graduate of my program but didn't know how to reach one.",
       props: '<circle cx="146" cy="104" r="10" fill="#A0704F"/><rect x="135" y="116" width="22" height="40" rx="9" fill="#F7FBF8"/><path d="M140 156v20M152 156v20" stroke="#13261D" stroke-width="4"/><rect x="128" y="120" width="8" height="22" rx="3" fill="#1F7A8C"/><circle cx="214" cy="86" r="11" fill="#8A5A3C"/><path d="M198 176v-56a16 16 0 0 1 32 0v56z" fill="#13261D"/><g><path d="M198 70l16-8 16 8-16 8z" fill="#13261D"/><path d="M226 71v9" stroke="#D9483B" stroke-width="2.5"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="3.2s" repeatCount="indefinite"/></g><rect x="160" y="74" width="30" height="18" rx="9" fill="#F7FBF8"/><g fill="#13261D"><circle cx="168" cy="83" r="2"/><circle cx="175" cy="83" r="2"/><circle cx="182" cy="83" r="2"/></g>' },
     { k: "m", icon: "basket", title: "Food and supplies", bg: "#6A9A57", ink: "dark", short: "Getting food or supplies", text: "I wanted food or supplies from the market or a canteen but couldn't go get them.",
       props: '<g><path d="M118 74h124l-10 22H128z" fill="#D9483B"/><path d="M140 74l-4 22M160 74l-2 22M180 74v22M200 74l2 22M220 74l4 22" stroke="#F7FBF8" stroke-width="6"/><animateTransform attributeName="transform" type="translate" values="0 0;0 1.5;0 0" dur="2.6s" repeatCount="indefinite"/></g><rect x="130" y="96" width="100" height="80" fill="#E7DFD0"/><rect x="130" y="130" width="100" height="10" fill="#7A5E44"/><g><circle cx="148" cy="122" r="7" fill="#F2B33D"/><circle cx="162" cy="122" r="7" fill="#5E8C4A"/><circle cx="198" cy="122" r="7" fill="#D9483B"/><circle cx="212" cy="122" r="7" fill="#F2B33D"/></g><path d="M166 150h28l-4 18h-20z" fill="#B7791F"/><path d="M170 150c0-8 20-8 20 0" fill="none" stroke="#B7791F" stroke-width="3"/>' }
@@ -928,8 +941,7 @@ a{color:var(--sea)}
     var panelFill = s.ink === "light" ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.28)";
     return stageSvg('<rect width="360" height="220" rx="22" fill="' + panelFill + '"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>' +
       '<g fill="rgba(255,255,255,.18)"><circle cx="48" cy="44" r="18"/><circle cx="318" cy="36" r="10"/><circle cx="292" cy="62" r="5"/></g>' +
-      '<g><g class="hero2">' + s.props + "</g></g>" +
-      '<g>' + calendarSvg() + packSvg() + "</g>");
+      '<g><g class="hero2">' + s.props + "</g></g>");
   }
 
   /* The campus map, as in v1, drawn bigger. */
@@ -939,15 +951,29 @@ a{color:var(--sea)}
 
   /* Hearing from VSU: a phone lighting up beside a notice board. */
   function newsStage() {
+    var T = {
+      firstSuspensions: '<g transform="translate(60 40)"><path d="M18 46a20 20 0 0 1 4-39 26 26 0 0 1 50 6 17 17 0 0 1 2 33Z" fill="#DCE5DF" stroke="#13261D" stroke-width="2"/><path d="M40 52l-8 18h12l-6 18" fill="none" stroke="#F2B33D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<g stroke="#9ED1DB" stroke-width="3.5" stroke-linecap="round"><path d="M14 58l-4 10M64 58l-4 10M82 52l-4 10M22 76l-4 10M74 76l-4 10"/></g>' +
+        '<g transform="translate(92 54)"><rect width="34" height="40" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect width="34" height="9" rx="3" fill="#D9483B"/><path d="M8 18l18 16M26 18L8 34" stroke="#D9483B" stroke-width="4" stroke-linecap="round"/><rect x="15" y="40" width="4" height="22" fill="#7A5E44"/></g></g>',
+      firstDocuments: '<g transform="translate(64 38)"><rect x="18" y="10" width="64" height="84" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2" transform="rotate(-8 50 52)"/><rect x="26" y="6" width="64" height="84" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2" transform="rotate(4 58 48)"/>' +
+        '<rect x="22" y="4" width="64" height="84" rx="3" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><path d="M32 22h44M32 32h36M32 42h40M32 52h28" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M70 -2v18a6 6 0 0 1-12 0V2" fill="none" stroke="#7E8F86" stroke-width="3" stroke-linecap="round"/><circle cx="68" cy="70" r="13" fill="none" stroke="#1E4D3A" stroke-width="3"/><path d="M62 70l4.5 4.5 8-9" fill="none" stroke="#1E4D3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>',
+      firstEvents: '<g transform="translate(50 40)"><path d="M10 40 L68 10 L126 40Z" fill="#E4705A" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M10 40h116v10H10Z" fill="#F2B33D" stroke="#13261D" stroke-width="2"/><g fill="#F7FBF8"><path d="M20 50l9 10 9-10Z"/><path d="M58 50l9 10 9-10Z"/><path d="M96 50l9 10 9-10Z"/></g>' +
+        '<rect x="20" y="62" width="96" height="40" rx="3" fill="#A0704F" stroke="#13261D" stroke-width="2"/><path d="M46 70c-6 8-8 12-8 15a8 8 0 0 0 16 0c0-3-2-7-8-15Z" fill="#D9483B" stroke="#13261D" stroke-width="1.5"/>' +
+        '<g transform="translate(70 70)"><path d="M0 0h16l-2 22H2Z" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M2 6h12" stroke="#9ED1DB" stroke-width="4"/></g><g transform="translate(92 70)"><path d="M0 0h16l-2 22H2Z" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M2 8h12" stroke="#F2B33D" stroke-width="4"/></g></g>',
+      firstScholarships: '<g transform="translate(54 42)"><rect width="96" height="68" rx="4" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="6" y="6" width="84" height="56" rx="2" fill="none" stroke="#F2B33D" stroke-width="2"/><path d="M20 20h56M26 30h44M30 40h36" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/>' +
+        '<circle cx="78" cy="58" r="12" fill="#F2B33D" stroke="#13261D" stroke-width="1.5"/><path d="M72 68l-4 18 10-6 10 6-4-18" fill="#D9483B" stroke="#13261D" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<g transform="translate(-6 76)"><rect width="44" height="32" rx="4" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><path d="M14 0v-6h16v6" fill="none" stroke="#13261D" stroke-width="2"/><path d="M0 12h44" stroke="#13261D" stroke-width="1.5"/></g></g>',
+      firstAnnouncements: '<g transform="translate(52 44)"><path d="M10 34v22h14l36 20V14L24 34Z" fill="#7A5BA6" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M70 30a14 14 0 0 1 0 30M80 20a28 28 0 0 1 0 50" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/>' +
+        '<g fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"><g transform="translate(30 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(62 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(94 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g></g></g>'
+    };
     return stageSvg(FRAME +
-      '<g><rect x="52" y="40" width="124" height="92" rx="6" fill="#B7791F" stroke="#13261D" stroke-width="2"/><rect x="58" y="46" width="112" height="80" rx="3" fill="#E9C27D"/>' +
-      '<rect x="66" y="54" width="34" height="30" fill="#F7FBF8"/><rect x="66" y="54" width="34" height="7" fill="#D9483B"/><rect x="108" y="58" width="54" height="22" fill="#F7FBF8" transform="rotate(4 135 69)"/><rect x="74" y="92" width="44" height="26" fill="#F7FBF8" transform="rotate(-3 96 105)"/><rect x="126" y="90" width="34" height="28" fill="#9ED1DB"/>' +
-      '<g fill="#D9483B"><circle cx="83" cy="56" r="2.5"/><circle cx="135" cy="60" r="2.5"/><circle cx="96" cy="94" r="2.5"/><circle cx="143" cy="92" r="2.5"/></g></g>' +
-      '<g transform="translate(216 34)"><rect width="76" height="134" rx="12" fill="#13261D"/><rect x="6" y="12" width="64" height="112" rx="6" fill="#F7FBF8"/>' +
-      '<g class="pop"><rect x="11" y="22" width="54" height="22" rx="5" fill="#E7DDF2"/><rect x="16" y="28" width="30" height="4" rx="2" fill="#7A5BA6"/><rect x="16" y="35" width="40" height="3" rx="1.5" fill="#C9C2B3"/></g>' +
+      Object.keys(T).map(function (k) { return '<g class="topic" data-topic="' + k + '">' + T[k] + "</g>"; }).join("") +
+      '<g transform="translate(232 34)"><rect width="76" height="134" rx="12" fill="#13261D"/><rect x="6" y="12" width="64" height="112" rx="6" fill="#F7FBF8"/>' +
+      '<rect x="11" y="22" width="54" height="22" rx="5" fill="#E7DDF2"/><rect x="16" y="28" width="30" height="4" rx="2" fill="#7A5BA6"/><rect x="16" y="35" width="40" height="3" rx="1.5" fill="#C9C2B3"/>' +
       '<rect x="11" y="50" width="54" height="22" rx="5" fill="#DDEBD4"/><rect x="16" y="56" width="26" height="4" rx="2" fill="#5E8C4A"/><rect x="16" y="63" width="36" height="3" rx="1.5" fill="#C9C2B3"/>' +
       '<rect x="11" y="78" width="54" height="22" rx="5" fill="#F6DDD9"/><rect x="16" y="84" width="32" height="4" rx="2" fill="#D9483B"/><rect x="16" y="91" width="30" height="3" rx="1.5" fill="#C9C2B3"/>' +
-      '<g transform="translate(70 8)"><circle r="10" fill="#D9483B" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">3</text></g></g>');
+      '<g transform="translate(70 8)"><circle r="10" fill="#D9483B" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g></g>');
   }
   /* Reaching VSU: an office window, a bell, and a note waiting for an answer. */
   function errandStage() {
@@ -1032,7 +1058,7 @@ a{color:var(--sea)}
     networks: [], load: [], loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstSuspensions: null, firstDocuments: null, firstEvents: null, firstScholarships: null, firstAnnouncements: null,
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
-    board: {}, pins: [], coins: {},
+    board: {}, coins: {},
     story: "", mayQuote: false, trust: null, postedAnonymously: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
@@ -1077,9 +1103,9 @@ a{color:var(--sea)}
   var FIRSTS = [
     ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [TOO_LATE]],
     ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear it first?", [TOO_LATE]],
-    ["firstEvents", "When there's an event or activity, where do you usually hear it first?", [TOO_LATE, NOT_MINE]],
+    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear it first?", [TOO_LATE, NOT_MINE]],
     ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [TOO_LATE, NOT_MINE]],
-    ["firstAnnouncements", "When your faculty, department, or org announces something, where do you usually hear it first?", [TOO_LATE]]
+    ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear it first?", [TOO_LATE]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
   var NO_SIM = "No SIM or mobile data", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't";
@@ -1096,10 +1122,10 @@ a{color:var(--sea)}
   var HAPPENED = ["Once or twice", "Several times", "Often"];
   /* The ten Main Campus faculties named in VSU's announcement of 16 January 2025, by name. */
   var FACULTIES = [["FAFS", "Agriculture and Food Science"], ["FOC", "Computing"], ["FE", "Engineering"], ["FFES", "Forestry and Environmental Science"], ["FHSS", "Humanities and Social Sciences"], ["FME", "Management and Economics"], ["FNMS", "Natural and Mathematical Sciences"], ["FON", "Nursing"], ["FTE", "Teacher Education"], ["FVM", "Veterinary Medicine"]];
-  var NOT_SAID = "Prefer not to say";
+  var NOT_SAID = "Prefer not to say", FAMILY_HOME = "My family's home, and I commute";
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
-  /* The 16 scenes: v1's 13, plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23).
+  /* The 15 scenes: v1's 13, less organization handovers (h), plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23).
      Ordered by part (D-119): hearing from VSU, reaching VSU, students and alumni, campus life. In Hearing from VSU the four
      channel questions come first, then the scenes; elsewhere a scene follows the question it goes with. Letters stay. */
   var MOMENTS = (function () {
@@ -1118,13 +1144,13 @@ a{color:var(--sea)}
       props: '<rect x="134" y="104" width="92" height="74" rx="7" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><rect x="156" y="112" width="48" height="6" rx="3" fill="#13261D"/><rect x="152" y="132" width="56" height="26" rx="4" fill="#E9C27D" stroke="#13261D" stroke-width="1.5"/><path d="M160 141h40M160 149h28" stroke="#7A5E44" stroke-width="2.5" stroke-linecap="round"/>' +
         '<g><rect x="166" y="40" width="28" height="36" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.6"/><path d="M171 49h18M171 56h14M171 63h16" stroke="#C9C2B3" stroke-width="2.4" stroke-linecap="round"/><animateTransform attributeName="transform" type="translate" values="0 0;0 34;0 34;0 0" keyTimes="0;.45;.8;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.4;.5;.95;1" dur="3.6s" repeatCount="indefinite"/></g>' +
         '<g><path d="M236 46h44a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8h-26l-12 10v-10h-6a8 8 0 0 1-8-8V54a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><g fill="#4F6D8F"><circle cx="246" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="258" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".25s" repeatCount="indefinite"/></circle><circle cx="270" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".5s" repeatCount="indefinite"/></circle></g></g>' };
-    return ["d", "o", "f", "g", "k", "a", "e", "c", "p", "b", "n", "h", "l", "i", "j", "m"].map(function (k) { return by[k]; });
+    return ["d", "o", "f", "g", "k", "a", "e", "c", "p", "b", "n", "l", "i", "j", "m"].map(function (k) { return by[k]; });
   })();
   var byKey = {};
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
 
   /* ---------- The walk: chapters and steps ---------- */
-  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life", "Map", "Coins", "Your story", "Network idea", "Send"];
+  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life", "Coins", "Your story", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
   /* A part numbers its screens in the kicker ("Reaching VSU, 3 of 8"), counted from the screens the respondent will see. */
@@ -1181,7 +1207,7 @@ a{color:var(--sea)}
   ]);
   /* The four channel questions run together, on one list, then the scenes on hearing from VSU. */
   part(4, "Hearing from VSU", FIRSTS.map(function (f) {
-    return { id: f[0], box: "news", kind: "pick", key: f[0], size: "tight", extras: f[2], prompt: f[1], core: true };
+    return { id: f[0], box: "news", kind: "pick", key: f[0], size: "news", extras: f[2], prompt: f[1], core: true };
   }).concat([{ k: "d", hint: "moment" }, { k: "o" }, { k: "f" }, { k: "g" }, { k: "k" }]));
   part(5, "Reaching VSU", [
     { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
@@ -1198,21 +1224,21 @@ a{color:var(--sea)}
     { k: "b" }, { k: "n" },
     { id: "trust", box: "trust", kind: "scale", key: "trust", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true },
     { id: "postedAnonymously", box: "anon", kind: "tiles", key: "postedAnonymously", cols: "t3", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() },
-    { k: "h" }, { k: "l" }
+    { k: "l" }
   ]);
   part(7, "Campus life", [{ k: "i" }, { k: "j" }, { k: "m" }]);
-  step({ id: "map", box: "map", ch: 8, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", spareLede: true, hint: "map" });
-  step({ id: "coins", box: "coins", ch: 9, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", hint: "jars" });
-  step({ id: "story", box: "story", ch: 10, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
-  step({ id: "worksWell", box: "net", ch: 11, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 1 of 5", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
-  step({ id: "wouldUse", box: "net", ch: 11, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 2 of 5", prompt: "Picture an online network that VSU runs for its students, faculty, and staff. What would make you use it?", lede: "It's an idea being explored, not a VSU plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "postPreference", box: "net", ch: 11, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 3 of 5", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+  /* The campus map is left out until it is reworked; its drawing and code stay for that. */
+  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
+  step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
+  step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 1 of 5", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
+  step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 2 of 5", prompt: "Picture an online network that VSU runs for its students, faculty, and staff. What would make you use it?", lede: "It's an idea being explored, not a VSU plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 3 of 5", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "wantBack", box: "net", ch: 11, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "A network idea, 4 of 5", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
+  step({ id: "wantBack", box: "net", ch: 10, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "A network idea, 4 of 5", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
     opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
-  step({ id: "keepAway", box: "net", ch: 11, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 5 of 5", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
-  step({ id: "send", box: "send", ch: 12, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
-  step({ id: "final", box: "final", ch: 12, kind: "final", noMenu: true, when: function () { return sent; } });
+  step({ id: "keepAway", box: "net", ch: 10, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 5 of 5", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "send", box: "send", ch: 11, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
+  step({ id: "final", box: "final", ch: 11, kind: "final", noMenu: true, when: function () { return sent; } });
 
   var stepById = {};
   STEPS.forEach(function (s) { stepById[s.id] = s; });
@@ -1232,7 +1258,7 @@ a{color:var(--sea)}
       case "vigs": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "chipsMulti": return A[s.key].length > 0;
       case "tiles": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
-      case "map": return A.pins.length > 0;
+      case "map": return !!A.pins && A.pins.length > 0;
       case "coins": return spent() > 0;
       case "story": return A.story.trim().length > 0;
       case "send": return sent;
@@ -1295,7 +1321,7 @@ a{color:var(--sea)}
     moment: function (s) {
       var m = byKey[s.k];
       return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(m.title) + '</h2><p class="statement">“' + esc(m.text) + "”</p>" +
-        '<p class="q" id="q-often-' + m.k + '">Since the school year started in August, how often did this happen to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
+        '<p class="q" id="q-often-' + m.k + '">Since the start of the semester, how often did this happen to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
         OPT.often.map(function (o, i) { return chipBtn(o[1], o[0], i); }).join("") + "</div>" +
         '<div class="sev" data-sev="' + m.k + '" hidden><p class="q" id="q-matters-' + m.k + '">How much of a problem was it?</p><div class="chips c4" data-key="matters:' + m.k + '" role="group" aria-labelledby="q-matters-' + m.k + '">' +
         OPT.matters.map(function (o, i) { return chipBtn(o, o, i); }).join("") + "</div></div>";
@@ -1346,7 +1372,7 @@ a{color:var(--sea)}
     gate: { bg: "#1F7A8C", ink: "light", stage: gateStage },
     home: { bg: "#F2B33D", ink: "dark", stage: homeStage },
     pass: { bg: "#9ED1DB", ink: "dark", stage: function () { return passStage() + PASS_CARD; } },
-    news: { bg: "#7A5BA6", ink: "light", cls: "talls", stage: newsStage },
+    news: { bg: "#7A5BA6", ink: "light", stage: newsStage },
     data: { bg: "#2F6DB5", ink: "light", stage: dataStage },
     errand: { bg: "#E4705A", ink: "dark", cls: "talls", stage: errandStage },
     peers: { bg: "#5E8C4A", ink: "light", cls: "talls", stage: peersStage },
@@ -1608,7 +1634,7 @@ a{color:var(--sea)}
     var sevOn = !!(a && HAPPENED.indexOf(a.often) >= 0);
     $('[data-sev="' + k + '"]', panel).hidden = !sevOn;
     boxEls["m-" + k].classList.toggle("sev-on", sevOn);
-    if (what !== "matters") {
+    if (what !== "matters" && $(".cal-marks", box)) {
       var n = a ? MARKS[a.often] || 0 : 0;
       $(".cal-marks", box).innerHTML = MARK_ORDER.slice(0, n).map(function (ci, j) {
         var c = CELLS[ci];
@@ -1617,11 +1643,13 @@ a{color:var(--sea)}
       $(".cal-na", box).setAttribute("opacity", a && a.often === "Does not apply" ? "1" : "0");
       $(".cal-zero", box).setAttribute("opacity", a && a.often === "Never" ? "1" : "0");
     }
-    var items = a && a.matters ? LOADS[a.matters] : [];
-    $(".pack-load", box).innerHTML = items.map(function (svg, j) { return '<g class="item" style="animation-delay:' + j * 110 + 'ms">' + svg + "</g>"; }).join("");
     var pack = $(".pack", box);
-    pack.classList.toggle("heavy", !!a && a.matters === "Serious");
-    if (what === "matters" && items.length) replay(pack, "thud");
+    if (pack) {
+      var items = a && a.matters ? LOADS[a.matters] : [];
+      $(".pack-load", box).innerHTML = items.map(function (svg, j) { return '<g class="item" style="animation-delay:' + j * 110 + 'ms">' + svg + "</g>"; }).join("");
+      pack.classList.toggle("heavy", !!a && a.matters === "Serious");
+      if (what === "matters" && items.length) replay(pack, "thud");
+    }
     if (what) replay($(".hero2", box), "ack");
   }
 
@@ -1663,6 +1691,7 @@ a{color:var(--sea)}
     syncStep(stepById.map);
   }
   (function () {
+    if (!stepById.map) return;  // the map is out of the survey until it is reworked
     var svg = $("#map");
     svg.addEventListener("click", function (e) {
       var hit = e.target.closest("[data-pin]");
@@ -1685,10 +1714,10 @@ a{color:var(--sea)}
   })();
 
   /* Coins: tap a jar and a coin flies into it. */
-  function eligibleJars() {
-    var hit = MOMENTS.filter(function (m) { return happened(m.k); }).map(function (m) { return m.k; });
-    return hit.length ? hit : MOMENTS.map(function (m) { return m.k; });
-  }
+  /* Every problem has a jar, whether or not it happened to the respondent. */
+  var JAR_NAME = { d: "Missed notices", o: "Official or not", f: "Late for events", g: "Missed scholarships", k: "Work and OJT leads", a: "Finding the right office", e: "Process guides",
+    c: "Reaching teachers", p: "Unanswered concerns", b: "Wrong answers", n: "Lost answers", l: "Reaching seniors", i: "Housing", j: "Scams", m: "Food and supplies" };
+  function eligibleJars() { return MOMENTS.map(function (m) { return m.k; }); }
   function renderJars(fresh) {
     var keys = eligibleJars();
     Object.keys(A.coins).forEach(function (k) { if (keys.indexOf(k) < 0) delete A.coins[k]; });
@@ -1701,7 +1730,7 @@ a{color:var(--sea)}
       return '<div class="jarbox' + (n ? " has" : "") + '" style="--i:' + i + '">' +
         '<button type="button" class="jarhit" data-key="coin" data-v="' + k + '" aria-label="Drop a coin in: ' + esc(m.short) + (n ? ". It has " + n + (n === 1 ? " coin" : " coins") : "") + '"' + (left ? "" : " disabled") + "></button>" +
         '<span class="ic" style="background:' + m.bg + ";color:" + (m.ink === "light" ? "#FFFFFF" : "#13261D") + '" aria-hidden="true">' + icon(m.icon) + "</span>" +
-        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(m.short) + "</span>" +
+        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(JAR_NAME[k] || m.short) + "</span>" +
         '<button type="button" class="minus" data-key="coinminus" data-v="' + k + '" aria-label="Take a coin back from ' + esc(m.short) + '"' + (n ? "" : " disabled") + ">−</button></div>";
     }).join("");
   }
@@ -1775,6 +1804,8 @@ a{color:var(--sea)}
       passReact(null);
     }
     if (s.box === "data") dataReact();
+    if (s.box === "news") $$(".topic", box).forEach(function (g) { g.classList.toggle("on", g.dataset.topic === s.id); });
+    if (s.k === "i" && A.residence === FAMILY_HOME && !A.board.i) A.board.i = { often: "Does not apply", matters: null };
     if (s.kind === "moment") syncMoment(s.k, null);
     if (s.box === "map") renderPins(false);
     if (s.box === "coins") renderJars(null);
@@ -1828,10 +1859,16 @@ a{color:var(--sea)}
 
   function cancelAnims(el) { if (el.getAnimations) el.getAnimations().forEach(function (a) { a.cancel(); }); }
   function isCurrent(el) { var s = stepById[curId]; return el === boxEls[s.box] || el === panelEls[s.id]; }
-  function slide(a, b, dir) {
+  function slide(a, b, dir, fade) {
     b.hidden = false;
     if (calm() || !b.animate) { a.hidden = true; return; }
     cancelAnims(a); cancelAnims(b);
+    if (fade) {
+      var gone = a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: "ease-out" });
+      b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: "ease-in" });
+      gone.onfinish = function () { if (!isCurrent(a)) a.hidden = true; };
+      return;
+    }
     var dx = dir < 0 ? -1 : 1;
     var out = a.animate([{ transform: "translateX(0)", opacity: 1 }, { transform: "translateX(" + (-dx * 18) + "%)", opacity: 0 }], { duration: 240, easing: "cubic-bezier(.4,0,.2,1)" });
     b.animate([{ transform: "translateX(" + (dx * 22) + "%)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 360, easing: "cubic-bezier(.2,.8,.2,1)" });
@@ -1856,11 +1893,11 @@ a{color:var(--sea)}
     curId = to.id;
     toBox.dataset.size = to.size || "";
     if (!from) { toBox.hidden = false; toPanel.hidden = false; }
-    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir);
+    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir, from.ch === to.ch);
     else {
       $$(".panel", toBox).forEach(function (p) { if (p !== toPanel) p.hidden = true; });
       toPanel.hidden = false;
-      slide(boxEls[from.box], toBox, dir);
+      slide(boxEls[from.box], toBox, dir, from.ch === to.ch);
     }
     toPanel.scrollTop = 0;
     setScene(BOXES[to.box]);
@@ -2049,13 +2086,19 @@ a{color:var(--sea)}
   var menu = $("#menu"), menuList = $("#menu-list");
   function openMenu() {
     var s = stepById[curId], L = list();
+    var all = 0, got = 0;
     menuList.innerHTML = CHAPTERS.map(function (name, i) {
       if (i === 0) return "";
       var steps = L.filter(function (x) { return x.ch === i && !x.noMenu; });
       if (!steps.length) return "";
-      var note = i === CHAPTERS.length - 1 ? "Review and send" : steps.filter(done).length + " of " + steps.length + " answered";
-      return '<li><button type="button" data-jump="' + steps[0].id + '"' + (i === s.ch ? ' aria-current="step"' : "") + "><span>" + esc(name) + "</span><small>" + note + "</small></button></li>";
+      var last = i === CHAPTERS.length - 1, n = steps.filter(done).length, pct = last ? 0 : Math.round(100 * n / steps.length);
+      if (!last) { all += steps.length; got += n; }
+      var note = last ? "Review and send" : n + " of " + steps.length + " answered";
+      return '<li><button type="button" data-jump="' + steps[0].id + '"' + (i === s.ch ? ' aria-current="step"' : "") + '><span class="mname">' + esc(name) +
+        (last ? "" : '<span class="mbar" aria-hidden="true"><i style="width:' + pct + '%"></i></span>') + "</span><small>" + note + "</small></button></li>";
     }).join("");
+    var total = all ? Math.round(100 * got / all) : 0;
+    $("#menu-total").innerHTML = '<span class="mbar big" aria-hidden="true"><i style="width:' + total + '%"></i></span><span>' + total + "% answered</span>";
     menu.hidden = false;
     chapBtn.setAttribute("aria-expanded", "true");
     var cur = $('[aria-current="step"]', menuList) || $("button", menuList);
@@ -2092,7 +2135,6 @@ a{color:var(--sea)}
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (simless() ? "No SIM" : !buysLoad() ? "No load" : "Skipped")),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
-      cell("pin", "#5E8C4A", "Places that let you down", A.pins.length ? A.pins.length + (A.pins.length === 1 ? " pin" : " pins") : "None"),
       cell("coin", "#C98A16", "Fix first", top ? byKey[top].short : "No coins spent"),
       cell("bubble", "#2C8C99", "Trust in group answers", A.trust ? A.trust + " of 5" : "Skipped"),
       cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
@@ -2114,6 +2156,7 @@ a{color:var(--sea)}
   });
   function record() {
     var r = JSON.parse(JSON.stringify(A));
+    delete r.pins;
     r.variant = "scenes";
     r.survey = SURVEY_ID;
     r.version = SURVEY_VERSION;

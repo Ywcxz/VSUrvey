@@ -35,7 +35,7 @@
 var SHEET_NAME = "Responses v3";
 var VARIANT = "scenes";
 var VERSION_PREFIX = "scenes-v3";
-var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"];
+var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p"];  // h (organization handovers) left in scenes-v3
 var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
   "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
@@ -54,7 +54,6 @@ var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and s
 var AWAY = ["Feeling watched by the university", "Fear of consequences for criticism",
   "Too many apps already", "My friends wouldn't be on it", "Hard or slow to use",
   "Uses too much mobile data", "Other"];
-var MAX_PINS = 3;
 var MAX_BODY = 60000;
 
 /* The interview-volunteer form. Its ID only opens it for accounts with edit access. */
@@ -87,7 +86,6 @@ function headers_() {
   h.push("askFirst");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
   MOMENTS.forEach(function (k) { h.push(k + " coins"); });
-  for (var i = 1; i <= MAX_PINS; i++) h.push("pin" + i + " near", "pin" + i + " why", "pin" + i + " x", "pin" + i + " y");
   h.push("trust", "postedAnonymously");
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
@@ -127,7 +125,6 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 
 function row_(r, now) {
   var board = obj_(r.board), coins = obj_(r.coins);
-  var pins = Array.isArray(r.pins) ? r.pins.slice(0, MAX_PINS) : [];
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
     r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
     cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen)];
@@ -144,10 +141,6 @@ function row_(r, now) {
   row.push(cell_(r.askFirst));
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
   MOMENTS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });
-  for (var i = 0; i < MAX_PINS; i++) {
-    var p = obj_(pins[i]);
-    row.push(cell_(p.near), cell_(p.why), num_(p.x, 0, 400), num_(p.y, 0, 400));
-  }
   row.push(num_(r.trust, 1, 5), cell_(r.postedAnonymously));
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
