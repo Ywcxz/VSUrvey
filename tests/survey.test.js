@@ -88,20 +88,26 @@ async function walkAll(page, shot) {
   await at(page, "consent", shot);
   await page.click(inStep("consent", ".agree"));
   await at(page, "home", shot);
-  await page.click(btn("home", "A boarding house or apartment near campus"));
+  assert.strictEqual(await page.locator(inStep("home", ".kicker")).textContent(), "Mornings, 1 of 2");
+  await page.click(btn("home", "A relative's or friend's house"));
+  await at(page, "transport", shot);
+  await page.click(btn("transport", "Habal-habal or tricycle"));
   await at(page, "year", shot);
   await page.click(btn("year", "2nd"));
   await at(page, "faculty", shot);
   await page.click(btn("faculty", "Faculty of Engineering"));
   await at(page, "org", shot);
-  await page.click(btn("org", "A member"));
+  await page.click(btn("org", "A member, but not active"));
   await at(page, "scholarship", shot);
   await page.click(btn("scholarship", "No"));
+  await at(page, "transferee", shot);
+  assert.strictEqual(await page.locator(inStep("transferee", ".kicker")).textContent(), "Your form, 5 of 6");
+  await page.click(btn("transferee", "Yes"));
   await at(page, "firstGen", shot);
   await page.click(btn("firstGen", "Yes"));
   if (SHOTS && shot) { await page.waitForTimeout(1700); await page.screenshot({ path: path.join(SHOTS, shot + "-firstGen-printed.png") }); }
   await at(page, "networks", shot);
-  await page.click(btn("networks", "Smart or TNT"));
+  await page.click(btn("networks", "Smart"));
   await page.click(btn("networks", "DITO"));
   await next(page);
   await at(page, "load", shot);
@@ -111,13 +117,14 @@ async function walkAll(page, shot) {
   await at(page, "loadApps", shot);
   await page.click(btn("loadApps", "Facebook and Messenger"));
   await page.click(btn("loadApps", "TikTok"));
+  await page.click(btn("loadApps", "School apps, like Google Workspace, Zoom, or Canva"));
   await next(page);
   await at(page, "dataSpend", shot);
   await page.click(btn("dataSpend", "₱50 to ₱99"));
   await at(page, "dataSchool", shot);
   await page.click(btn("dataSchool", "About half"));
   await at(page, "signal", shot);
-  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Mobile data, 5 of 7");
+  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 6 of 9");
   await page.click(btn("signal", "On campus only"));
   await at(page, "onlineCampus", shot);
   await page.click(btn("onlineCampus", "Mobile data"));
@@ -127,30 +134,34 @@ async function walkAll(page, shot) {
   await page.click(btn("onlineHome", "Piso Wi-Fi"));
   await page.click(btn("onlineHome", "Pocket Wi-Fi"));
   await next(page);
+  await at(page, "wifiSpend", shot);
+  await page.click(btn("wifiSpend", "Under ₱50"));
   // Hearing from VSU
   await at(page, "firstSuspensions", shot);
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 8, "every channel is offered");
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 1, "suspensions offer only Too late");
-  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".kicker")).textContent(), "Hearing from VSU, 1 of 9");
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".kicker")).textContent(), "Hearing from VSU, 1 of 10");
   await page.click(btn("firstSuspensions", "Group chats: class, org, dorm"));
-  await at(page, "firstDeadlines", shot);
-  await page.click(btn("firstDeadlines", "Official VSU pages or website"));
+  await at(page, "firstDocuments", shot);
+  await page.click(btn("firstDocuments", "Official VSU pages or website"));
   await at(page, "firstEvents", shot);
   assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 2, "events also offer Doesn't apply");
   await page.click(btn("firstEvents", "Unofficial groups, like freedom walls"));
   await at(page, "firstScholarships", shot);
   await page.click(btn("firstScholarships", "Too late, or never"));
+  await at(page, "firstAnnouncements", shot);
+  await page.click(btn("firstAnnouncements", "Student council or org pages"));
   for (const k of ["d", "o", "f", "g", "k"]) await scene(page, k, shot);
-  assert.strictEqual(await page.locator(inStep("m-k", ".kicker")).textContent(), "Hearing from VSU, 9 of 9");
+  assert.strictEqual(await page.locator(inStep("m-k", ".kicker")).textContent(), "Hearing from VSU, 10 of 10");
   // Reaching VSU
   await at(page, "scenario", shot);
-  assert.strictEqual(await page.locator(inStep("scenario", ".kicker")).textContent(), "Reaching VSU, 1 of 4");
+  assert.strictEqual(await page.locator(inStep("scenario", ".kicker")).textContent(), "Reaching VSU, 1 of 8");
   await page.click(btn("scenario", "Asked in a student Facebook group"));
   for (const k of ["a", "e"]) await scene(page, k, shot);
   await at(page, "reachHow", shot);
   await page.click(btn("reachHow", "Messenger or another chat app"));
   await at(page, "reachGot", shot);
-  assert.strictEqual(await page.locator(inStep("reachGot", ".kicker")).textContent(), "Reaching VSU, 3 of 4", "the follow-up shares its question's number");
+  assert.strictEqual(await page.locator(inStep("reachGot", ".kicker")).textContent(), "Reaching VSU, 5 of 8", "every screen is counted");
   await page.click(btn("reachGot", "Yes, but it took days"));
   await scene(page, "c", shot);
   await at(page, "concern", shot);
@@ -240,11 +251,16 @@ function rowOf(r) {
       assert.ok(r.startedAt && r.sentAt && r.startedAt <= r.sentAt, "startedAt and sentAt");
       for (const k of ["birthYear", "birthMonth", "decade", "month", "year_of_birth"]) assert.ok(!(k in r), "the record must not carry " + k);
       assert.ok(!/\b(19|20)\d\d-\d\d-\d\d\b/.test(JSON.stringify(Object.assign({}, r, { startedAt: "", sentAt: "" }))), "no dates beyond the timestamps");
-      assert.strictEqual(r.residence, "A boarding house or apartment near campus");
+      assert.strictEqual(r.residence, "A relative's or friend's house");
+      assert.strictEqual(r.transport, "Habal-habal or tricycle");
+      assert.strictEqual(r.org, "A member, but not active");
+      assert.strictEqual(r.transferee, "Yes");
+      assert.strictEqual(r.wifiSpend, "Under ₱50");
       assert.strictEqual(r.faculty, "Faculty of Engineering");
       assert.strictEqual(r.firstGen, "Yes");
       assert.strictEqual(r.firstSuspensions, "Group chats: class, org, dorm");
-      assert.strictEqual(r.firstDeadlines, "Official VSU pages or website");
+      assert.strictEqual(r.firstDocuments, "Official VSU pages or website");
+      assert.strictEqual(r.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(r.firstEvents, "Unofficial groups, like freedom walls");
       assert.strictEqual(r.firstScholarships, "Too late, or never");
       for (const k of ["mainSource", "sources", "sourcesOther"]) assert.ok(!(k in r), "the record no longer carries " + k + " (D-119)");
@@ -256,9 +272,9 @@ function rowOf(r) {
       assert.strictEqual(rowOf(r).firstScholarships, "Too late, or never");
       assert.strictEqual(r.dataSpend, "₱50 to ₱99");
       assert.strictEqual(r.dataSchool, "About half");
-      assert.deepStrictEqual(r.networks, ["Smart or TNT", "DITO"]);
+      assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
       assert.deepStrictEqual(r.load, ["Data for certain apps only", "Calls and texts"]);
-      assert.deepStrictEqual(r.loadApps, ["Facebook and Messenger", "TikTok"]);
+      assert.deepStrictEqual(r.loadApps, ["Facebook and Messenger", "TikTok", "School apps, like Google Workspace, Zoom, or Canva"]);
       assert.strictEqual(r.signal, "On campus only");
       assert.deepStrictEqual(r.onlineCampus, ["Mobile data", "Campus Wi-Fi"]);
       assert.deepStrictEqual(r.onlineHome, ["Piso Wi-Fi", "Pocket Wi-Fi"]);
@@ -297,6 +313,11 @@ function rowOf(r) {
       assert.strictEqual(row["load: Calls and texts"], true);
       assert.strictEqual(row["loadApps: TikTok"], true);
       assert.strictEqual(row.signal, "On campus only");
+      assert.strictEqual(row.transport, "Habal-habal or tricycle");
+      assert.strictEqual(row.transferee, "Yes");
+      assert.strictEqual(row.wifiSpend, "Under ₱50");
+      assert.strictEqual(row.firstAnnouncements, "Student council or org pages");
+      assert.strictEqual(row["loadApps: School apps, like Google Workspace, Zoom, or Canva"], true);
       assert.strictEqual(row["onCampus: Campus Wi-Fi"], true);
       assert.strictEqual(row["whereStaying: Pocket Wi-Fi"], true);
       assert.strictEqual(row["whereStaying: unlisted"], "");
@@ -337,7 +358,7 @@ function rowOf(r) {
     await at(t.page, "home");
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
-    await t.page.click(btn("networks", "Globe, TM, or GOMO"));
+    await t.page.click(btn("networks", "Globe"));
     await t.page.click(btn("networks", "No SIM or mobile data"));
     const a = await t.page.evaluate(() => window.__survey.answers.networks);
     assert.deepStrictEqual(a, ["No SIM or mobile data"], "No SIM clears the networks picked before it");
@@ -362,10 +383,11 @@ function rowOf(r) {
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
     assert.strictEqual(await t.page.locator(inStep("networks", '[data-v="Another network"]')).count(), 0, "Another network is gone");
-    await t.page.click(btn("networks", "Smart or TNT"));
+    for (const n of ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"]) assert.strictEqual(await t.page.locator(btn("networks", n)).count(), 1, n + " has its own button");
+    await t.page.click(btn("networks", "Smart"));
     await t.page.click(btn("networks", "DITO"));
-    await t.page.click(btn("networks", "Globe, TM, or GOMO"));
-    assert.deepStrictEqual((await ans()).networks, ["Smart or TNT", "DITO"], "a third network is refused");
+    await t.page.click(btn("networks", "Globe"));
+    assert.deepStrictEqual((await ans()).networks, ["Smart", "DITO"], "a third network is refused");
     await next(t.page);
     await at(t.page, "load");
     await t.page.click(btn("load", "Data for any site or app"));
@@ -409,11 +431,17 @@ function rowOf(r) {
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
+    const FORM = ["year", "faculty", "org", "scholarship", "transferee", "firstGen"];
     for (let i = 0; i < 90 && (await current(t.page)) !== "send"; i++) {
       const before = await current(t.page);
-      assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Skip", "the button says Skip on an unanswered step (" + before + ")");
-      await next(t.page);
-      await t.page.waitForFunction(x => window.__survey.current() !== x, before, { timeout: 4000 });
+      if (FORM.includes(before)) {
+        assert.ok(await t.page.locator("#next.locked").count() === 1, "a form question can't be skipped (" + before + ")");
+        await t.page.click(btn(before, "Prefer not to say"));
+      } else {
+        assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Skip", "the button says Skip on an unanswered step (" + before + ")");
+        await next(t.page);
+      }
+      await t.page.waitForFunction(x => window.__survey.current() !== x, before, { timeout: 5000 });
     }
     await at(t.page, "send");
     assert.ok((await t.page.locator("#skipped").textContent()).indexOf("You skipped") === 0);
@@ -423,7 +451,8 @@ function rowOf(r) {
     assert.strictEqual(r.residence, null);
     assert.deepStrictEqual(r.board, {});
     assert.deepStrictEqual(r.pins, []);
-    for (const k of ["firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships", "reachHow", "reachGot", "askFirst"]) assert.strictEqual(r[k], null, k);
+    for (const k of ["transport", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "reachHow", "reachGot", "askFirst", "wifiSpend"]) assert.strictEqual(r[k], null, k);
+    for (const k of ["year", "faculty", "org", "scholarship", "transferee", "firstGen"]) assert.strictEqual(r[k], "Prefer not to say", k + " was declined, not skipped");
     assert.deepStrictEqual(r.concern, []);
     assert.deepStrictEqual(r.worksWell, []);
     assert.strictEqual(receiver.refusal_(r), "");
@@ -505,9 +534,14 @@ function rowOf(r) {
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
     await t.page.keyboard.press("ArrowRight");
-    await at(t.page, "year");
+    await at(t.page, "transport");
     await t.page.keyboard.press("ArrowLeft");
     await at(t.page, "home");
+    await t.page.click("#chap");
+    await t.page.click('#menu [data-jump="map"]');
+    await at(t.page, "year");
+    assert.ok(true, "the menu stops at the first form question still to answer");
+    await t.page.evaluate(() => { const a = window.__survey.answers; for (const k of ["year", "faculty", "org", "scholarship", "transferee", "firstGen"]) a[k] = "Prefer not to say"; });
     await t.page.click("#chap");
     await t.page.click('#menu [data-jump="map"]');
     await at(t.page, "map");
@@ -545,7 +579,7 @@ function rowOf(r) {
       await at(t.page, "consent");
       await t.page.click(inStep("consent", ".agree"));
       await at(t.page, "home");
-      for (const id of ["home", "year", "faculty", "org", "scholarship", "firstGen"]) {
+      for (const id of ["home", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"]) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);
         const hidden = await t.page.evaluate(({ id, mobile }) => {
@@ -577,7 +611,7 @@ function rowOf(r) {
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
       await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "load", "loadApps", "dataSpend", "dataSchool", "signal", "onlineCampus", "onlineHome", "firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships", "scenario", "reachHow", "reachGot", "concern", "askFirst", "map", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "load", "loadApps", "dataSpend", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "map", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);
@@ -641,10 +675,10 @@ function rowOf(r) {
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
     await t.page.click(btn("home", "An on-campus dorm"));
-    await at(t.page, "year");
+    await at(t.page, "transport");
     await t.page.evaluate(() => window.__survey.go("firstGen"));
     await at(t.page, "firstGen");
-    await next(t.page);
+    await t.page.click(btn("firstGen", "Prefer not to say"));
     await at(t.page, "networks");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
@@ -660,10 +694,10 @@ function rowOf(r) {
     const ans = () => t.page.evaluate(() => window.__survey.answers);
     await t.page.click("#chap");
     const parts = await t.page.locator(".menu-list span").allTextContents();
-    for (const p of ["Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life"]) assert.ok(parts.includes(p), p + " is a part");
-    for (const p of ["News", "Errand", "Scenes", "Trust"]) assert.ok(!parts.includes(p), p + " is no longer a part");
+    for (const p of ["Mornings", "Your form", "Getting online", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life"]) assert.ok(parts.includes(p), p + " is a part");
+    for (const p of ["Home", "Mobile data", "News", "Errand", "Scenes", "Trust"]) assert.ok(!parts.includes(p), p + " is no longer a part");
     await t.page.keyboard.press("Escape");
-    assert.ok(!(await steps()).includes("reachGot"), "Did you get what you needed? waits for an answer");
+    assert.ok((await steps()).includes("reachGot"), "Did you get what you needed? counts as coming until ruled out");
     await t.page.evaluate(() => window.__survey.go("reachHow"));
     await at(t.page, "reachHow");
     await t.page.click(btn("reachHow", "Email"));
@@ -694,7 +728,7 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
-  await check("the desk keys in answers and skips, and hands the pass over", async () => {
+  await check("the desk types each answer onto the form on its monitor, and hands the form over", async () => {
     const t = await open(browser, { mobile: true });
     await t.page.click("#start");
     await at(t.page, "consent");
@@ -708,9 +742,10 @@ function rowOf(r) {
     assert.ok(await t.page.locator('[data-box="pass"] .scene.typing').count() === 1, "an answer is typed in");
     assert.ok(/\bon\b/.test(await bar(0)), "and its line fills");
     await at(t.page, "faculty");
-    await next(t.page);
+    assert.ok(await t.page.locator("#next.locked").count() === 1, "a form question can't be skipped");
+    await t.page.click(btn("faculty", "Prefer not to say"));
+    assert.ok(/\bon\b/.test(await bar(1)), "Prefer not to say is typed in too");
     await at(t.page, "org");
-    assert.ok(/\bskip\b/.test(await bar(1)), "a skip is typed in as a short grey line");
     await t.page.evaluate(() => window.__survey.go("firstGen"));
     await at(t.page, "firstGen");
     await t.page.click(btn("firstGen", "No"));

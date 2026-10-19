@@ -41,11 +41,12 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
   "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
-var NETWORKS = ["Smart or TNT", "Globe, TM, or GOMO", "DITO", "No SIM or mobile data"];
+var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "No SIM or mobile data"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't buy load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
-var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "Games", "Other"];
+var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
+  "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
   "Notices and deadlines in one place", "Scholarships and opportunities in one place",
   "Events in one place", "Questions about my subjects", "My class schedule and rooms in one place",
@@ -73,14 +74,15 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
 
 function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
-    "residence", "year", "faculty", "org", "scholarship", "firstGen"];
+    "residence", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"];
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
   h.push("dataSpend", "dataSchool", "signal");
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
-  h.push("firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships", "scenario", "reachHow", "reachGot");
+  h.push("wifiSpend");
+  h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot");
   multiHeaders_(h, "concern", CONCERN);
   h.push("askFirst");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
@@ -127,15 +129,16 @@ function row_(r, now) {
   var board = obj_(r.board), coins = obj_(r.coins);
   var pins = Array.isArray(r.pins) ? r.pins.slice(0, MAX_PINS) : [];
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.year), cell_(r.faculty, 100),
-    cell_(r.org), cell_(r.scholarship), cell_(r.firstGen)];
+    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
+    cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen)];
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
   row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.signal));
   multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
-  row.push(cell_(r.firstSuspensions), cell_(r.firstDeadlines), cell_(r.firstEvents), cell_(r.firstScholarships),
+  row.push(cell_(r.wifiSpend));
+  row.push(cell_(r.firstSuspensions), cell_(r.firstDocuments), cell_(r.firstEvents), cell_(r.firstScholarships), cell_(r.firstAnnouncements),
     cell_(r.scenario), cell_(r.reachHow), cell_(r.reachGot));
   multiCells_(row, r.concern, CONCERN, "");
   row.push(cell_(r.askFirst));
