@@ -124,31 +124,36 @@ async function walkAll(page, shot) {
   await at(page, "firstSuspensions", shot);
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 8, "every channel is offered");
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 1, "suspensions offer only Too late");
-  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".kicker")).textContent(), "Hearing from VSU, 1 of 8");
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".kicker")).textContent(), "Hearing from VSU, 1 of 4");
   await page.click(btn("firstSuspensions", "Group chats: class, org, dorm"));
+  await scene(page, "o", shot);
+  assert.strictEqual(await page.locator(inStep("m-o", ".kicker")).textContent(), "Hearing from VSU, 1 of 4", "a scene shares its question's number");
   await at(page, "firstDeadlines", shot);
   await page.click(btn("firstDeadlines", "Official VSU pages or website"));
+  await scene(page, "d", shot);
   await at(page, "firstEvents", shot);
   assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 2, "events also offer Doesn't apply");
   await page.click(btn("firstEvents", "Unofficial groups, like freedom walls"));
+  await scene(page, "f", shot);
   await at(page, "firstScholarships", shot);
   await page.click(btn("firstScholarships", "Too late, or never"));
-  for (const k of ["d", "o", "f", "g"]) await scene(page, k, shot);
+  for (const k of ["g", "k"]) await scene(page, k, shot);
   // Reaching VSU
   await at(page, "scenario", shot);
-  assert.strictEqual(await page.locator(inStep("scenario", ".kicker")).textContent(), "Reaching VSU, 1 of 7");
+  assert.strictEqual(await page.locator(inStep("scenario", ".kicker")).textContent(), "Reaching VSU, 1 of 4");
   await page.click(btn("scenario", "Asked in a student Facebook group"));
-  for (const k of ["a", "e", "c"]) await scene(page, k, shot);
+  for (const k of ["a", "e"]) await scene(page, k, shot);
   await at(page, "reachHow", shot);
   await page.click(btn("reachHow", "Messenger or another chat app"));
   await at(page, "reachGot", shot);
-  assert.strictEqual(await page.locator(inStep("reachGot", ".kicker")).textContent(), "Reaching VSU, 5 of 7", "the follow-up shares its question's number");
+  assert.strictEqual(await page.locator(inStep("reachGot", ".kicker")).textContent(), "Reaching VSU, 3 of 4", "the follow-up shares its question's number");
   await page.click(btn("reachGot", "Yes, but it took days"));
-  await scene(page, "p", shot);
+  await scene(page, "c", shot);
   await at(page, "concern", shot);
   await page.click(btn("concern", "Went to the student council or an org"));
   await page.click(btn("concern", "Used a suggestion box or feedback form"));
   await next(page);
+  await scene(page, "p", shot);
   // Students and alumni
   await at(page, "askFirst", shot);
   await page.click(btn("askFirst", "A group chat"));
@@ -157,7 +162,7 @@ async function walkAll(page, shot) {
   await page.click(btn("trust", "4"));
   await at(page, "postedAnonymously", shot);
   await page.click(btn("postedAnonymously", "Yes"));
-  for (const k of ["h", "k", "l"]) await scene(page, k, shot);
+  for (const k of ["h", "l"]) await scene(page, k, shot);
   // Campus life
   for (const k of ["i", "j", "m"]) await scene(page, k, shot);
   await at(page, "map", shot);
@@ -621,7 +626,35 @@ function rowOf(r) {
     await t.page.click(btn("worksWell", "News spreads fast"));
     assert.deepStrictEqual((await ans()).worksWell, ["News spreads fast"], "Nothing much gives way to a pick");
     const order = (await steps()).filter(x => x.startsWith("m-")).map(x => x.slice(2)).join("");
-    assert.strictEqual(order, "dofgaecpbnhklijm", "scenes follow the parts");
+    assert.strictEqual(order, "odfgkaecpbnhlijm", "scenes follow the parts, each after its question");
+    assert.deepStrictEqual(t.errors, []);
+    await t.ctx.close();
+  });
+
+  await check("the desk keys in answers and skips, and hands the pass over", async () => {
+    const t = await open(browser, { mobile: true });
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "home");
+    await t.page.evaluate(() => window.__survey.go("year"));
+    await at(t.page, "year");
+    const bar = i => t.page.evaluate(n => document.querySelector('[data-box="pass"] [data-bar="' + n + '"]').getAttribute("class"), i);
+    assert.ok(!/\bon\b/.test(await bar(0)), "the monitor starts empty");
+    await t.page.click(btn("year", "3rd"));
+    assert.ok(await t.page.locator('[data-box="pass"] .scene.typing').count() === 1, "an answer is typed in");
+    assert.ok(/\bon\b/.test(await bar(0)), "and its line fills");
+    await at(t.page, "faculty");
+    await next(t.page);
+    await at(t.page, "org");
+    assert.ok(/\bskip\b/.test(await bar(1)), "a skip is typed in as a short grey line");
+    await t.page.evaluate(() => window.__survey.go("firstGen"));
+    await at(t.page, "firstGen");
+    await t.page.click(btn("firstGen", "No"));
+    await t.page.waitForFunction(() => document.getElementById("passwrap").classList.contains("handing"), null, { timeout: 2500 });
+    assert.strictEqual(await current(t.page), "firstGen", "the walk waits while the pass is handed over");
+    await at(t.page, "networks");
+    assert.ok(await t.page.evaluate(() => document.getElementById("passwrap").classList.contains("gone")), "the pass has left the desk");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
   });

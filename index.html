@@ -50,6 +50,8 @@ button,a,input,textarea{touch-action:manipulation}
 .chap[disabled]{cursor:default}
 .chap:not([disabled]):hover{background:rgba(255,255,255,.28)}
 .chap{min-width:0}
+/* The news questions run long; on short phones their heading steps down a size so the eight channels stay in view. */
+@media (max-width:699px) and (max-height:700px){ .box[data-box="news"] .prompt{font-size:19px} }
 .chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dots{display:flex;gap:4px;align-items:center;flex:none}
 .dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
@@ -294,11 +296,20 @@ a{color:var(--sea)}
 .agegrid .back{border-style:dashed}
 
 /* ---------- Pass: the counter ---------- */
-.idcard{position:absolute;left:50%;top:50%;width:min(300px,78%);border-radius:16px;overflow:hidden;background:#FFFFFF;color:#13261D;box-shadow:0 14px 30px rgba(0,0,0,.28);opacity:0;transform:translate(-50%,-50%) scale(.5);pointer-events:none;z-index:2}
+.idwrap{position:absolute;left:50%;top:50%;width:min(300px,78%);opacity:0;transform:translate(-50%,-50%) scale(.5);pointer-events:none;z-index:2}
+.idcard{position:relative;border-radius:16px;overflow:hidden;background:#FFFFFF;color:#13261D;box-shadow:0 14px 30px rgba(0,0,0,.28)}
 .idcard::before{content:"";display:block;height:12px;background:var(--band,#1F7A8C)}
-.idcard.printing{animation:printOut 1.5s cubic-bezier(.3,.9,.3,1) forwards}
-.idcard.printed{opacity:1;transform:translate(-50%,-50%)}
-.idcard.printed.docked{transform:translate(-6%,-18%) scale(.5)}
+.idwrap.printing{animation:printOut 1.5s cubic-bezier(.3,.9,.3,1) forwards}
+.idwrap.printed{opacity:1;transform:translate(-50%,-50%)}
+.idwrap.printed.docked{transform:translate(-6%,-18%) scale(.5)}
+/* The receptionist hands the pass over: her fingers hold its top edge, it comes toward you, she lets go. */
+.idwrap.handing{animation:handOver 1s cubic-bezier(.45,.05,.4,1) forwards}
+@keyframes handOver{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}35%{opacity:1;transform:translate(-50%,-42%) scale(1.07) rotate(-2deg)}100%{opacity:0;transform:translate(-50%,60%) scale(1.28) rotate(4deg)}}
+.idwrap.gone{opacity:0}
+.pinch{position:absolute;top:-6px;width:22px;height:14px;border-radius:50%;background:#8A5A3C;border:1.5px solid #13261D;opacity:0;z-index:3}
+.pinch.l{left:30%}.pinch.r{right:30%}
+.idwrap.handing .pinch{animation:pinch 1s ease forwards}
+@keyframes pinch{0%{opacity:0;transform:translateY(-10px)}15%{opacity:1;transform:none}42%{opacity:1;transform:none}68%{opacity:0;transform:translateY(-28px)}100%{opacity:0}}
 @keyframes printOut{0%{opacity:1;transform:translate(10%,30%) scale(.32)}40%{opacity:1;transform:translate(10%,-20%) scale(.36)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .id-body{display:flex;gap:12px;padding:12px 14px 14px;align-items:center}
 .id-photo{flex:none;width:56px;height:68px;border-radius:12px;background:linear-gradient(180deg,#9ED1DB,#DCEBD5);display:grid;place-items:end center;overflow:hidden}
@@ -307,9 +318,16 @@ a{color:var(--sea)}
 .id-fields{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13.5px;margin:0}
 .id-fields dt{color:#4A5E53}
 .id-fields dd{margin:0;font-weight:700}
-.typing .hands{animation:typing .18s ease-in-out 5}
-@keyframes typing{50%{transform:translateY(2px)}}
-.bar-fill{transition:width .5s cubic-bezier(.3,1.2,.5,1)}
+/* Typing: each answer, or a skip, is keyed in; the monitor line for it fills in steps, grey and short for a skip. */
+.hands ellipse{transform-box:fill-box;transform-origin:center}
+.typing .hands .hl{animation:typeHand .13s ease-in-out 7 alternate}
+.typing .hands .hr{animation:typeHand .13s ease-in-out 7 alternate .065s}
+@keyframes typeHand{to{transform:translateY(-3.5px)}}
+.typing .key{animation:keyTap .3s steps(1) 2}
+@keyframes keyTap{0%{fill:#F2B33D}50%{fill:#C3D3CB}}
+.bar-fill{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0);transition:transform .8s steps(7),fill .2s}
+.bar-fill.on{transform:scaleX(1)}
+.bar-fill.skip{transform:scaleX(.22);fill:#9AA9A0}
 
 /* ---------- Moments: calendar and backpack (from v1) ---------- */
 .cap{font:700 11px var(--body);fill:var(--scene-ink)}
@@ -815,7 +833,8 @@ a{color:var(--sea)}
 
   /* Your pass: you stand at the counter; the staff fills in your pass, prints it, and hands it over. */
   function passStage() {
-    var bars = "";
+    var bars = "", keys = "";
+    [0, 180, 60, 240, 120, 300, 30, 210, 90].forEach(function (d, i) { keys += '<rect class="key" x="' + (109 + i * 6.6) + '" y="155.5" width="5" height="5" rx="1.2" fill="#C3D3CB" style="animation-delay:' + d + 'ms"/>'; });
     for (var i = 0; i < 5; i++) bars += '<rect x="10" y="' + (11 + i * 7.6) + '" width="54" height="4.2" rx="2.1" fill="#C3D3CB"/><rect class="bar-fill" data-bar="' + i + '" x="10" y="' + (11 + i * 7.6) + '" width="' + [44, 54, 36, 30, 40][i] + '" height="4.2" rx="2.1" fill="' + ["#1F7A8C", "#D9483B", "#7A5BA6", "#F2B33D", "#5E8C4A"][i] + '"/>';
     return stageSvg(
       '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.28)"/>' +
@@ -830,13 +849,14 @@ a{color:var(--sea)}
       '<circle cx="171" cy="94" r="3.8" fill="#FFFFFF"/><circle cx="189" cy="94" r="3.8" fill="#FFFFFF"/><circle class="pupil" cx="171" cy="94" r="2" fill="#13261D"/><circle class="pupil" cx="189" cy="94" r="2" fill="#13261D"/>' +
       '<path d="M174 103 q6 4.5 12 0" stroke="#13261D" stroke-width="1.8" fill="none" stroke-linecap="round"/></g></g>' +
       '<g><g transform="translate(40 108)"><rect width="76" height="52" rx="5" fill="#13261D"/><rect x="4" y="4" width="68" height="44" rx="3" fill="#DCEFF2"/>' + bars + '<rect x="33" y="52" width="10" height="8" fill="#13261D"/></g>' +
-      '<g class="hands"><ellipse cx="132" cy="168" rx="10" ry="5.5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/><ellipse cx="156" cy="170" rx="10" ry="5.5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/></g>' +
       '<g transform="translate(244 134)"><rect x="8" y="-7" width="56" height="9" rx="3" fill="#13261D"/><rect width="72" height="34" rx="7" fill="#4A5E53" stroke="#13261D" stroke-width="1.5"/><circle class="led" cx="60" cy="12" r="3.5" fill="#8FB97D"/><rect x="10" y="20" width="36" height="5" rx="2.5" fill="#13261D" opacity=".5"/></g>' +
-      '<path d="M0 166 H360 V198 a22 22 0 0 1 -22 22 H22 a22 22 0 0 1 -22 -22 Z" fill="#7A5E44"/><rect y="162" width="360" height="8" fill="#A0704F"/></g>') +
+      '<path d="M0 166 H360 V198 a22 22 0 0 1 -22 22 H22 a22 22 0 0 1 -22 -22 Z" fill="#7A5E44"/><rect y="162" width="360" height="8" fill="#A0704F"/>' +
+      '<g class="kbd"><rect x="106" y="153" width="64" height="10" rx="3" fill="#4A5E53" stroke="#13261D" stroke-width="1.2"/>' + keys + "</g>" +
+      '<g class="hands"><ellipse class="hl" cx="121" cy="153.5" rx="9" ry="5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/><ellipse class="hr" cx="151" cy="154.5" rx="9" ry="5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/></g></g>') +
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
-  var PASS_CARD = '<div class="idcard" id="passcard" aria-hidden="true"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div><p class="id-title">VSUrvey pass</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div>';
+  var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
+    '<div><p class="id-title">VSUrvey pass</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div><span class="pinch l"></span><span class="pinch r"></span></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -975,9 +995,9 @@ a{color:var(--sea)}
   var TOO_LATE = "Too late, or never", NOT_MINE = "Doesn't apply to me";
   var FIRSTS = [
     ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [TOO_LATE]],
-    ["firstDeadlines", "When an office deadline like enrollment is near, where do you usually hear it first?", [TOO_LATE]],
+    ["firstDeadlines", "When a deadline like clearance, submission, or payment is near, where do you usually hear it first?", [TOO_LATE]],
     ["firstEvents", "When there's an event or activity, where do you usually hear it first?", [TOO_LATE, NOT_MINE]],
-    ["firstScholarships", "When a scholarship or other opportunity opens, where do you usually hear it first?", [TOO_LATE, NOT_MINE]]
+    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [TOO_LATE, NOT_MINE]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
   var NO_SIM = "No SIM or mobile data", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only";
@@ -989,7 +1009,8 @@ a{color:var(--sea)}
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
   /* The 16 scenes: v1's 13, plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23).
-     Ordered by part (D-119): hearing from VSU, reaching VSU, students and alumni, campus life. Letters stay, so results compare. */
+     Ordered by part (D-119): hearing from VSU, reaching VSU, students and alumni, campus life; a scene follows the question it
+     goes with, sharing its number. Letters stay, so results compare. */
   var MOMENTS = (function () {
     var by = {};
     V1_MOMENTS.forEach(function (m) { by[m.k] = m; });
@@ -1006,7 +1027,7 @@ a{color:var(--sea)}
       props: '<rect x="134" y="104" width="92" height="74" rx="7" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><rect x="156" y="112" width="48" height="6" rx="3" fill="#13261D"/><rect x="152" y="132" width="56" height="26" rx="4" fill="#E9C27D" stroke="#13261D" stroke-width="1.5"/><path d="M160 141h40M160 149h28" stroke="#7A5E44" stroke-width="2.5" stroke-linecap="round"/>' +
         '<g><rect x="166" y="40" width="28" height="36" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.6"/><path d="M171 49h18M171 56h14M171 63h16" stroke="#C9C2B3" stroke-width="2.4" stroke-linecap="round"/><animateTransform attributeName="transform" type="translate" values="0 0;0 34;0 34;0 0" keyTimes="0;.45;.8;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.4;.5;.95;1" dur="3.6s" repeatCount="indefinite"/></g>' +
         '<g><path d="M236 46h44a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8h-26l-12 10v-10h-6a8 8 0 0 1-8-8V54a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><g fill="#4F6D8F"><circle cx="246" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="258" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".25s" repeatCount="indefinite"/></circle><circle cx="270" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".5s" repeatCount="indefinite"/></circle></g></g>' };
-    return ["d", "o", "f", "g", "a", "e", "c", "p", "b", "n", "h", "k", "l", "i", "j", "m"].map(function (k) { return by[k]; });
+    return ["o", "d", "f", "g", "k", "a", "e", "c", "p", "b", "n", "h", "l", "i", "j", "m"].map(function (k) { return by[k]; });
   })();
   var byKey = {};
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
@@ -1015,7 +1036,7 @@ a{color:var(--sea)}
   var CHAPTERS = ["Start", "Home", "Your pass", "Mobile data", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life", "Map", "Coins", "Your story", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
-  /* A part numbers its own steps in the kicker; a follow-up (sub) shares the number of the step before it. */
+  /* A part numbers its own items in the kicker; a follow-up (sub), such as the scene after its question, shares the number before it. */
   function part(ch, name, items) {
     var n = items.filter(function (it) { return !it.sub; }).length, i = 0;
     items.forEach(function (it) {
@@ -1037,8 +1058,8 @@ a{color:var(--sea)}
   step({ id: "org", box: "pass", ch: 2, kind: "tiles", key: "org", cols: "t3", kicker: "Your pass, 3 of 5", prompt: "In student organizations, you are…", say: "Any student orgs?", core: true,
     opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) });
   step({ id: "scholarship", box: "pass", ch: 2, kind: "tiles", key: "scholarship", cols: "t3", kicker: "Your pass, 4 of 5", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() });
-  step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2700,
-    beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : 1700; } return 0; } });
+  step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2900,
+    beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : HANDOVER_MS + 100; } return handoverLeft(); } });
   step({ id: "networks", box: "data", ch: 3, kind: "tiles", multi: true, exclusive: NO_SIM, key: "networks", cols: "t3", size: "short", kicker: "Mobile data, 1 of 6", prompt: "Which networks are your SIMs on?", lede: "Pick all that apply. Many phones carry two SIMs.", hint: "vigs", core: true,
     opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) });
   step({ id: "load", box: "data", ch: 3, kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", size: "short", kicker: "Mobile data, 2 of 6", prompt: "What kind of load do you usually buy?", lede: "Pick all that apply.", core: true, when: function () { return !simless(); },
@@ -1052,24 +1073,26 @@ a{color:var(--sea)}
     opts: OPT.onlineCampus.map(function (o) { return { v: o[0], art: function () { return TILE.net(o[1]); } }; }) });
   step({ id: "onlineHome", box: "data", ch: 3, kind: "tiles", key: "onlineHome", cols: "t3", size: "short", kicker: "Mobile data, 6 of 6", prompt: "Where you stay, how do you get online?", core: true,
     opts: OPT.onlineHome.map(function (o) { return { v: o[0], art: function () { return TILE.net(o[1]); } }; }) });
-  part(4, "Hearing from VSU", FIRSTS.map(function (f) {
-    return { id: f[0], box: "news", kind: "pick", key: f[0], size: "tight", extras: f[2], prompt: f[1], core: true };
-  }).concat([{ k: "d", hint: "moment" }, { k: "o" }, { k: "f" }, { k: "g" }]));
+  var PAIRED = { firstSuspensions: [{ k: "o", sub: true, hint: "moment" }], firstDeadlines: [{ k: "d", sub: true }], firstEvents: [{ k: "f", sub: true }], firstScholarships: [{ k: "g", sub: true }, { k: "k", sub: true }] };
+  part(4, "Hearing from VSU", [].concat.apply([], FIRSTS.map(function (f) {
+    return [{ id: f[0], box: "news", kind: "pick", key: f[0], size: "tight", extras: f[2], prompt: f[1], core: true }].concat(PAIRED[f[0]]);
+  })));
   part(5, "Reaching VSU", [
     { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
     opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { k: "a" }, { k: "e" }, { k: "c" },
+    { k: "a", sub: true }, { k: "e" },
     { id: "reachHow", box: "errand", kind: "chipsOne", key: "reachHow", size: "bare", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow },
     { id: "reachGot", box: "errand", kind: "chipsOne", key: "reachGot", size: "bare", sub: true, prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot, when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
-    { k: "p" },
-    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, "Kept it to myself"], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern }
+    { k: "c", sub: true },
+    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, "Kept it to myself"], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { k: "p", sub: true }
   ]);
   part(6, "Students and alumni", [
     { id: "askFirst", box: "peers", kind: "chipsOne", key: "askFirst", size: "bare", prompt: "The last time you had a question about a subject or a school process, where did you ask first?", core: true, opts: OPT.askFirst },
-    { k: "b" }, { k: "n" },
+    { k: "b", sub: true }, { k: "n", sub: true },
     { id: "trust", box: "trust", kind: "scale", key: "trust", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true },
     { id: "postedAnonymously", box: "anon", kind: "tiles", key: "postedAnonymously", cols: "t3", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() },
-    { k: "h" }, { k: "k" }, { k: "l" }
+    { k: "h" }, { k: "l" }
   ]);
   part(7, "Campus life", [{ k: "i" }, { k: "j" }, { k: "m" }]);
   step({ id: "map", box: "map", ch: 8, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", spareLede: true, hint: "map" });
@@ -1407,23 +1430,42 @@ a{color:var(--sea)}
     });
     card.style.setProperty("--band", A.org === "An officer" ? "#F2B33D" : A.org === "A member" ? "#1F7A8C" : "#9AA9A0");
   }
+  var passSkipped = {};
+  function passType() { if (!calm()) replay($(".scene", boxEls.pass), "typing"); }
   function passReact(key) {
     var box = boxEls.pass, svg = $(".scene", box);
-    PASS_KEYS.forEach(function (k, i) { var bar = $('[data-bar="' + i + '"]', svg); bar.classList.toggle("on", A[k] !== null); });
-    if (key) replay(svg, "typing");
+    PASS_KEYS.forEach(function (k, i) {
+      var bar = $('[data-bar="' + i + '"]', svg);
+      bar.classList.toggle("on", A[k] !== null);
+      bar.classList.toggle("skip", A[k] === null && !!passSkipped[k]);
+    });
+    if (key) passType();
     fillCard();
     if (key === "firstGen" && !printed) printPass();
   }
+  /* The pass prints, then she hands it over; the walk moves on once it has left her hands. */
+  var printedAt = 0, HANDOVER_MS = 2650;
   function printPass() {
     printed = true;
+    printedAt = Date.now();
     fillCard();
-    var card = $("#passcard"), svg = $(".scene", boxEls.pass);
-    card.classList.remove("docked");
+    var wrap = $("#passwrap");
+    wrap.classList.remove("docked", "gone");
     say(boxEls.pass, "pass-say", "Here's your pass!");
-    if (calm()) { card.classList.add("printed"); return; }
-    replay(card, "printing");
-    setTimeout(function () { card.classList.remove("printing"); card.classList.add("printed"); }, 1550);
+    if (calm()) { wrap.classList.add("printed"); return; }
+    replay(wrap, "printing");
+    setTimeout(function () {
+      wrap.classList.remove("printing");
+      wrap.classList.add("printed");
+      if (curId !== "firstGen") return;
+      replay(wrap, "handing");
+      setTimeout(function () {
+        wrap.classList.remove("handing");
+        if (curId === "firstGen") { wrap.classList.add("gone"); say(boxEls.pass, "pass-say", "You're all set!"); }
+      }, 1000);
+    }, 1550);
   }
+  function handoverLeft() { return calm() ? 0 : Math.max(0, HANDOVER_MS - (Date.now() - printedAt)); }
 
   /* Mobile data: the load card, the gauge, and the signal answer each choice. */
   function dataReact() {
@@ -1607,10 +1649,11 @@ a{color:var(--sea)}
     if (s.box === "gate") gateReact();
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
-      var svg = $(".scene", box), card = $("#passcard");
+      var svg = $(".scene", box), card = $("#passwrap");
       if (s.id === "firstGen" && printed) say(box, "pass-say", "Here's your pass!");
       else say(box, "pass-say", s.say);
       card.classList.toggle("docked", printed && s.id !== "firstGen");
+      if (!card.classList.contains("handing")) card.classList.remove("gone");
       passReact(null);
     }
     if (s.box === "data") dataReact();
@@ -1641,6 +1684,7 @@ a{color:var(--sea)}
     if (leaving || !canLeave(s)) return;
     var n = nextOf(s);
     if (!n) return;
+    if (s.box === "pass" && s.key && !done(s)) { passSkipped[s.key] = true; passReact(null); passType(); }
     var wait = s.beforeNext ? s.beforeNext() : 0;
     if (wait > 0) {
       leaving = true;
