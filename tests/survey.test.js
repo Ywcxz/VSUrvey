@@ -99,8 +99,18 @@ async function walkAll(page, shot) {
   await page.click(btn("sources", "Other"));
   await page.fill(inStep("sources", '[data-other="sourcesOther"]'), "Our class adviser");
   await next(page);
-  await at(page, "mainSource", shot);
-  await page.click(btn("mainSource", "Messenger group chats"));
+  await at(page, "firstSuspensions", shot);
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", '.vig[data-v="Other"] .lbl')).textContent(), "Other: Our class adviser", "Other carries what was typed");
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 3, "only the channels picked are offered");
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 1, "suspensions offer only Too late");
+  await page.click(btn("firstSuspensions", "Messenger group chats"));
+  await at(page, "firstDeadlines", shot);
+  await page.click(btn("firstDeadlines", "Official VSU Facebook pages"));
+  await at(page, "firstEvents", shot);
+  assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 2, "events also offer Doesn't apply");
+  await page.click(btn("firstEvents", "Other"));
+  await at(page, "firstScholarships", shot);
+  await page.click(btn("firstScholarships", "Too late, or never"));
   await at(page, "networks", shot);
   await page.click(btn("networks", "Smart or TNT"));
   await page.click(btn("networks", "DITO"));
@@ -190,7 +200,7 @@ function rowOf(r) {
       assert.deepStrictEqual(t.errors, []);
       assert.strictEqual(t.posts.length, 1, "expected one POST, got " + t.posts.length);
       const r = JSON.parse(t.posts[0]);
-      assert.strictEqual(r.version, "scenes-v2");
+      assert.strictEqual(r.version, "scenes-v3");
       assert.strictEqual(r.survey, "student-life-2026");
       assert.strictEqual(rowOf(r).survey, "student-life-2026");
       const how = await t.page.evaluate(() => document.querySelector(".how span").textContent);
@@ -206,7 +216,12 @@ function rowOf(r) {
       assert.strictEqual(r.firstGen, "Yes");
       assert.deepStrictEqual(r.sources, ["Messenger group chats", "Official VSU Facebook pages", "Other"]);
       assert.strictEqual(r.sourcesOther, "Our class adviser");
-      assert.strictEqual(r.mainSource, "Messenger group chats");
+      assert.strictEqual(r.firstSuspensions, "Messenger group chats");
+      assert.strictEqual(r.firstDeadlines, "Official VSU Facebook pages");
+      assert.strictEqual(r.firstEvents, "Other");
+      assert.strictEqual(r.firstScholarships, "Too late, or never");
+      assert.ok(!("mainSource" in r), "rely-on-most is gone (D-119)");
+      assert.strictEqual(rowOf(r).firstScholarships, "Too late, or never");
       assert.strictEqual(r.dataSpend, "₱50 to ₱99");
       assert.strictEqual(r.dataSchool, "About half");
       assert.deepStrictEqual(r.networks, ["Smart or TNT", "DITO"]);
@@ -313,7 +328,7 @@ function rowOf(r) {
     assert.strictEqual(r.residence, null);
     assert.deepStrictEqual(r.board, {});
     assert.deepStrictEqual(r.pins, []);
-    assert.strictEqual(r.mainSource, null);
+    for (const k of ["firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships"]) assert.strictEqual(r[k], null);
     assert.strictEqual(receiver.refusal_(r), "");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
@@ -464,8 +479,8 @@ function rowOf(r) {
       };
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
-      await t.page.evaluate(() => { const a = window.__survey.answers; a.sources = ["Email", "Campus bulletin boards"]; a.load = ["Data for certain apps only"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["sources", "mainSource", "networks", "load", "loadApps", "dataSpend", "dataSchool", "onlineCampus", "onlineHome", "scenario", "map", "coins", "story", "trust", "postedAnonymously", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      await t.page.evaluate(() => { const a = window.__survey.answers; a.sources = ["Official VSU website or portal", "Official VSU Facebook pages", "Unofficial student Facebook groups or pages", "Messenger group chats", "Email", "Campus bulletin boards", "Friends and classmates", "Other"]; a.sourcesOther = "Our class adviser and the dorm manager"; a.load = ["Data for certain apps only"]; });
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["sources", "firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships", "networks", "load", "loadApps", "dataSpend", "dataSchool", "onlineCampus", "onlineHome", "scenario", "map", "coins", "story", "trust", "postedAnonymously", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);
@@ -538,8 +553,39 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
+  await check("the news follow-ups follow the channels picked, and skip when none is picked", async () => {
+    const t = await open(browser, { mobile: true });
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "home");
+    const steps = () => t.page.evaluate(() => window.__survey.steps());
+    await t.page.evaluate(() => window.__survey.go("sources"));
+    await at(t.page, "sources");
+    await t.page.click(btn("sources", "Email"));
+    await t.page.click(btn("sources", "Campus bulletin boards"));
+    await t.page.evaluate(() => window.__survey.go("firstDeadlines"));
+    await at(t.page, "firstDeadlines");
+    await t.page.click(btn("firstDeadlines", "Email"));
+    await t.page.evaluate(() => window.__survey.go("firstEvents"));
+    await at(t.page, "firstEvents");
+    await t.page.click(btn("firstEvents", "Doesn't apply to me"));
+    await t.page.evaluate(() => window.__survey.go("sources"));
+    await at(t.page, "sources");
+    await t.page.click(btn("sources", "Email"));
+    let a = await t.page.evaluate(() => window.__survey.answers);
+    assert.strictEqual(a.firstDeadlines, null, "a channel taken off clears the answer that named it");
+    assert.strictEqual(a.firstEvents, "Doesn't apply to me", "the extra answers stay");
+    assert.ok((await steps()).includes("firstSuspensions"), "one channel still gets the follow-ups");
+    await t.page.click(btn("sources", "None of these"));
+    a = await t.page.evaluate(() => window.__survey.answers);
+    assert.ok(!(await steps()).some(x => ["firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships"].includes(x)), "None of these skips the follow-ups");
+    assert.deepStrictEqual(t.errors, []);
+    await t.ctx.close();
+  });
+
   await check("the receiver refuses records without consent, age, or the current version", async () => {
-    const ok = { consent: true, age18: true, variant: "scenes", version: "scenes-v2" };
+    const ok = { consent: true, age18: true, variant: "scenes", version: "scenes-v3" };
     assert.strictEqual(receiver.refusal_(ok), "");
     assert.ok(receiver.refusal_(Object.assign({}, ok, { consent: false })));
     assert.ok(receiver.refusal_(Object.assign({}, ok, { age18: false })));

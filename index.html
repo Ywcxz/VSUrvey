@@ -431,6 +431,8 @@ a{color:var(--sea)}
   .vig[aria-pressed="true"]::after{top:6px;right:6px;width:18px;height:18px;background-size:12px}
   .none-row{margin-top:8px}
   .none-row .chip{padding:7px 14px;min-height:38px;font-size:14.5px}
+  .vigs[data-part="pick"] .vig[data-v="Other"] .lbl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .vigs[data-part="pick"] + .none-row .chip{padding:7px 12px;font-size:14px}
   .chips.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
   .chips.grid2 .chip{border-radius:14px;padding:4px 8px;min-height:40px;font-size:13px;line-height:1.16;text-align:left}
   .chips.grid2 .chip.icon{gap:7px;padding-left:9px}
@@ -501,7 +503,7 @@ a{color:var(--sea)}
   var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
   var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
-  var SURVEY_VERSION = "scenes-v2";
+  var SURVEY_VERSION = "scenes-v3";
   var SURVEY_ID = "student-life-2026";  // VSUrvey is the name for every survey of the series; this is the first
   var SURVEY_LABEL = "Student Life and Services";
   var FORM_URL = "";  // the same survey as a Google Form, once it exists; the first screen then offers it
@@ -928,7 +930,7 @@ a{color:var(--sea)}
   var A = {
     consent: false, age18: null, startedAt: null,
     residence: null, year: null, faculty: null, org: null, scholarship: null, firstGen: null,
-    sources: [], sourcesOther: "", mainSource: null,
+    sources: [], sourcesOther: "", firstSuspensions: null, firstDeadlines: null, firstEvents: null, firstScholarships: null,
     networks: [], load: [], loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, onlineCampus: null, onlineHome: null,
     scenario: null, board: {}, pins: [], coins: {},
     story: "", mayQuote: false, trust: null, postedAnonymously: null,
@@ -962,6 +964,14 @@ a{color:var(--sea)}
     away: [["Feeling watched by the university", "eye"], ["Fear of consequences for criticism", "megaphone"], ["Too many apps already", "stack"], ["My friends wouldn't be on it", "people"], ["Hard or slow to use", "snail"], ["Uses too much mobile data", "signal"], ["Other", "other"]]
   };
   var NONE_SOURCE = "None of these";
+  /* After the channels, where each kind of news is usually heard first (D-119). Answers: the channels picked, plus these. */
+  var TOO_LATE = "Too late, or never", NOT_MINE = "Doesn't apply to me";
+  var FIRSTS = [
+    ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [TOO_LATE]],
+    ["firstDeadlines", "When an office deadline like enrollment is near, where do you usually hear it first?", [TOO_LATE]],
+    ["firstEvents", "When there's an event or activity, where do you usually hear it first?", [TOO_LATE, NOT_MINE]],
+    ["firstScholarships", "When a scholarship or other opportunity opens, where do you usually hear it first?", [TOO_LATE, NOT_MINE]]
+  ];
   var NO_SIM = "No SIM or mobile data", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only";
   function simless() { return A.networks.length === 1 && A.networks[0] === NO_SIM; }
   var HAPPENED = ["Once or twice", "Several times", "Often"];
@@ -1010,9 +1020,11 @@ a{color:var(--sea)}
   step({ id: "scholarship", box: "pass", ch: 2, kind: "tiles", key: "scholarship", cols: "t3", kicker: "Your pass, 4 of 5", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() });
   step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2700,
     beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : 1700; } return 0; } });
-  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", size: "tight", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: TAP + " every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
+  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", size: "tight", kicker: "VSU news, 1 of 5", prompt: "Where do you get news about VSU?", lede: TAP + " every one you use.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
     opts: OPT.sources.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
-  step({ id: "mainSource", box: "news", ch: 3, kind: "pick", key: "mainSource", kicker: "Your phone", prompt: "Which one do you rely on most?", core: true, when: function () { return realSources().length > 1; } });
+  FIRSTS.forEach(function (f, i) {
+    step({ id: f[0], box: "news", ch: 3, kind: "pick", key: f[0], size: "tight", extras: f[2], kicker: "VSU news, " + (i + 2) + " of 5", prompt: f[1], core: true, when: function () { return realSources().length > 0; } });
+  });
   step({ id: "networks", box: "data", ch: 4, kind: "tiles", multi: true, exclusive: NO_SIM, key: "networks", cols: "t3", size: "short", kicker: "Mobile data, 1 of 6", prompt: "Which networks are your SIMs on?", lede: "Pick all that apply. Many phones carry two SIMs.", hint: "vigs", core: true,
     opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) });
   step({ id: "load", box: "data", ch: 4, kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", size: "short", kicker: "Mobile data, 2 of 6", prompt: "What kind of load do you usually buy?", lede: "Pick all that apply.", core: true, when: function () { return !simless(); },
@@ -1078,7 +1090,7 @@ a{color:var(--sea)}
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
   function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
-  function vigBtn(o, i, star) { return '<button type="button" class="vig' + (star ? " star" : "") + '" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + o.art() + '<span class="lbl">' + esc(o.v) + "</span></button>"; }
+  function vigBtn(o, i, star) { return '<button type="button" class="vig' + (star ? " star" : "") + '" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + o.art() + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
   function otherField(s) { return '<input class="field" data-other="' + s.other + '" type="text" maxlength="120" autocomplete="off" placeholder="' + esc(s.otherPh) + '" aria-label="' + esc(s.otherPh) + '" hidden style="margin-top:12px">'; }
 
   var RENDER = {
@@ -1114,7 +1126,10 @@ a{color:var(--sea)}
       if (s.other) h += otherField(s);
       return h + "</div>";
     },
-    pick: function (s) { return head(s) + '<div class="answers"><div class="vigs" data-key="mainSource" data-part="pick" role="group" aria-labelledby="h-' + s.id + '"></div></div>'; },
+    pick: function (s) {
+      return head(s) + '<div class="answers"><div class="vigs" data-key="' + s.key + '" data-part="pick" role="group" aria-labelledby="h-' + s.id + '"></div>' +
+        '<div class="chips none-row" data-key="' + s.key + '">' + s.extras.map(function (x, i) { return chipBtn(x, x, i); }).join("") + "</div></div>";
+    },
     moment: function (s) {
       var m = byKey[s.k];
       return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(m.title) + '</h2><p class="statement">“' + esc(m.text) + "”</p>" +
@@ -1279,7 +1294,7 @@ a{color:var(--sea)}
         }
         arr.push(v);
       }
-      if (key === "sources") fixMainSource();
+      if (key === "sources") fixFirsts();
       if (key === "load" && A.load.indexOf(APP_DATA) < 0) { A.loadApps.length = 0; A.loadAppsOther = ""; }
       if (key === "networks" && simless()) { A.load.length = 0; A.loadApps.length = 0; A.loadAppsOther = ""; A.dataSpend = null; A.dataSchool = null; }
     } else {
@@ -1287,16 +1302,13 @@ a{color:var(--sea)}
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
       if (key === "dataSpend" && A.dataSpend === "Nothing") A.dataSchool = null;
-      if (key === "mainSource") mainAuto = false;
     }
     return turnedOn;
   }
-  /* With one source, it is the main one; with more, the respondent picks on the next step. */
-  var mainAuto = false;
-  function fixMainSource() {
+  /* A channel taken off the list can no longer be where something was heard first. */
+  function fixFirsts() {
     var real = realSources();
-    if (real.length === 1) { A.mainSource = real[0]; mainAuto = true; }
-    else if (mainAuto || real.indexOf(A.mainSource) < 0) { A.mainSource = null; mainAuto = false; }
+    FIRSTS.forEach(function (f) { var v = A[f[0]]; if (v !== null && real.indexOf(v) < 0 && f[2].indexOf(v) < 0) A[f[0]] = null; });
   }
 
   view.addEventListener("click", function (e) {
@@ -1579,9 +1591,11 @@ a{color:var(--sea)}
       card.classList.toggle("docked", printed && s.id !== "firstGen");
       passReact(null);
     }
-    if (s.id === "mainSource") {
-      var list = $('[data-part="pick"]', panelEls.mainSource), srcs = realSources();
-      list.innerHTML = OPT.sources.filter(function (o) { return srcs.indexOf(o[0]) >= 0; }).map(function (o, i) { return vigBtn({ v: o[0], art: VIG[o[1]] }, i, true); }).join("");
+    if (s.kind === "pick") {
+      var list = $('[data-part="pick"]', panelEls[s.id]), srcs = realSources(), other = A.sourcesOther.trim();
+      list.innerHTML = OPT.sources.filter(function (o) { return srcs.indexOf(o[0]) >= 0; }).map(function (o, i) {
+        return vigBtn({ v: o[0], label: o[0] === "Other" && other ? "Other: " + other : "", art: VIG[o[1]] }, i, true);
+      }).join("");
     }
     if (s.box === "data") dataReact();
     if (s.kind === "moment") syncMoment(s.k, null);
@@ -1891,7 +1905,7 @@ a{color:var(--sea)}
     var cells = [
       cell("house", "#B7791F", "Home", A.residence || "Skipped"),
       cell("cap", "#1F7A8C", "Your pass", [short("year"), short("faculty")].join(", ")),
-      cell("chat", "#7A5BA6", "News reaches you by", A.mainSource || realSources()[0] || (A.sources.length ? "None of these" : "Skipped")),
+      cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions || (A.sources.indexOf(NONE_SOURCE) >= 0 ? "None of these" : "Skipped")),
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || "Skipped"),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),

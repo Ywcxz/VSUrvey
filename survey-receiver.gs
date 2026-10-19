@@ -1,5 +1,5 @@
 /**
- * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (scenes-v2)
+ * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (scenes-v3)
  * Project CAMPUS, decisions D-037, D-039, D-110, and D-111
  *
  * Receives one JSON record per response from the scenes survey page and
@@ -34,7 +34,7 @@
 
 var SHEET_NAME = "Responses v2";
 var VARIANT = "scenes";
-var VERSION_PREFIX = "scenes-v2";
+var VERSION_PREFIX = "scenes-v3";
 var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"];
 var SOURCES = ["Official VSU website or portal", "Official VSU Facebook pages",
   "Unofficial student Facebook groups or pages", "Messenger group chats", "Email",
@@ -71,7 +71,7 @@ function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
     "residence", "year", "faculty", "org", "scholarship", "firstGen"];
   multiHeaders_(h, "uses", SOURCES);
-  h.push("mainSource");
+  h.push("firstSuspensions", "firstDeadlines", "firstEvents", "firstScholarships");
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
@@ -122,7 +122,7 @@ function row_(r, now) {
     r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.year), cell_(r.faculty, 100),
     cell_(r.org), cell_(r.scholarship), cell_(r.firstGen)];
   multiCells_(row, r.sources, SOURCES, r.sourcesOther);
-  row.push(cell_(r.mainSource));
+  row.push(cell_(r.firstSuspensions), cell_(r.firstDeadlines), cell_(r.firstEvents), cell_(r.firstScholarships));
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
