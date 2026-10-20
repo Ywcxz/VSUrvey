@@ -97,7 +97,7 @@ async function walkAll(page, shot) {
   await at(page, "faculty", shot);
   await page.click(btn("faculty", "Faculty of Engineering"));
   await at(page, "org", shot);
-  await page.click(btn("org", "A member, but not active"));
+  await page.click(btn("org", "A member, but I rarely take part"));
   await at(page, "scholarship", shot);
   await page.click(btn("scholarship", "No"));
   await at(page, "transferee", shot);
@@ -139,16 +139,16 @@ async function walkAll(page, shot) {
   // Hearing from VSU
   await at(page, "firstSuspensions", shot);
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 8, "every channel is offered");
-  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 1, "suspensions offer only Too late");
+  assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 2, "suspensions offer too late and never, apart");
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".kicker")).textContent(), "Hearing from VSU, 1 of 10");
   await page.click(btn("firstSuspensions", "Group chats: class, org, dorm"));
   await at(page, "firstDocuments", shot);
   await page.click(btn("firstDocuments", "Official VSU pages or website"));
   await at(page, "firstEvents", shot);
-  assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 2, "events also offer Doesn't apply");
+  assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 3, "events also offer Doesn't apply");
   await page.click(btn("firstEvents", "Unofficial groups, like freedom walls"));
   await at(page, "firstScholarships", shot);
-  await page.click(btn("firstScholarships", "Too late, or never"));
+  await page.click(btn("firstScholarships", "Usually too late"));
   await at(page, "firstAnnouncements", shot);
   await page.click(btn("firstAnnouncements", "Student council or org pages"));
   for (const k of ["d", "o", "f", "g", "k"]) await scene(page, k, shot);
@@ -246,7 +246,7 @@ function rowOf(r) {
       assert.ok(!/\b(19|20)\d\d-\d\d-\d\d\b/.test(JSON.stringify(Object.assign({}, r, { startedAt: "", sentAt: "" }))), "no dates beyond the timestamps");
       assert.strictEqual(r.residence, "A relative's or friend's house");
       assert.strictEqual(r.transport, "Habal-habal or tricycle");
-      assert.strictEqual(r.org, "A member, but not active");
+      assert.strictEqual(r.org, "A member, but I rarely take part");
       assert.strictEqual(r.transferee, "Yes");
       assert.strictEqual(r.wifiSpend, "Under ₱50");
       assert.strictEqual(r.faculty, "Faculty of Engineering");
@@ -255,14 +255,17 @@ function rowOf(r) {
       assert.strictEqual(r.firstDocuments, "Official VSU pages or website");
       assert.strictEqual(r.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(r.firstEvents, "Unofficial groups, like freedom walls");
-      assert.strictEqual(r.firstScholarships, "Too late, or never");
+      assert.strictEqual(r.firstScholarships, "Usually too late");
       for (const k of ["mainSource", "sources", "sourcesOther"]) assert.ok(!(k in r), "the record no longer carries " + k + " (D-119)");
+      assert.strictEqual(r.channelOrder.length, 8, "the channel order is recorded");
+      assert.strictEqual(r.channelOrder[7], "other", "Somewhere else stays last");
+      assert.strictEqual(rowOf(r).channelOrder, r.channelOrder.join(" "));
       assert.strictEqual(r.reachHow, "Messenger or another chat app");
       assert.strictEqual(r.reachGot, "Yes, but it took days");
       assert.deepStrictEqual(r.concern, ["Went to the student council or an org", "Used a suggestion box or feedback form"]);
       assert.strictEqual(r.askFirst, "A group chat");
       assert.deepStrictEqual(r.worksWell, ["Everyone is already there", "Works with my load promo"]);
-      assert.strictEqual(rowOf(r).firstScholarships, "Too late, or never");
+      assert.strictEqual(rowOf(r).firstScholarships, "Usually too late");
       assert.strictEqual(r.dataSpend, "₱50 to ₱99");
       assert.strictEqual(r.dataSchool, "About half");
       assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
@@ -350,9 +353,9 @@ function rowOf(r) {
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
     await t.page.click(btn("networks", "Globe"));
-    await t.page.click(btn("networks", "No SIM or mobile data"));
+    await t.page.click(btn("networks", "I don't use a SIM"));
     const a = await t.page.evaluate(() => window.__survey.answers.networks);
-    assert.deepStrictEqual(a, ["No SIM or mobile data"], "No SIM clears the networks picked before it");
+    assert.deepStrictEqual(a, ["I don't use a SIM"], "No SIM clears the networks picked before it");
     await next(t.page);
     await at(t.page, "onlineCampus");
     await t.page.click(btn("onlineCampus", "Campus Wi-Fi"));
@@ -569,6 +572,7 @@ function rowOf(r) {
       await t.page.click("#start");
       await at(t.page, "consent");
       await t.page.click(inStep("consent", ".agree"));
+      await next(t.page);  // with reduced motion nothing moves on by itself
       await at(t.page, "home");
       for (const id of ["home", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"]) {
         await t.page.evaluate(x => window.__survey.go(x), id);
@@ -592,6 +596,7 @@ function rowOf(r) {
       await t.page.click("#start");
       await at(t.page, "consent");
       await t.page.click(inStep("consent", ".agree"));
+      await next(t.page);  // with reduced motion nothing moves on by itself
       await at(t.page, "home");
       const fold = ({ id, mobile }) => {
         const p = document.querySelector('[data-step="' + id + '"]'), pr = p.getBoundingClientRect();
@@ -663,12 +668,18 @@ function rowOf(r) {
     await t.page.click("#start");
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
+    await next(t.page);  // with reduced motion nothing moves on by itself
     await at(t.page, "home");
+    assert.ok((await t.page.locator(".how span").textContent()).indexOf("then Next") > 0, "the intro says to tap Next");
     await t.page.click(btn("home", "An on-campus dorm"));
+    await t.page.waitForTimeout(1300);
+    assert.strictEqual(await current(t.page), "home", "with reduced motion, an answer doesn't move the page on by itself");
+    await next(t.page);
     await at(t.page, "transport");
     await t.page.evaluate(() => window.__survey.go("firstGen"));
     await at(t.page, "firstGen");
     await t.page.click(btn("firstGen", "Prefer not to say"));
+    await next(t.page);
     await at(t.page, "networks");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
@@ -718,7 +729,13 @@ function rowOf(r) {
     await t.page.evaluate(() => window.__survey.go("m-i"));
     await at(t.page, "m-i");
     assert.strictEqual((await ans()).board.i.often, "Does not apply", "a student who commutes from home starts at Doesn't apply on housing");
-    assert.ok((await t.page.locator(inStep("m-i", ".q")).first().textContent()).startsWith("Since the start of the semester"), "scenes ask since the start of the semester");
+    assert.strictEqual((await ans()).board.i.prefilled, true, "and the record says it was picked for them");
+    assert.ok(await t.page.locator(inStep("m-i", ".note.prefill")).isVisible(), "the screen says it was picked for them");
+    assert.strictEqual(receiver.row_({ board: { i: { often: "Does not apply", prefilled: true } } }, new Date())[receiver.headers_().indexOf("i prefilled")], true);
+    await t.page.click(inStep("m-i", '[data-key="often:i"] [data-v="Once or twice"]'));
+    assert.ok(!("prefilled" in (await ans()).board.i), "a tap makes it the student's own answer");
+    assert.ok(await t.page.locator(inStep("m-i", ".note.prefill")).isHidden());
+    assert.ok((await t.page.locator(inStep("m-i", ".q")).first().textContent()).startsWith("Since the start of this semester, how often has"), "scenes ask since the start of this semester");
     assert.strictEqual(await t.page.locator('[data-box="m-i"] .cal-marks').count(), 0, "no calendar on the scenes");
     const order = (await steps()).filter(x => x.startsWith("m-")).map(x => x.slice(2)).join("");
     assert.strictEqual(order, "dofgkaecpbnlijm", "scenes follow the parts");

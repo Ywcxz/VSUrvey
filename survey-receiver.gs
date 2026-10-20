@@ -41,7 +41,7 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
   "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
-var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "No SIM or mobile data"];
+var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "I don't use a SIM"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't buy load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
@@ -81,10 +81,11 @@ function headers_() {
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
   h.push("wifiSpend");
-  h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot");
+  h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "channelOrder", "scenario", "reachHow", "reachGot");
   multiHeaders_(h, "concern", CONCERN);
   h.push("askFirst");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
+  h.push("i prefilled");
   MOMENTS.forEach(function (k) { h.push(k + " coins"); });
   h.push("trust", "postedAnonymously");
   multiHeaders_(h, "worksWell", WORKS);
@@ -136,10 +137,12 @@ function row_(r, now) {
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
   row.push(cell_(r.wifiSpend));
   row.push(cell_(r.firstSuspensions), cell_(r.firstDocuments), cell_(r.firstEvents), cell_(r.firstScholarships), cell_(r.firstAnnouncements),
+    cell_(Array.isArray(r.channelOrder) ? r.channelOrder.join(" ") : "", 80),
     cell_(r.scenario), cell_(r.reachHow), cell_(r.reachGot));
   multiCells_(row, r.concern, CONCERN, "");
   row.push(cell_(r.askFirst));
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
+  row.push(obj_(board.i).prefilled === true);  // "Doesn't apply" on housing, picked for a commuter and never changed
   MOMENTS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });
   row.push(num_(r.trust, 1, 5), cell_(r.postedAnonymously));
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
