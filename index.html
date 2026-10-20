@@ -49,7 +49,12 @@ button,a,input,textarea{touch-action:manipulation}
 .chap{display:flex;align-items:center;gap:10px;min-height:40px;padding:6px 12px 6px 10px;border:0;border-radius:999px;background:rgba(255,255,255,.18);color:var(--scene-ink);cursor:pointer;font:650 14px/1 var(--display)}
 .chap[disabled]{cursor:default}
 .chap:not([disabled]):hover{background:rgba(255,255,255,.28)}
-.dots{display:flex;gap:4px;align-items:center}
+.chap{min-width:0}
+/* The news questions run long; on short phones their heading steps down a size so the eight channels stay in view. */
+@media (max-width:699px) and (max-height:700px){ .box[data-box="news"] .prompt{font-size:19px} }
+@media (max-width:699px) and (max-height:660px){ .box[data-box="news"] .prompt{font-size:17.5px;line-height:1.12;max-width:none} }
+.chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:flex;gap:4px;align-items:center;flex:none}
 .dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
 .dots i.done{opacity:.8}
 .dots i.now{width:18px;opacity:1}
@@ -77,12 +82,20 @@ button,a,input,textarea{touch-action:manipulation}
 @media (max-height:680px){ .box[data-size="tall"]{--stage-h:30vh} }
 @media (max-width:699px) and (max-height:760px){ .box[data-size="bare"] .stage{display:none} }
 .box.nostage .stage{display:none}
+/* Hearing from VSU: a short drawing of the topic, kept on phones, with the channel tiles tightened to make room. */
+.box[data-size="news"]{--stage-h:18vh}
+.topic{opacity:0;transition:opacity .3s}
+.topic.on{opacity:1}
+@media (max-width:699px){ .box[data-size="news"]{--stage-h:14vh} .box[data-size="news"] .stage{padding-bottom:4px} }
+@media (max-width:699px) and (max-height:720px){ .box[data-size="news"]{--stage-h:9.5vh} .vigs[data-part="pick"]{gap:6px;grid-auto-rows:1fr} .vigs[data-part="pick"] .vig{padding:4px;gap:6px} .vigs[data-part="pick"] .vig .art{width:40px} .box[data-size="news"] .kicker{margin-bottom:2px} }
+/* Parts whose answers run long show their drawing only where the screen has room for it. */
+@media (max-width:699px) and (max-height:760px){ .box.talls .stage{display:none} }
 .sheet{position:relative;flex:1;min-height:0;background:var(--card);color:var(--ink);border-radius:28px 28px 0 0;box-shadow:var(--shadow)}
 .panel{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 18px calc(96px + env(safe-area-inset-bottom,0px));scrollbar-width:thin;will-change:transform,opacity}
 .panel-in{max-width:620px;margin:0 auto}
 .sheet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--card) 62%);pointer-events:none;border-radius:0}
 .box.intro .sheet::after{display:none}
-@media (max-height:720px){ .box.mbox{--stage-h:27vh} }
+@media (max-height:720px){ .box.mbox{--stage-h:13vh} }
 @media (max-width:380px){ .chip{padding:9px 12px;font-size:15px} .tile .lbl,.vig .lbl{font-size:14px} }
 .nudge-me{animation:nudgeMe .6s ease-in-out 2}
 @keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -123,7 +136,7 @@ button,a,input,textarea{touch-action:manipulation}
 .nav.next{right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));height:54px;min-width:118px;padding:0 18px 0 24px;border-radius:999px;background:var(--tile);color:var(--tile-ink);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.14);transition:background .25s,color .25s}
 .nav.next .lbl{order:-1}
 .nav.next .fill{position:absolute;inset:0;background:#E29A14;transform:scaleX(0);transform-origin:left center}
-.nav.next.ready{background:var(--mango);color:#13261D;animation:glow 1.8s ease-in-out infinite}
+.nav.next.ready{background:var(--mango);color:#13261D;animation:glow 1.8s ease-in-out 3}
 .nav.next.arming .fill{animation:fill var(--auto,900ms) linear forwards}
 .nav[disabled],.nav.locked{opacity:.45;animation:none}
 .nav.locked{cursor:default}
@@ -144,7 +157,7 @@ button,a,input,textarea{touch-action:manipulation}
   .nav .knob{position:relative;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.22);overflow:hidden}
   .nav.next .fill{transform:scaleY(0);transform-origin:center bottom}
   .nav.next.ready{background:transparent;color:var(--scene-ink);animation:none}
-  .nav.next.ready .knob{background:var(--mango);color:#13261D;animation:glow 1.8s ease-in-out infinite}
+  .nav.next.ready .knob{background:var(--mango);color:#13261D;animation:glow 1.8s ease-in-out 3}
 }
 
 /* ---------- Answers: tiles, chips, lists ---------- */
@@ -223,6 +236,7 @@ a{color:var(--sea)}
 .vig .art .ping{opacity:0;transition:opacity .25s}
 .vig[aria-pressed="true"] .art .ping{opacity:1}
 .none-row{margin-top:12px}
+.note.prefill{margin:8px 0 0;font-size:13px}
 
 /* ---------- Speech bubbles laid over the drawings ---------- */
 .talk{position:absolute;left:0;top:0;z-index:1;pointer-events:none;background:#FFFFFF;color:#13261D;border:2px solid #13261D;border-radius:14px;padding:6px 12px;font:700 14.5px/1.2 var(--display);white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.12)}
@@ -291,23 +305,39 @@ a{color:var(--sea)}
 .agegrid .chip{min-width:62px;text-align:center}
 .agegrid .back{border-style:dashed}
 
-/* ---------- Pass: the counter ---------- */
-.idcard{position:absolute;left:50%;top:50%;width:min(300px,78%);border-radius:16px;overflow:hidden;background:#FFFFFF;color:#13261D;box-shadow:0 14px 30px rgba(0,0,0,.28);opacity:0;transform:translate(-50%,-50%) scale(.5);pointer-events:none;z-index:2}
-.idcard::before{content:"";display:block;height:12px;background:var(--band,#1F7A8C)}
-.idcard.printing{animation:printOut 1.5s cubic-bezier(.3,.9,.3,1) forwards}
-.idcard.printed{opacity:1;transform:translate(-50%,-50%)}
-.idcard.printed.docked{transform:translate(-6%,-18%) scale(.5)}
+/* ---------- Your form: the counter ---------- */
+.idwrap{position:absolute;left:50%;top:50%;width:min(300px,78%);opacity:0;transform:translate(-50%,-50%) scale(.5);pointer-events:none;z-index:2}
+/* A paper form: a colored strip, the answers on dotted lines, and a small picture box. */
+.idcard{position:relative;border-radius:5px;overflow:hidden;background:#FFFFFF;color:#13261D;box-shadow:0 14px 30px rgba(0,0,0,.28)}
+.idcard::before{content:"";display:block;height:8px;background:var(--band,#1F7A8C)}
+.idwrap.printing{animation:printOut 1.5s cubic-bezier(.3,.9,.3,1) forwards}
+.idwrap.printed{opacity:1;transform:translate(-50%,-50%)}
+.idwrap.printed.docked{transform:translate(-6%,-18%) scale(.5)}
+/* The receptionist hands the form over: it comes toward you and out of the scene. */
+.idwrap.handing{animation:handOver 1s cubic-bezier(.45,.05,.4,1) forwards}
+@keyframes handOver{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}35%{opacity:1;transform:translate(-50%,-42%) scale(1.07) rotate(-2deg)}100%{opacity:0;transform:translate(-50%,60%) scale(1.28) rotate(4deg)}}
+.idwrap.gone{opacity:0}
+
 @keyframes printOut{0%{opacity:1;transform:translate(10%,30%) scale(.32)}40%{opacity:1;transform:translate(10%,-20%) scale(.36)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-.id-body{display:flex;gap:12px;padding:12px 14px 14px;align-items:center}
-.id-photo{flex:none;width:56px;height:68px;border-radius:12px;background:linear-gradient(180deg,#9ED1DB,#DCEBD5);display:grid;place-items:end center;overflow:hidden}
-.id-photo svg{width:50px;height:62px}
-.id-title{font:750 15px/1.1 var(--display);margin:0 0 6px}
+.id-body{display:flex;gap:12px;padding:10px 14px 14px;align-items:flex-start}
+.id-text{flex:1;min-width:0}
+.id-photo{position:relative;order:2;flex:none;width:52px;height:60px;border-radius:2px;border:1.5px dashed #9AA9A0;background:#F4F8F5;display:grid;place-items:end center;overflow:hidden}
+.id-photo svg{width:44px;height:52px}
+.id-title{font:750 15px/1.1 var(--display);margin:0}
+.id-sub{font:500 11px/1.2 var(--body);color:#4A5E53;margin:2px 0 8px;padding-bottom:6px;border-bottom:1.5px solid #13261D}
 .id-fields{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13.5px;margin:0}
 .id-fields dt{color:#4A5E53}
-.id-fields dd{margin:0;font-weight:700}
-.typing .hands{animation:typing .18s ease-in-out 5}
-@keyframes typing{50%{transform:translateY(2px)}}
-.bar-fill{transition:width .5s cubic-bezier(.3,1.2,.5,1)}
+.id-fields dd{margin:0;font-weight:700;border-bottom:1px dotted #9AA9A0}
+/* Typing: each answer, or a skip, is keyed in; the monitor line for it fills in steps, grey and short for a skip. */
+.hands ellipse{transform-box:fill-box;transform-origin:center}
+.typing .hands .hl{animation:typeHand .13s ease-in-out 7 alternate}
+.typing .hands .hr{animation:typeHand .13s ease-in-out 7 alternate .065s}
+@keyframes typeHand{to{transform:translateY(-3.5px)}}
+.typing .key{animation:keyTap .3s steps(1) 2}
+@keyframes keyTap{0%{fill:#F2B33D}50%{fill:#C3D3CB}}
+.bar-fill{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0);transition:transform .8s steps(7),fill .2s}
+.bar-fill.on{transform:scaleX(1)}
+.bar-fill.skip{transform:scaleX(.22);fill:#9AA9A0}
 
 /* ---------- Moments: calendar and backpack (from v1) ---------- */
 .cap{font:700 11px var(--body);fill:var(--scene-ink)}
@@ -420,7 +450,12 @@ a{color:var(--sea)}
 .menu-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
 .menu-list button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:14px;border:0;background:var(--tile);color:var(--tile-ink);cursor:pointer;text-align:left;font:650 15.5px/1.2 var(--display)}
 .menu-list button[aria-current="step"]{background:var(--pick);box-shadow:inset 0 0 0 2px var(--mango)}
-.menu-list small{font:400 13.5px var(--body);color:var(--ink-soft)}
+.menu-list small{flex:none;font:400 13.5px var(--body);color:var(--ink-soft)}
+.menu-list .mname{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.mbar{display:block;height:6px;border-radius:3px;background:var(--edge);overflow:hidden;max-width:180px}
+.mbar i{display:block;height:100%;border-radius:3px;background:var(--mango)}
+.menu-total{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;font:650 14px/1.2 var(--body);color:var(--ink-soft)}
+.mbar.big{flex:1;height:8px;max-width:none}
 
 /* Phones: the later scenes lay their answers out tighter, so every answer is in view without scrolling. */
 @media (max-width:699px){
@@ -431,6 +466,9 @@ a{color:var(--sea)}
   .vig[aria-pressed="true"]::after{top:6px;right:6px;width:18px;height:18px;background-size:12px}
   .none-row{margin-top:8px}
   .none-row .chip{padding:7px 14px;min-height:38px;font-size:14.5px}
+  .none-row.outcomes{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
+  .none-row.outcomes .chip{padding:4px 6px;min-height:40px;font-size:13px;line-height:1.15;text-align:center;border-radius:14px}
+  .vigs[data-part="pick"] + .none-row .chip{padding:7px 12px;font-size:14px}
   .chips.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
   .chips.grid2 .chip{border-radius:14px;padding:4px 8px;min-height:40px;font-size:13px;line-height:1.16;text-align:left}
   .chips.grid2 .chip.icon{gap:7px;padding-left:9px}
@@ -439,15 +477,16 @@ a{color:var(--sea)}
   .mbox .q{margin-top:10px;margin-bottom:6px;font-size:14.5px}
   .mbox .chips{gap:6px}
   .mbox .chip{padding:7px 13px;min-height:40px;font-size:15px}
-  .jars{gap:6px}
-  .jarbox{padding:6px 4px 7px;gap:3px;border-radius:14px}
-  .jar{width:30px;height:34px;border-width:2px;border-top-width:3px;padding:2px 0}
-  .jar i{width:20px;height:3px}
-  .jarbox .ic{top:5px;left:5px;width:20px;height:20px;border-radius:6px}
+  /* Phones: fifteen jars as two columns of short rows: icon, name, a small jar, and a minus to take a coin back. */
+  .jars{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .jarbox{flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;min-height:38px;padding:4px 30px 4px 5px;border-radius:12px;text-align:left}
+  .jar{flex:none;order:3;width:16px;height:22px;border-width:1.5px;border-top-width:2.5px;border-radius:4px 4px 7px 7px;padding:1px 0;gap:1px}
+  .jar i{width:10px;height:2px}
+  .jarbox .ic{position:static;flex:none;width:20px;height:20px;border-radius:6px}
   .jarbox .ic svg{width:13px;height:13px}
-  .jarbox .lbl{font-size:11.5px;line-height:1.15;min-height:0}
-  .jarbox .n{font-size:12.5px}
-  .jarbox .minus{top:4px;right:4px;width:24px;height:24px;font-size:15px}
+  .jarbox .lbl{order:2;flex:1;font-size:11.5px;line-height:1.15;min-height:0}
+  .jarbox .n{display:none}
+  .jarbox .minus{top:50%;right:4px;width:22px;height:22px;margin-top:-11px;font-size:14px}
   .purse{position:sticky;top:-20px;z-index:3;background:var(--card);margin:0 -18px 8px;padding:6px 18px}
   .purse .coinstack i{width:13px;height:13px}
   .purse b{font-size:16px}
@@ -466,11 +505,11 @@ a{color:var(--sea)}
 @media (max-width:699px) and (max-height:720px){
   .mbox .statement{font-size:16px;line-height:1.3}
 }
-@media (max-width:699px) and (max-height:680px){ .jar{width:26px;height:28px} .jarbox{padding:5px 4px 6px;gap:2px} .jars{gap:5px} }
+@media (max-width:699px) and (max-height:680px){ .jarbox{min-height:34px} }
 /* Short phones: once a follow-up question opens, the drawing above gives it room. */
 @media (max-width:699px){ .box[data-box="map"].pinning .pinpick{margin-top:8px} .box[data-box="map"].pinning .kicker,.box[data-box="map"].pinning .count,.box[data-box="map"].pinning #area-q{display:none} }
 @media (max-width:699px) and (max-height:760px){
-  .box.mbox.sev-on{--stage-h:13vh}
+  .box.mbox{--stage-h:16vh}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -490,7 +529,7 @@ a{color:var(--sea)}
   <button class="nav prev" id="prev" type="button" aria-label="Back" hidden><span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></span><span class="lbl" aria-hidden="true">Back</span></button>
   <button class="nav next" id="next" type="button" hidden><span class="knob"><span class="fill"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span><span class="lbl" id="next-lbl" aria-hidden="true">Next</span></button>
 </div>
-<div class="menu" id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-t" hidden><div class="menu-card"><h2 id="menu-t">Jump to a part</h2><ol class="menu-list" id="menu-list"></ol><button type="button" class="btn ghost" id="menu-close">Close</button></div></div>
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-t" hidden><div class="menu-card"><h2 id="menu-t">Jump to a part</h2><p class="menu-total" id="menu-total"></p><ol class="menu-list" id="menu-list"></ol><button type="button" class="btn ghost" id="menu-close">Close</button></div></div>
 <div class="hand" id="hand" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M12 6a4 4 0 0 1 8 0v18h1a3.5 3.5 0 0 1 7 0v1a3.5 3.5 0 0 1 7 0v1.5a3.5 3.5 0 0 1 7 0V40c0 8-6 14-14 14h-4c-5 0-8-2-10-6L4.5 38c-1.4-2.5-.5-5.2 1.8-6.2 2-.9 4.1-.2 5.2 1.4L12 34Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2.4" stroke-linejoin="round"/></svg></div>
 <script>
 (function () {
@@ -501,7 +540,7 @@ a{color:var(--sea)}
   var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
   var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
-  var SURVEY_VERSION = "scenes-v2";
+  var SURVEY_VERSION = "scenes-v3";
   var SURVEY_ID = "student-life-2026";  // VSUrvey is the name for every survey of the series; this is the first
   var SURVEY_LABEL = "Student Life and Services";
   var FORM_URL = "";  // the same survey as a Google Form, once it exists; the first screen then offers it
@@ -613,11 +652,31 @@ a{color:var(--sea)}
   /* ---------- Small object drawings for answer tiles (120 x 90) ---------- */
   function art(body, bg) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 120 90">' + (bg ? '<rect width="120" height="90" fill="' + bg + '"/>' : "") + body + "</svg></span>"; }
   var ground = '<rect y="74" width="120" height="16" fill="#C9DCCD"/>';
+  function simLabel(name) {
+    var parts = name.split(" · "), lines = name.length > 9 && parts.length > 1 ? [parts.slice(0, Math.ceil(parts.length / 2)).join(" · "), parts.slice(Math.ceil(parts.length / 2)).join(" · ")] : [name];
+    var size = lines.length > 1 ? 10.5 : name.length > 6 ? 12 : 15, top = lines.length > 1 ? 58 : 64;
+    return '<text x="61" y="' + top + '" text-anchor="middle" font-size="' + size + '" font-weight="800" fill="#FFFFFF" font-family="sans-serif">' +
+      lines.map(function (l, i) { return '<tspan x="61" dy="' + (i ? 12 : 0) + '">' + esc(l) + "</tspan>"; }).join("") + "</text>";
+  }
   var TILE = {
     dorm: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<g class="wake"><rect x="36" y="14" width="48" height="62" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="36" y="14" width="48" height="8" fill="#1F7A8C"/><g fill="#9ED1DB"><rect x="43" y="28" width="9" height="8"/><rect x="56" y="28" width="9" height="8"/><rect x="69" y="28" width="9" height="8"/><rect x="43" y="42" width="9" height="8"/><rect x="56" y="42" width="9" height="8"/><rect x="69" y="42" width="9" height="8"/></g><rect x="55" y="58" width="10" height="18" fill="#13261D"/></g>'); },
     bhouse: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<g class="wake"><path d="M30 44 L60 20 L90 44 Z" fill="#D9483B"/><rect x="35" y="44" width="50" height="32" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="42" y="50" width="12" height="10" fill="#9ED1DB"/><rect x="66" y="50" width="12" height="10" fill="#9ED1DB"/><rect x="55" y="60" width="10" height="16" fill="#7A5E44"/><rect x="40" y="31" width="40" height="9" rx="2" fill="#F2B33D"/><path d="M45 35.5h30" stroke="#13261D" stroke-width="1.6"/></g>'); },
     commute: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<path d="M10 76 V50 L26 38 L42 50 V76 Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="21" y="60" width="9" height="16" fill="#7A5E44"/><g class="wake"><path d="M52 72 V52 H98 L106 60 H112 V72 Z" fill="#D9483B" stroke="#13261D" stroke-width="2"/><path d="M52 55 H98" stroke="#F2B33D" stroke-width="3"/><g fill="#9ED1DB"><rect x="58" y="58" width="10" height="7"/><rect x="72" y="58" width="10" height="7"/><rect x="86" y="58" width="9" height="7"/></g><circle cx="64" cy="74" r="5.5" fill="#13261D"/><circle cx="100" cy="74" r="5.5" fill="#13261D"/></g>'); },
     elsewhere: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<rect x="57" y="34" width="6" height="42" fill="#7A5E44"/><g class="wake"><rect x="36" y="16" width="48" height="28" rx="7" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><text x="60" y="38" text-anchor="middle" font-size="22" font-weight="800" fill="#1F7A8C" font-family="sans-serif">?</text></g>'); },
+    relative: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<g class="wake"><path d="M32 46 L60 24 L88 46 Z" fill="#7A5BA6"/><rect x="37" y="46" width="46" height="30" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="54" y="58" width="12" height="18" fill="#7A5E44"/><rect x="42" y="52" width="9" height="8" fill="#9ED1DB"/><rect x="70" y="52" width="9" height="8" fill="#9ED1DB"/><path d="M60 21 c-3-6 -12-4 -10 2 c1 4 10 9 10 9 s9-5 10-9 c2-6 -7-8 -10-2Z" fill="#D9483B" stroke="#13261D" stroke-width="1.4"/></g>'); },
+    /* Ways to get to class. */
+    ride: function (kind) {
+      var wheel = function (x, y, r) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#13261D"/><circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.4) + '" fill="#C9DCCD"/>'; };
+      var b = '<rect width="120" height="90" fill="#FCE6B0"/>' + ground + '<g class="wake">';
+      if (kind === "walk") b += '<g fill="#1F7A8C" stroke="#13261D" stroke-width="1.5"><path d="M38 64c-6 0-8-8-6-14s8-8 11-3 1 17-5 17Z"/><path d="M70 50c-6 0-8-8-6-14s8-8 11-3 1 17-5 17Z"/></g><g fill="#F2B33D"><circle cx="40" cy="71" r="3"/><circle cx="72" cy="57" r="3"/></g><path d="M20 80 C44 74 70 60 100 34" fill="none" stroke="#7E8F86" stroke-width="2" stroke-dasharray="3 5"/>';
+      else if (kind === "bike") b += wheel(36, 62, 14) + wheel(86, 62, 14) + '<path d="M36 62 L52 40 H76 L86 62 M52 40 L62 62 L76 40 M48 34h10 M74 34l4-6" fill="none" stroke="#D9483B" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      else if (kind === "motor") b += wheel(34, 64, 12) + wheel(88, 64, 12) + '<path d="M34 64 L50 46 H74 L88 64" fill="none" stroke="#13261D" stroke-width="3"/><path d="M46 46 Q60 30 80 42 L76 52 H50Z" fill="#1F7A8C" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M78 40 l8-10 h6" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/><rect x="50" y="38" width="16" height="6" rx="3" fill="#13261D"/>';
+      else if (kind === "trike") b += '<rect x="58" y="30" width="44" height="34" rx="6" fill="#5E8C4A" stroke="#13261D" stroke-width="2"/><path d="M54 30 h52" stroke="#13261D" stroke-width="4" stroke-linecap="round"/><rect x="64" y="38" width="14" height="12" rx="2" fill="#9ED1DB"/><rect x="82" y="38" width="14" height="12" rx="2" fill="#9ED1DB"/>' + wheel(30, 66, 10) + wheel(92, 68, 9) + '<path d="M30 66 L42 48 H58" fill="none" stroke="#13261D" stroke-width="3"/><path d="M40 48 l-4-10 h-6" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/>';
+      else if (kind === "jeep") b += '<path d="M14 70 V46 H86 L96 56 H106 V70 Z" fill="#D9483B" stroke="#13261D" stroke-width="2"/><path d="M14 50 H86" stroke="#F2B33D" stroke-width="3"/><g fill="#9ED1DB"><rect x="20" y="54" width="12" height="8"/><rect x="38" y="54" width="12" height="8"/><rect x="56" y="54" width="12" height="8"/><rect x="74" y="54" width="10" height="8"/></g><rect x="10" y="40" width="80" height="6" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/>' + wheel(30, 72, 6) + wheel(90, 72, 6);
+      else b += '<path d="M18 66 V52 L32 38 H78 L94 52 H104 V66 Z" fill="#2F6DB5" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M36 42 H54 V52 H28Z M58 42 H76 L86 52 H58Z" fill="#9ED1DB"/><circle cx="44" cy="47" r="4" fill="#8A5A3C"/><circle cx="68" cy="47" r="4" fill="#A0704F"/>' + wheel(36, 68, 8) + wheel(86, 68, 8);
+      return art(b + "</g>");
+    },
+    inactive: function () { return art('<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><circle cx="60" cy="45" r="22" fill="#DCE5DF" stroke="#7E8F86" stroke-width="2" stroke-dasharray="5 4"/><circle cx="60" cy="45" r="14" fill="#F7FBF8"/><path d="M53 45.5l5 5 9-10" fill="none" stroke="#9AA9A0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="88" y="30" font-size="12" font-weight="800" fill="#7E8F86" font-family="sans-serif">z</text><text x="96" y="22" font-size="9" font-weight="800" fill="#7E8F86" font-family="sans-serif">z</text></g>'); },
     books: function (n) {
       var cols = ["#1F7A8C", "#D9483B", "#F2B33D", "#7A5BA6", "#5E8C4A"], s = "";
       for (var i = 0; i < n; i++) s += '<rect x="' + (36 + (i % 2) * 4) + '" y="' + (66 - i * 11) + '" width="44" height="10" rx="2" fill="' + cols[i] + '" stroke="#13261D" stroke-width="1.6"/><path d="M' + (42 + (i % 2) * 4) + " " + (69 - i * 11) + "h28" + '" stroke="#F7FBF8" stroke-width="1.4" opacity=".8"/>';
@@ -643,11 +702,12 @@ a{color:var(--sea)}
       return art(body + "</g>");
     },
     /* A SIM card with the network's name in plain text; no logos or brand colors. */
+    /* A network's name on its SIM, on two lines when it is long, so it stays on the card. */
     sim: function (name) {
       var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake" transform="rotate(-5 60 45)">';
       if (!name) b += '<path d="M34 16h40l14 14v44H34Z" fill="none" stroke="#7E8F86" stroke-width="2.5" stroke-dasharray="6 5" stroke-linejoin="round"/><path d="M30 78 L92 14" stroke="#D9483B" stroke-width="5" stroke-linecap="round"/>';
       else b += '<path d="M30 14h46l16 16v48H30Z" fill="#1E4D3A" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><rect x="40" y="26" width="22" height="18" rx="3" fill="#F2B33D"/><path d="M40 35h22M51 26v18" stroke="#B7791F" stroke-width="1.2"/>' +
-        '<text x="61" y="64" text-anchor="middle" font-size="' + (name.length > 12 ? 9.5 : name.length > 6 ? 12 : 15) + '" font-weight="800" fill="#FFFFFF" font-family="sans-serif">' + esc(name) + "</text>";
+        simLabel(name);
       return art(b + "</g>");
     },
     /* Kinds of load: any site, certain apps only, calls and texts, none. */
@@ -656,6 +716,7 @@ a{color:var(--sea)}
       if (kind === "any") b += '<circle cx="60" cy="45" r="25" fill="#9ED1DB" stroke="#13261D" stroke-width="2.5"/><path d="M35 45h50M60 20c9 8 9 42 0 50M60 20c-9 8-9 42 0 50M40 32h40M40 58h40" fill="none" stroke="#13261D" stroke-width="2"/>';
       else if (kind === "apps") b += '<rect x="40" y="10" width="40" height="70" rx="8" fill="#13261D"/><rect x="44" y="18" width="32" height="54" rx="4" fill="#F7FBF8"/><g><rect x="48" y="24" width="10" height="10" rx="3" fill="#2F6DB5"/><rect x="62" y="24" width="10" height="10" rx="3" fill="#D9483B"/><rect x="48" y="38" width="10" height="10" rx="3" fill="#13261D"/><rect x="62" y="38" width="10" height="10" rx="3" fill="#B4527C"/></g><g fill="#DCE5DF"><rect x="48" y="52" width="10" height="10" rx="3"/><rect x="62" y="52" width="10" height="10" rx="3"/></g>';
       else if (kind === "calls") b += '<path d="M30 30c0 20 16 36 36 36l6-9-10-7-6 4c-6-3-10-7-13-13l4-6-7-10Z" fill="#5E8C4A" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M70 16h28a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H84l-8 7v-7h-6a6 6 0 0 1-6-6V22a6 6 0 0 1 6-6Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M73 26h22M73 33h14" stroke="#C9C2B3" stroke-width="2.5" stroke-linecap="round"/>';
+      else if (kind === "plan") b += '<rect x="34" y="12" width="52" height="66" rx="4" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="34" y="12" width="52" height="12" rx="4" fill="#7A5BA6"/><path d="M42 34h36M42 42h36M42 50h24" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/><path d="M42 64h18" stroke="#13261D" stroke-width="3" stroke-linecap="round"/><text x="78" y="68" text-anchor="end" font-size="11" font-weight="800" fill="#7A5BA6" font-family="sans-serif">/mo</text>';
       else b += '<g transform="rotate(-4 60 45)"><rect x="24" y="20" width="72" height="48" rx="8" fill="#DCE5DF" stroke="#7E8F86" stroke-width="2.5" stroke-dasharray="6 5"/><text x="60" y="50" text-anchor="middle" font-size="13" font-weight="800" fill="#7E8F86" font-family="sans-serif">LOAD</text></g><path d="M30 76 L90 14" stroke="#D9483B" stroke-width="5" stroke-linecap="round"/>';
       return art(b + "</g>");
     },
@@ -675,10 +736,28 @@ a{color:var(--sea)}
       var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">';
       if (kind === "wifi") b += '<g transform="translate(8 0)">' + wifi + "</g>";
       else if (kind === "data") b += '<g transform="translate(-28 0)">' + bars + "</g>";
-      else if (kind === "both") b += '<g transform="translate(-14 0) scale(.95)">' + wifi + "</g>" + '<g transform="translate(4 4) scale(.95)">' + bars + "</g>";
+      else if (kind === "pocket") b += '<rect x="36" y="40" width="48" height="34" rx="9" fill="#13261D"/><rect x="42" y="47" width="22" height="9" rx="2" fill="#9ED1DB"/><circle cx="74" cy="64" r="3" fill="#8FB97D"/><g transform="translate(8 -16) scale(.75)">' + wifi + "</g>";
       else if (kind === "homewifi") b += '<path d="M24 50 L48 30 L72 50 V76 H24Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><rect x="42" y="58" width="12" height="18" fill="#7A5E44"/><g transform="translate(38 -14) scale(.9)">' + wifi + "</g>";
       else if (kind === "piso") b += '<rect x="30" y="34" width="38" height="44" rx="4" fill="#F2B33D" stroke="#13261D" stroke-width="2"/><rect x="42" y="44" width="14" height="4" rx="2" fill="#13261D"/><circle cx="49" cy="62" r="7" fill="#FFE9A8" stroke="#13261D" stroke-width="1.5"/><text x="49" y="66" text-anchor="middle" font-size="9" font-weight="800" fill="#13261D" font-family="sans-serif">₱1</text><g transform="translate(34 -12) scale(.85)">' + wifi + "</g>";
       else b += '<g opacity=".45" transform="translate(-28 0)">' + bars.replace(/#D9483B/g, "#7E8F86") + '</g><path d="M38 26 L82 70" stroke="#D9483B" stroke-width="6" stroke-linecap="round"/>';
+      return art(b + "</g>");
+    },
+    /* Whether reaching someone worked: same day, days later, partly, or not at all. */
+    got: function (kind) {
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">';
+      if (kind === "sameday") b += '<circle cx="60" cy="45" r="24" fill="#DCEBD5" stroke="#1E4D3A" stroke-width="3"/><path d="M48 45.5l8 8L73 36" fill="none" stroke="#1E4D3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="92" cy="20" r="8" fill="#F2B33D"/>';
+      else if (kind === "days") b += '<rect x="30" y="18" width="60" height="56" rx="5" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="30" y="18" width="60" height="13" rx="5" fill="#D9483B"/><g fill="#F2B33D"><circle cx="42" cy="44" r="4"/><circle cx="56" cy="44" r="4"/><circle cx="70" cy="44" r="4"/></g><path d="M74 56l6 6 10-12" fill="none" stroke="#1E4D3A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      else if (kind === "partly") b += '<circle cx="60" cy="45" r="24" fill="#F7FBF8" stroke="#13261D" stroke-width="3"/><path d="M60 21a24 24 0 0 1 0 48Z" fill="#9ED1DB"/><path d="M60 21v48" stroke="#13261D" stroke-width="2"/>';
+      else b += '<path d="M26 22h68a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H56l-14 12V64H26a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8Z" fill="#F7FBF8" stroke="#7E8F86" stroke-width="2.5" stroke-dasharray="6 5"/><g fill="#9AA9A0"><circle cx="46" cy="43" r="4"/><circle cx="60" cy="43" r="4"/><circle cx="74" cy="43" r="4"/></g><path d="M30 76 L92 14" stroke="#D9483B" stroke-width="5" stroke-linecap="round"/>';
+      return art(b + "</g>");
+    },
+    /* Where mobile data gets a signal: campus on the left, where you stay on the right; a slash where it doesn't. */
+    where: function (campus, home) {
+      function bars(x, on) { return '<g fill="' + (on ? "#D9483B" : "#B8C4BD") + '">' + [0, 1, 2, 3].map(function (i) { return '<rect x="' + (x + i * 5) + '" y="' + (26 - i * 4) + '" width="3.6" height="' + (6 + i * 4) + '" rx="1"/>'; }).join("") + "</g>" + (on ? "" : '<path d="' + "M" + (x - 2) + " 34 L" + (x + 20) + ' 12" stroke="#D9483B" stroke-width="3" stroke-linecap="round"/>'); }
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">' +
+        '<rect x="12" y="46" width="40" height="30" fill="#F7FBF8" stroke="#13261D" stroke-width="1.8"/><path d="M8 46h48l-6-8H14Z" fill="#1F7A8C" stroke="#13261D" stroke-width="1.6" stroke-linejoin="round"/><g fill="#9ED1DB"><rect x="18" y="52" width="8" height="7"/><rect x="38" y="52" width="8" height="7"/><rect x="18" y="64" width="8" height="7"/><rect x="38" y="64" width="8" height="7"/></g>' +
+        '<path d="M70 56 L88 42 L106 56 V76 H70Z" fill="#F7FBF8" stroke="#13261D" stroke-width="1.8" stroke-linejoin="round"/><rect x="84" y="62" width="8" height="14" fill="#7A5E44"/>' +
+        bars(23, campus) + bars(79, home);
       return art(b + "</g>");
     },
     face: function (mode) {
@@ -708,6 +787,10 @@ a{color:var(--sea)}
     message: function () { return vig("#E7DDF2", '<g class="wake"><path d="M30 52 L104 22 L82 80 L68 60 Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2.5" stroke-linejoin="round"/><path d="M68 60 L104 22" stroke="#13261D" stroke-width="2"/><path d="M14 74 C30 70 40 64 50 58" fill="none" stroke="#7A5BA6" stroke-width="2.5" stroke-dasharray="4 5"/></g>'); },
     walk: function () { return vig("#F6DDD9", '<g fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"><rect x="74" y="14" width="22" height="62" rx="2"/><rect x="104" y="14" width="22" height="62" rx="2"/></g><g fill="#F2B33D"><rect x="78" y="20" width="14" height="5" rx="1"/><rect x="108" y="20" width="14" height="5" rx="1"/></g><g class="wake"><circle cx="42" cy="26" r="7" fill="#A0704F"/><path d="M42 33 V56 M42 40 L32 50 M42 40 L54 46 M42 56 L34 74 M42 56 L52 74" stroke="#13261D" stroke-width="4.5" stroke-linecap="round"/></g><g fill="#13261D" opacity=".35"><ellipse cx="18" cy="84" rx="4" ry="2.5"/><ellipse cx="28" cy="80" rx="4" ry="2.5"/><ellipse cx="62" cy="84" rx="4" ry="2.5"/></g>'); },
     elsewhere: function () { return vig("#E4EFE8", '<g class="wake" fill="#F2B33D" stroke="#13261D" stroke-width="1.5" stroke-linejoin="round"><path d="M70 18l6 20 20 6-20 6-6 20-6-20-20-6 20-6Z"/><path d="M34 52l3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/><path d="M106 56l3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/></g>'); },
+    call: function () { return vig("#DDEBD4", '<g class="wake"><path d="M44 30c0 26 20 46 46 46l8-12-13-9-8 5c-8-4-13-9-17-17l5-8-9-13Z" fill="#5E8C4A" stroke="#13261D" stroke-width="2.5" stroke-linejoin="round"/><path d="M92 26a18 18 0 0 1 14 14M92 14a30 30 0 0 1 26 26" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/></g>'); },
+    teacher: function () { return vig("#E6E0CF", '<g class="wake"><rect x="16" y="12" width="70" height="46" rx="3" fill="#1E4D3A" stroke="#7A5E44" stroke-width="4"/><path d="M26 26h30M26 36h44M26 46h22" stroke="#F7FBF8" stroke-width="2.5" stroke-linecap="round" opacity=".85"/><circle cx="104" cy="40" r="12" fill="#8A5A3C"/><path d="M92 38c1-12 23-12 24 0-5-4-19-4-24 0Z" fill="#1B1B22"/><path d="M86 92c2-24 34-24 36 0Z" fill="#7A5BA6"/><path d="M90 66 L78 50" stroke="#8A5A3C" stroke-width="5" stroke-linecap="round"/></g>'); },
+    search: function () { return vig("#CDE7EC", '<g class="wake">' + phone(30, 9, '<rect x="4" y="7" width="38" height="10" fill="#1F7A8C"/><rect x="8" y="22" width="30" height="6" rx="3" fill="#E3ECE6"/><rect x="8" y="33" width="26" height="4" rx="2" fill="#C9C2B3"/><rect x="8" y="41" width="30" height="4" rx="2" fill="#C9C2B3"/><rect x="8" y="49" width="22" height="4" rx="2" fill="#C9C2B3"/>') + '<circle cx="96" cy="50" r="17" fill="rgba(255,255,255,.5)" stroke="#13261D" stroke-width="5"/><path d="M108 62l14 14" stroke="#13261D" stroke-width="7" stroke-linecap="round"/></g>'); },
+    noask: function () { return vig("#E4EFE8", '<g class="wake"><circle cx="58" cy="44" r="14" fill="#A0704F"/><path d="M44 41c1-13 27-13 28 0-6-5-22-5-28 0Z" fill="#1B1B22"/><path d="M52 50h12" stroke="#13261D" stroke-width="2" stroke-linecap="round"/><path d="M36 98c2-26 42-26 44 0Z" fill="#9AA9A0"/><path d="M86 18h34a7 7 0 0 1 7 7v14a7 7 0 0 1-7 7H98l-8 7v-7h-4a7 7 0 0 1-7-7V25a7 7 0 0 1 7-7Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><g fill="#7E8F86"><circle cx="94" cy="32" r="2.6"/><circle cx="103" cy="32" r="2.6"/><circle cx="112" cy="32" r="2.6"/></g></g>'); },
     nothappened: function () { return vig("#E4EFE8", '<g class="wake"><rect x="50" y="10" width="40" height="72" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="56" y="16" width="28" height="66" fill="#1E4D3A"/><circle cx="79" cy="50" r="2.5" fill="#F2B33D"/><circle cx="108" cy="30" r="12" fill="#DCEBD5" stroke="#1E4D3A" stroke-width="2"/><path d="M102 30.5l4 4 8-8" fill="none" stroke="#1E4D3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>'); }
   };
 
@@ -729,13 +812,13 @@ a{color:var(--sea)}
       props: '<rect x="122" y="66" width="116" height="82" rx="6" fill="#F7FBF8"/><path d="M122 72l58 40 58-40" fill="none" stroke="#C9C2B3" stroke-width="3"/><g><circle cx="180" cy="112" r="16" fill="#D9483B"/><path d="m180 101 3.2 6.6 7.3 1.1-5.3 5.1 1.3 7.2-6.5-3.4-6.5 3.4 1.3-7.2-5.3-5.1 7.3-1.1Z" fill="#F2B33D"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="3s" repeatCount="indefinite"/></g><rect x="196" y="140" width="46" height="18" rx="4" fill="#F2B33D"/><rect x="204" y="147" width="30" height="4" rx="2" fill="#13261D" opacity=".6"/>' },
     { k: "h", icon: "folder", title: "Organization handovers", bg: "#E3B04B", ink: "dark", short: "Org know-how lost at turnover", text: "My organization lost files, contacts, or know-how when officers changed.",
       props: '<path d="M104 140 l16 -7" stroke="#1F7A8C" stroke-width="13" stroke-linecap="round"/><path d="M256 140 l-16 -7" stroke="#D9483B" stroke-width="13" stroke-linecap="round"/><path d="M116 134 C130 130 140 128 150 122" stroke="#A0704F" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M244 134 C230 130 220 128 210 122" stroke="#8A5A3C" stroke-width="9" stroke-linecap="round" fill="none"/><g><rect x="146" y="90" width="68" height="50" rx="4" fill="#7A5E44"/><rect x="146" y="90" width="68" height="12" fill="#5C4535"/><rect x="156" y="76" width="14" height="22" fill="#F7FBF8"/><rect x="174" y="72" width="14" height="26" fill="#9ED1DB"/><rect x="192" y="78" width="14" height="20" fill="#F2B33D"/><animateTransform attributeName="transform" type="translate" values="-3 0;3 0;-3 0" dur="4s" repeatCount="indefinite"/></g>' },
-    { k: "i", icon: "house", title: "A place to stay", bg: "#9ED1DB", ink: "dark", short: "Finding housing or a dormmate", text: "I had trouble finding housing or a dormmate.",
+    { k: "i", icon: "house", title: "A place to stay", bg: "#9ED1DB", ink: "dark", short: "Finding housing or a boardmate", text: "I had trouble finding housing or a boardmate.",
       props: '<path d="M124 96 L180 56 L236 96 Z" fill="#D9483B"/><rect x="132" y="96" width="96" height="80" fill="#F7FBF8"/><rect x="144" y="106" width="22" height="18" fill="#1F7A8C"/><rect x="194" y="106" width="22" height="18" fill="#1F7A8C"/><rect x="170" y="140" width="20" height="36" fill="#7A5E44"/><g><path d="M180 126v4" stroke="#13261D" stroke-width="1.5"/><rect x="146" y="128" width="68" height="12" rx="3" fill="#F2B33D"/><text x="180" y="137.5" text-anchor="middle" font-size="9" font-weight="800" fill="#13261D" font-family="sans-serif">Bedspace</text><animateTransform attributeName="transform" type="rotate" values="-3 180 126;3 180 126;-3 180 126" dur="3.5s" repeatCount="indefinite"/></g>' },
     { k: "j", icon: "tag", title: "Buying and selling", bg: "#D9483B", ink: "light", short: "Scams when buying or selling", text: "I was scammed, or nearly scammed, buying or selling something.",
       props: '<rect x="128" y="46" width="104" height="126" rx="10" fill="#F7FBF8"/><rect x="138" y="56" width="84" height="58" rx="6" fill="#9ED1DB"/><rect x="160" y="66" width="40" height="38" rx="2" fill="#4C5BA8"/><rect x="160" y="66" width="7" height="38" fill="#13261D" opacity=".3"/><rect x="138" y="124" width="62" height="6" rx="3" fill="#C9C2B3"/><rect x="138" y="136" width="40" height="6" rx="3" fill="#C9C2B3"/><g><path d="M206 148v-6" stroke="#13261D" stroke-width="1.5"/><rect x="188" y="148" width="38" height="20" rx="4" fill="#F2B33D"/><text x="207" y="162.5" text-anchor="middle" font-size="13" font-weight="800" fill="#13261D" font-family="sans-serif">₱</text><animateTransform attributeName="transform" type="rotate" values="-6 206 142;6 206 142;-6 206 142" dur="3s" repeatCount="indefinite"/></g>' },
     { k: "k", icon: "case", title: "Work and OJT", bg: "#2F6DB5", ink: "light", short: "Finding work or an OJT host", text: "I couldn't find a part-time job, an assistantship, or an OJT host.",
       props: '<rect x="122" y="44" width="116" height="98" rx="6" fill="#F7FBF8"/><rect x="122" y="44" width="116" height="16" rx="6" fill="#1E4D3A"/><rect x="132" y="70" width="42" height="30" fill="#F2B33D"/><rect x="182" y="68" width="46" height="34" fill="#9ED1DB"/><rect x="136" y="106" width="38" height="28" fill="#E7DFD0"/><path d="M138 142v34M222 142v34" stroke="#7A5E44" stroke-width="5"/><g><rect x="184" y="108" width="42" height="28" rx="4" fill="#7A5E44"/><path d="M196 108v-5h18v5" fill="none" stroke="#7A5E44" stroke-width="3"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2.8s" repeatCount="indefinite"/></g>' },
-    { k: "l", icon: "cap", title: "Advice from graduates", bg: "#F2B33D", ink: "dark", short: "Reaching graduates for advice", text: "I wanted advice from a graduate of my program but didn't know how to reach one.",
+    { k: "l", icon: "cap", title: "Advice from seniors", bg: "#F2B33D", ink: "dark", short: "Reaching seniors or graduates", text: "I wanted advice from a senior, a graduating student, or a graduate of my program but didn't know how to reach one.",
       props: '<circle cx="146" cy="104" r="10" fill="#A0704F"/><rect x="135" y="116" width="22" height="40" rx="9" fill="#F7FBF8"/><path d="M140 156v20M152 156v20" stroke="#13261D" stroke-width="4"/><rect x="128" y="120" width="8" height="22" rx="3" fill="#1F7A8C"/><circle cx="214" cy="86" r="11" fill="#8A5A3C"/><path d="M198 176v-56a16 16 0 0 1 32 0v56z" fill="#13261D"/><g><path d="M198 70l16-8 16 8-16 8z" fill="#13261D"/><path d="M226 71v9" stroke="#D9483B" stroke-width="2.5"/><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="3.2s" repeatCount="indefinite"/></g><rect x="160" y="74" width="30" height="18" rx="9" fill="#F7FBF8"/><g fill="#13261D"><circle cx="168" cy="83" r="2"/><circle cx="175" cy="83" r="2"/><circle cx="182" cy="83" r="2"/></g>' },
     { k: "m", icon: "basket", title: "Food and supplies", bg: "#6A9A57", ink: "dark", short: "Getting food or supplies", text: "I wanted food or supplies from the market or a canteen but couldn't go get them.",
       props: '<g><path d="M118 74h124l-10 22H128z" fill="#D9483B"/><path d="M140 74l-4 22M160 74l-2 22M180 74v22M200 74l2 22M220 74l4 22" stroke="#F7FBF8" stroke-width="6"/><animateTransform attributeName="transform" type="translate" values="0 0;0 1.5;0 0" dur="2.6s" repeatCount="indefinite"/></g><rect x="130" y="96" width="100" height="80" fill="#E7DFD0"/><rect x="130" y="130" width="100" height="10" fill="#7A5E44"/><g><circle cx="148" cy="122" r="7" fill="#F2B33D"/><circle cx="162" cy="122" r="7" fill="#5E8C4A"/><circle cx="198" cy="122" r="7" fill="#D9483B"/><circle cx="212" cy="122" r="7" fill="#F2B33D"/></g><path d="M166 150h28l-4 18h-20z" fill="#B7791F"/><path d="M170 150c0-8 20-8 20 0" fill="none" stroke="#B7791F" stroke-width="3"/>' }
@@ -810,10 +893,13 @@ a{color:var(--sea)}
       '<g><g class="ring-clock"><circle cx="318" cy="56" r="17" fill="#F7FBF8" stroke="#13261D" stroke-width="2.5"/><path d="M318 46v10l7 4" stroke="#13261D" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="305" cy="40" r="6" fill="#D9483B" stroke="#13261D" stroke-width="2"/><circle cx="331" cy="40" r="6" fill="#D9483B" stroke="#13261D" stroke-width="2"/><path d="M306 74l-4 6M330 74l4 6" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/></g></g></svg>');
   }
 
-  /* Your pass: you stand at the counter; the staff fills in your pass, prints it, and hands it over. */
+  /* Your form: you stand at the counter; the staff types in your answers, prints your form, and hands it over. */
   function passStage() {
-    var bars = "";
-    for (var i = 0; i < 5; i++) bars += '<rect x="10" y="' + (11 + i * 7.6) + '" width="54" height="4.2" rx="2.1" fill="#C3D3CB"/><rect class="bar-fill" data-bar="' + i + '" x="10" y="' + (11 + i * 7.6) + '" width="' + [44, 54, 36, 30, 40][i] + '" height="4.2" rx="2.1" fill="' + ["#1F7A8C", "#D9483B", "#7A5BA6", "#F2B33D", "#5E8C4A"][i] + '"/>';
+    var bars = "", keys = "";
+    [0, 180, 60, 240, 120, 300, 30, 210, 90].forEach(function (d, i) { keys += '<rect class="key" x="' + (109 + i * 6.6) + '" y="155.5" width="5" height="5" rx="1.2" fill="#C3D3CB" style="animation-delay:' + d + 'ms"/>'; });
+    /* The monitor shows the form: a colored strip, then one line per question, its label and the answer typed in. */
+    bars = '<rect x="7" y="6" width="62" height="40" rx="1.5" fill="#FFFFFF"/><rect x="7" y="6" width="62" height="4" fill="#1F7A8C"/>';
+    for (var i = 0; i < 6; i++) bars += '<rect x="11" y="' + (14 + i * 5.3) + '" width="11" height="2.4" rx="1" fill="#C3D3CB"/><rect x="25" y="' + (13.8 + i * 5.3) + '" width="40" height="0.6" fill="#E3ECE6"/><rect class="bar-fill" data-bar="' + i + '" x="25" y="' + (12.6 + i * 5.3) + '" width="' + [30, 38, 22, 18, 24, 20][i] + '" height="2.8" rx="1.2" fill="' + ["#1F7A8C", "#D9483B", "#7A5BA6", "#F2B33D", "#2F6DB5", "#5E8C4A"][i] + '"/>';
     return stageSvg(
       '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.28)"/>' +
       '<g><rect x="30" y="16" width="46" height="46" rx="5" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M30 21a5 5 0 0 1 5-5h36a5 5 0 0 1 5 5v9H30Z" fill="#D9483B" stroke="#13261D" stroke-width="2"/>' +
@@ -827,13 +913,14 @@ a{color:var(--sea)}
       '<circle cx="171" cy="94" r="3.8" fill="#FFFFFF"/><circle cx="189" cy="94" r="3.8" fill="#FFFFFF"/><circle class="pupil" cx="171" cy="94" r="2" fill="#13261D"/><circle class="pupil" cx="189" cy="94" r="2" fill="#13261D"/>' +
       '<path d="M174 103 q6 4.5 12 0" stroke="#13261D" stroke-width="1.8" fill="none" stroke-linecap="round"/></g></g>' +
       '<g><g transform="translate(40 108)"><rect width="76" height="52" rx="5" fill="#13261D"/><rect x="4" y="4" width="68" height="44" rx="3" fill="#DCEFF2"/>' + bars + '<rect x="33" y="52" width="10" height="8" fill="#13261D"/></g>' +
-      '<g class="hands"><ellipse cx="132" cy="168" rx="10" ry="5.5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/><ellipse cx="156" cy="170" rx="10" ry="5.5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/></g>' +
       '<g transform="translate(244 134)"><rect x="8" y="-7" width="56" height="9" rx="3" fill="#13261D"/><rect width="72" height="34" rx="7" fill="#4A5E53" stroke="#13261D" stroke-width="1.5"/><circle class="led" cx="60" cy="12" r="3.5" fill="#8FB97D"/><rect x="10" y="20" width="36" height="5" rx="2.5" fill="#13261D" opacity=".5"/></g>' +
-      '<path d="M0 166 H360 V198 a22 22 0 0 1 -22 22 H22 a22 22 0 0 1 -22 -22 Z" fill="#7A5E44"/><rect y="162" width="360" height="8" fill="#A0704F"/></g>') +
+      '<path d="M0 166 H360 V198 a22 22 0 0 1 -22 22 H22 a22 22 0 0 1 -22 -22 Z" fill="#7A5E44"/><rect y="162" width="360" height="8" fill="#A0704F"/>' +
+      '<g class="kbd"><rect x="106" y="153" width="64" height="10" rx="3" fill="#4A5E53" stroke="#13261D" stroke-width="1.2"/>' + keys + "</g>" +
+      '<g class="hands"><ellipse class="hl" cx="121" cy="153.5" rx="9" ry="5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/><ellipse class="hr" cx="151" cy="154.5" rx="9" ry="5" fill="#8A5A3C" stroke="#13261D" stroke-width="1.2"/></g></g>') +
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
-  var PASS_CARD = '<div class="idcard" id="passcard" aria-hidden="true"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div><p class="id-title">VSUrvey pass</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div>';
+  var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd><dt>Other school</dt><dd data-f="transferee">Skipped</dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -857,14 +944,57 @@ a{color:var(--sea)}
     var panelFill = s.ink === "light" ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.28)";
     return stageSvg('<rect width="360" height="220" rx="22" fill="' + panelFill + '"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>' +
       '<g fill="rgba(255,255,255,.18)"><circle cx="48" cy="44" r="18"/><circle cx="318" cy="36" r="10"/><circle cx="292" cy="62" r="5"/></g>' +
-      '<g><g class="hero2">' + s.props + "</g></g>" +
-      '<g>' + calendarSvg() + packSvg() + "</g>");
+      '<g><g class="hero2">' + s.props + "</g></g>");
   }
 
   /* The campus map, as in v1, drawn bigger. */
   function mapStage() { return '<div class="mapwrap noswipe">' + MAP_V1.replace('<svg id="map"', '<svg id="map" preserveAspectRatio="xMidYMid meet"') + "</div>"; }
   function storyStage() { return '<div class="panelpic">' + STORY_V1 + '<div class="caption empty" id="caption">Your story appears here as you type.</div><span class="stamp" id="stamp">May quote</span></div>'; }
   function trustStage() { return BRIDGE_V1.replace('class="stage bridge"', 'class="scene bridge"').replace('viewBox="0 0 360 170"', 'viewBox="0 0 360 170" preserveAspectRatio="xMidYMid meet"'); }
+
+  /* Hearing from VSU: a phone lighting up beside a notice board. */
+  function newsStage() {
+    var T = {
+      firstSuspensions: '<g transform="translate(60 40)"><path d="M18 46a20 20 0 0 1 4-39 26 26 0 0 1 50 6 17 17 0 0 1 2 33Z" fill="#DCE5DF" stroke="#13261D" stroke-width="2"/><path d="M40 52l-8 18h12l-6 18" fill="none" stroke="#F2B33D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<g stroke="#9ED1DB" stroke-width="3.5" stroke-linecap="round"><path d="M14 58l-4 10M64 58l-4 10M82 52l-4 10M22 76l-4 10M74 76l-4 10"/></g>' +
+        '<g transform="translate(92 54)"><rect width="34" height="40" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect width="34" height="9" rx="3" fill="#D9483B"/><path d="M8 18l18 16M26 18L8 34" stroke="#D9483B" stroke-width="4" stroke-linecap="round"/><rect x="15" y="40" width="4" height="22" fill="#7A5E44"/></g></g>',
+      firstDocuments: '<g transform="translate(64 38)"><rect x="18" y="10" width="64" height="84" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2" transform="rotate(-8 50 52)"/><rect x="26" y="6" width="64" height="84" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="2" transform="rotate(4 58 48)"/>' +
+        '<rect x="22" y="4" width="64" height="84" rx="3" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><path d="M32 22h44M32 32h36M32 42h40M32 52h28" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M70 -2v18a6 6 0 0 1-12 0V2" fill="none" stroke="#7E8F86" stroke-width="3" stroke-linecap="round"/><circle cx="68" cy="70" r="13" fill="none" stroke="#1E4D3A" stroke-width="3"/><path d="M62 70l4.5 4.5 8-9" fill="none" stroke="#1E4D3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>',
+      firstEvents: '<g transform="translate(50 40)"><path d="M10 40 L68 10 L126 40Z" fill="#E4705A" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M10 40h116v10H10Z" fill="#F2B33D" stroke="#13261D" stroke-width="2"/><g fill="#F7FBF8"><path d="M20 50l9 10 9-10Z"/><path d="M58 50l9 10 9-10Z"/><path d="M96 50l9 10 9-10Z"/></g>' +
+        '<rect x="20" y="62" width="96" height="40" rx="3" fill="#A0704F" stroke="#13261D" stroke-width="2"/><path d="M46 70c-6 8-8 12-8 15a8 8 0 0 0 16 0c0-3-2-7-8-15Z" fill="#D9483B" stroke="#13261D" stroke-width="1.5"/>' +
+        '<g transform="translate(70 70)"><path d="M0 0h16l-2 22H2Z" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M2 6h12" stroke="#9ED1DB" stroke-width="4"/></g><g transform="translate(92 70)"><path d="M0 0h16l-2 22H2Z" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M2 8h12" stroke="#F2B33D" stroke-width="4"/></g></g>',
+      firstScholarships: '<g transform="translate(54 42)"><rect width="96" height="68" rx="4" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="6" y="6" width="84" height="56" rx="2" fill="none" stroke="#F2B33D" stroke-width="2"/><path d="M20 20h56M26 30h44M30 40h36" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/>' +
+        '<circle cx="78" cy="58" r="12" fill="#F2B33D" stroke="#13261D" stroke-width="1.5"/><path d="M72 68l-4 18 10-6 10 6-4-18" fill="#D9483B" stroke="#13261D" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<g transform="translate(-6 76)"><rect width="44" height="32" rx="4" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><path d="M14 0v-6h16v6" fill="none" stroke="#13261D" stroke-width="2"/><path d="M0 12h44" stroke="#13261D" stroke-width="1.5"/></g></g>',
+      firstAnnouncements: '<g transform="translate(52 44)"><path d="M10 34v22h14l36 20V14L24 34Z" fill="#7A5BA6" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M70 30a14 14 0 0 1 0 30M80 20a28 28 0 0 1 0 50" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/>' +
+        '<g fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"><g transform="translate(30 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(62 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(94 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g></g></g>'
+    };
+    return stageSvg(FRAME +
+      Object.keys(T).map(function (k) { return '<g class="topic" data-topic="' + k + '">' + T[k] + "</g>"; }).join("") +
+      '<g transform="translate(232 34)"><rect width="76" height="134" rx="12" fill="#13261D"/><rect x="6" y="12" width="64" height="112" rx="6" fill="#F7FBF8"/>' +
+      '<rect x="11" y="22" width="54" height="22" rx="5" fill="#E7DDF2"/><rect x="16" y="28" width="30" height="4" rx="2" fill="#7A5BA6"/><rect x="16" y="35" width="40" height="3" rx="1.5" fill="#C9C2B3"/>' +
+      '<rect x="11" y="50" width="54" height="22" rx="5" fill="#DDEBD4"/><rect x="16" y="56" width="26" height="4" rx="2" fill="#5E8C4A"/><rect x="16" y="63" width="36" height="3" rx="1.5" fill="#C9C2B3"/>' +
+      '<rect x="11" y="78" width="54" height="22" rx="5" fill="#F6DDD9"/><rect x="16" y="84" width="32" height="4" rx="2" fill="#D9483B"/><rect x="16" y="91" width="30" height="3" rx="1.5" fill="#C9C2B3"/>' +
+      '<g transform="translate(70 8)"><circle r="10" fill="#D9483B" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g></g>');
+  }
+  /* Reaching VSU: an office window, a bell, and a note waiting for an answer. */
+  function errandStage() {
+    return stageSvg(FRAME +
+      '<g><rect x="70" y="26" width="220" height="140" rx="8" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="70" y="26" width="220" height="26" rx="8" fill="#1F7A8C" stroke="#13261D" stroke-width="2"/><rect x="146" y="34" width="68" height="10" rx="5" fill="#F7FBF8" opacity=".85"/>' +
+      '<rect x="110" y="62" width="140" height="70" rx="4" fill="#9ED1DB" stroke="#13261D" stroke-width="2"/><path d="M180 62v70" stroke="#13261D" stroke-width="1.5"/><path d="M118 70l20 20M190 70l16 16" stroke="#F7FBF8" stroke-width="4" stroke-linecap="round" opacity=".6"/>' +
+      '<rect x="96" y="132" width="168" height="12" rx="3" fill="#A0704F" stroke="#13261D" stroke-width="1.5"/>' +
+      '<g transform="translate(128 120)"><path d="M0 12a12 12 0 0 1 24 0Z" fill="#F2B33D" stroke="#13261D" stroke-width="1.5"/><rect x="-3" y="12" width="30" height="3" rx="1.5" fill="#13261D"/><circle cx="12" cy="-2" r="2.5" fill="#13261D"/></g>' +
+      '<g transform="translate(206 106) rotate(-6)"><rect width="34" height="26" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M6 8h22M6 14h16M6 20h18" stroke="#C9C2B3" stroke-width="2.5" stroke-linecap="round"/></g>' +
+      '<g transform="translate(250 92)"><path d="M0 0h30a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7H14l-7 6v-6H0a7 7 0 0 1-7-7V7a7 7 0 0 1 7-7Z" fill="#FFFFFF" stroke="#13261D" stroke-width="1.5"/><g fill="#E4705A"><circle cx="8" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="24" cy="12" r="2.5"/></g></g></g>');
+  }
+  /* Students and alumni: classmates trading questions and answers. */
+  function peersStage() {
+    function kid(x, skin, hair, shirt) { return '<g transform="translate(' + x + ' 0)"><circle cx="0" cy="104" r="20" fill="' + skin + '"/><path d="M-20 100c2-24 38-24 40 0-8-8-32-8-40 0Z" fill="' + hair + '"/><circle cx="-7" cy="106" r="2.6" fill="#13261D"/><circle cx="7" cy="106" r="2.6" fill="#13261D"/><path d="M-5 115q5 4 10 0" stroke="#13261D" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M-36 176c2-36 70-36 72 0Z" fill="' + shirt + '"/></g>'; }
+    return stageSvg(FRAME + kid(100, "#8A5A3C", "#1B1B22", "#1F7A8C") + kid(180, "#A0704F", "#3A2A20", "#F2B33D") + kid(260, "#7A4E33", "#1B1B22", "#D9483B") +
+      '<g transform="translate(118 28)"><path d="M0 0h44a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H20l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="1.5"/><text x="22" y="23" text-anchor="middle" font-size="18" font-weight="800" fill="#5E8C4A" font-family="sans-serif">?</text></g>' +
+      '<g transform="translate(206 38)"><path d="M0 0h52a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8H38l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="1.5"/><path d="M6 10h40M6 18h28" stroke="#5E8C4A" stroke-width="3.5" stroke-linecap="round"/></g>');
+  }
 
   /* Posting anonymously: a post card behind a mask, or not. */
   function anonStage() {
@@ -927,12 +1057,13 @@ a{color:var(--sea)}
   /* ---------- What is recorded ---------- */
   var A = {
     consent: false, age18: null, startedAt: null,
-    residence: null, year: null, faculty: null, org: null, scholarship: null, firstGen: null,
-    sources: [], sourcesOther: "", mainSource: null,
-    networks: [], load: [], loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, onlineCampus: null, onlineHome: null,
-    scenario: null, board: {}, pins: [], coins: {},
+    residence: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null,
+    networks: [], load: [], loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
+    firstSuspensions: null, firstDocuments: null, firstEvents: null, firstScholarships: null, firstAnnouncements: null,
+    scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
+    board: {}, coins: {},
     story: "", mayQuote: false, trust: null, postedAnonymously: null,
-    wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
+    worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
   };
   var sent = false, sending = false, printed = false;
@@ -940,18 +1071,27 @@ a{color:var(--sea)}
 
   /* ---------- Choices ---------- */
   var OPT = {
-    residence: [["An on-campus dorm", "dorm"], ["A boarding house or apartment near campus", "bhouse"], ["My family's home, and I commute", "commute"], ["Somewhere else", "elsewhere"]],
+    residence: [["An on-campus dorm", "dorm"], ["A boarding house or apartment near campus", "bhouse"], ["My family's home, and I commute", "commute"], ["A relative's or friend's house", "relative"], ["Somewhere else", "elsewhere"]],
+    transport: [["Walk", "walk"], ["Bicycle", "bike"], ["My own motorcycle or car", "motor"], ["Habal-habal or tricycle", "trike"], ["Jeepney or multicab", "jeep"], ["Someone gives me a ride", "ride"]],
     year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5], ["Graduate student", "Graduate student", 0]],
-    org: [["An officer", "officer"], ["A member", "member"], ["Neither", "neither"]],
+    org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"], ["Prefer not to say", "stampSkip"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
-    sources: [["Official VSU website or portal", "web", "globe", "#1F7A8C"], ["Official VSU Facebook pages", "page", "flagpage", "#2B3A67"], ["Unofficial student Facebook groups or pages", "group", "group", "#5E8C4A"], ["Messenger group chats", "gchat", "chat", "#7A5BA6"], ["Email", "email", "mail", "#D9483B"], ["Campus bulletin boards", "board", "board", "#B7791F"], ["Friends and classmates", "friends", "people", "#2F6DB5"], ["Other", "other", "other", "#7E8F86"]],
+    /* Where VSU news is heard first (D-119): official and student-run kept apart; no community page is named (D-044). */
+    channels: [["Official VSU pages or website", "web"], ["Student council or org pages", "page"], ["Unofficial groups, like freedom walls", "group"], ["Group chats: class, org, dorm", "gchat"], ["In person: class or friends", "friends"], ["Email or text message", "email"], ["Campus bulletin boards", "board"], ["Somewhere else", "other"]],
+    reachHow: [["Went in person", "walk"], ["Messenger or another chat app", "message"], ["Text or call", "call"], ["Email", "email"], ["Commented or posted on a page", "page"], ["Asked someone to pass it on", "friends"], ["It hasn't happened", "nothappened"]],
+    reachGot: [["Yes, the same day", "sameday"], ["Yes, but it took days", "days"], ["Only partly", "partly"], ["No, I got no answer", "none"]],
+    concern: [["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["Kept it to myself", "ban"], ["It hasn't happened", "other"]],
+    askFirst: [["A group chat", "gchat"], ["An unofficial student group or freedom wall", "group"], ["A classmate or senior, in person", "friends"], ["A teacher or adviser", "teacher"], ["Searched online", "search"], ["I didn't ask anyone", "noask"], ["It hasn't happened", "nothappened"]],
+    works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
     spend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱50", "< ₱50", "#1F7A8C"], ["₱50 to ₱99", "₱50–99", "#2F6DB5"], ["₱100 to ₱199", "₱100–199", "#7A5BA6"], ["₱200 or more", "₱200+", "#D9483B"], ["Not sure", "?", "#4A5E53"]],
-    networks: [["Smart or TNT", "Smart · TNT"], ["Globe, TM, or GOMO", "Globe · TM · GOMO"], ["DITO", "DITO"], ["Another network", "?"], ["No SIM or mobile data", ""]],
-    load: [["Data for any site or app", "any"], ["Data for certain apps only", "apps"], ["Calls and texts", "calls"], ["I don't buy load", "none"]],
-    apps: [["Facebook and Messenger", "chat"], ["TikTok", "note"], ["YouTube", "play"], ["Instagram", "camera"], ["Games", "game"], ["Other", "other"]],
+    networks: [["Smart", "Smart"], ["TNT", "TNT"], ["Globe", "Globe"], ["TM", "TM"], ["GOMO", "GOMO"], ["DITO", "DITO"], ["I don't use a SIM", ""]],
+    load: [["Data for any site or app", "any"], ["Data for certain apps only", "apps"], ["Calls and texts", "calls"], ["A postpaid plan", "plan"], ["I don't buy load", "none"]],
+    /* Apps that app-specific promos bundle (D-120): social, messaging, video, games, and school apps. */
+    apps: [["Facebook and Messenger", "chat"], ["TikTok", "note"], ["YouTube", "play"], ["Instagram", "camera"], ["X (Twitter)", "bubble"], ["WhatsApp or Viber", "people"], ["Netflix or other streaming", "eye"], ["Games", "game"], ["School apps, like Google Workspace, Zoom, or Canva", "cap"], ["Other", "other"]],
     school: [["Almost none", 0.05, "≈0"], ["About a quarter", 0.25, "¼"], ["About half", 0.5, "½"], ["About three quarters", 0.75, "¾"], ["Almost all", 0.95, "≈all"], ["Not sure", null, "?"]],
-    onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["Both", "both"], ["I usually can't", "none"]],
-    onlineHome: [["Mobile data", "data"], ["Wi-Fi where I stay", "homewifi"], ["Piso Wi-Fi", "piso"], ["Both mobile data and Wi-Fi", "both"], ["I usually can't", "none"]],
+    signal: [["On campus and where I stay", 1, 1], ["On campus only", 1, 0], ["Where I stay only", 0, 1], ["Neither, or hardly ever", 0, 0]],
+    onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["Pocket Wi-Fi", "pocket"], ["I usually can't", "none"]],
+    onlineHome: [["Mobile data", "data"], ["Wi-Fi where I stay", "homewifi"], ["Piso Wi-Fi", "piso"], ["Pocket Wi-Fi", "pocket"], ["I usually can't", "none"]],
     scenario: [["Asked in a student Facebook group", "askgroup"], ["Messaged a friend or a senior", "message"], ["Walked over and asked around", "walk"], ["Checked the official website or page", "web"], ["Something else", "elsewhere"], ["It hasn't happened to me", "nothappened"]],
     often: [["Never", "It never happened"], ["Once or twice", "Once or twice"], ["Several times", "Several times"], ["Often", "Often"], ["Does not apply", "Doesn't apply to me"]],
     matters: ["Not a problem", "Minor", "Moderate", "Serious"],
@@ -961,16 +1101,42 @@ a{color:var(--sea)}
     pull: [["Official answers from offices", "office"], ["Easier to reach faculty and staff", "door"], ["Notices and deadlines in one place", "board"], ["Scholarships and opportunities in one place", "star"], ["Events in one place", "flag"], ["Questions about my subjects", "guide"], ["My class schedule and rooms in one place", "calendar"], ["A marketplace only for VSU people", "tag"], ["No ads or endless feeds", "ban"], ["Works on little mobile data", "signal"], ["Other", "other"]],
     away: [["Feeling watched by the university", "eye"], ["Fear of consequences for criticism", "megaphone"], ["Too many apps already", "stack"], ["My friends wouldn't be on it", "people"], ["Hard or slow to use", "snail"], ["Uses too much mobile data", "signal"], ["Other", "other"]]
   };
-  var NONE_SOURCE = "None of these";
-  var NO_SIM = "No SIM or mobile data", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only";
+  /* Where each kind of VSU news is heard first (D-119): the same channels for all four, so the answers compare. */
+  var LATE = "Usually too late", NEVER = "I don't hear about it", NOT_MINE = "Doesn't apply to me";
+  var FIRSTS = [
+    ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [LATE, NEVER]],
+    ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear it first?", [LATE, NEVER]],
+    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear it first?", [LATE, NEVER, NOT_MINE]],
+    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [LATE, NEVER, NOT_MINE]],
+    ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear it first?", [LATE, NEVER]]
+  ];
+  var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
+  var NO_SIM = "I don't use a SIM", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't";
   function simless() { return A.networks.length === 1 && A.networks[0] === NO_SIM; }
+  /* No load bought skips what load costs and covers, as no SIM does; calls and texts alone skip what data is used for. */
+  function buysLoad() { return !simless() && A.load.indexOf(NO_LOAD) < 0; }
+  /* Wi-Fi that costs the student something: home Wi-Fi, piso Wi-Fi, or pocket Wi-Fi. */
+  /* Until both questions on getting online are answered, the Wi-Fi question counts as coming, so the part's numbering holds. */
+  function paysWifi() {
+    if (!A.onlineHome.length && !A.onlineCampus.length) return true;
+    return ["Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi"].some(function (x) { return A.onlineHome.indexOf(x) >= 0; }) || A.onlineCampus.indexOf("Pocket Wi-Fi") >= 0;
+  }
+  function usesData() { return buysLoad() && !(A.load.length > 0 && A.load.every(function (x) { return x === CALLS; })); }
   var HAPPENED = ["Once or twice", "Several times", "Often"];
   /* The ten Main Campus faculties named in VSU's announcement of 16 January 2025, by name. */
   var FACULTIES = [["FAFS", "Agriculture and Food Science"], ["FOC", "Computing"], ["FE", "Engineering"], ["FFES", "Forestry and Environmental Science"], ["FHSS", "Humanities and Social Sciences"], ["FME", "Management and Economics"], ["FNMS", "Natural and Mathematical Sciences"], ["FON", "Nursing"], ["FTE", "Teacher Education"], ["FVM", "Veterinary Medicine"]];
-  var ANOTHER_UNIT = "Another unit";
+  /* Channel order: shuffled once for each respondent, kept for all five news questions, and recorded, so order effects can be checked. */
+  var CHANNELS = (function (list) {
+    var head = list.slice(0, -1);
+    for (var i = head.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = head[i]; head[i] = head[j]; head[j] = t; }
+    return head.concat(list.slice(-1));
+  })(OPT.channels);
+  var NOT_SAID = "Prefer not to say", FAMILY_HOME = "My family's home, and I commute";
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
-  /* The 16 scenes: v1's 13, plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23). */
+  /* The 15 scenes: v1's 13, less organization handovers (h), plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23).
+     Ordered by part (D-119): hearing from VSU, reaching VSU, students and alumni, campus life. In Hearing from VSU the four
+     channel questions come first, then the scenes; elsewhere a scene follows the question it goes with. Letters stay. */
   var MOMENTS = (function () {
     var by = {};
     V1_MOMENTS.forEach(function (m) { by[m.k] = m; });
@@ -987,71 +1153,108 @@ a{color:var(--sea)}
       props: '<rect x="134" y="104" width="92" height="74" rx="7" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><rect x="156" y="112" width="48" height="6" rx="3" fill="#13261D"/><rect x="152" y="132" width="56" height="26" rx="4" fill="#E9C27D" stroke="#13261D" stroke-width="1.5"/><path d="M160 141h40M160 149h28" stroke="#7A5E44" stroke-width="2.5" stroke-linecap="round"/>' +
         '<g><rect x="166" y="40" width="28" height="36" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.6"/><path d="M171 49h18M171 56h14M171 63h16" stroke="#C9C2B3" stroke-width="2.4" stroke-linecap="round"/><animateTransform attributeName="transform" type="translate" values="0 0;0 34;0 34;0 0" keyTimes="0;.45;.8;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.4;.5;.95;1" dur="3.6s" repeatCount="indefinite"/></g>' +
         '<g><path d="M236 46h44a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8h-26l-12 10v-10h-6a8 8 0 0 1-8-8V54a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><g fill="#4F6D8F"><circle cx="246" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="258" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".25s" repeatCount="indefinite"/></circle><circle cx="270" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".5s" repeatCount="indefinite"/></circle></g></g>' };
-    return ["a", "b", "n", "c", "d", "o", "p", "e", "f", "g", "h", "i", "j", "k", "l", "m"].map(function (k) { return by[k]; });
+    return ["d", "o", "f", "g", "k", "a", "e", "c", "p", "b", "n", "l", "i", "j", "m"].map(function (k) { return by[k]; });
   })();
   var byKey = {};
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
 
   /* ---------- The walk: chapters and steps ---------- */
-  var CHAPTERS = ["Start", "Home", "Your pass", "News", "Mobile data", "Errand", "Scenes", "Map", "Coins", "Your story", "Trust", "Network idea", "Send"];
+  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life", "Coins", "Your story", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
+  /* A part numbers its screens in the kicker ("Reaching VSU, 3 of 8"), counted from the screens the respondent will see. */
+  function part(ch, name, items) {
+    items.forEach(function (it) {
+      if (it.k) step({ id: "m-" + it.k, box: "m-" + it.k, ch: ch, part: name, kind: "moment", k: it.k, kicker: name, prompt: byKey[it.k].title, hint: it.hint || null, core: true });
+      else { it.ch = ch; it.part = name; it.kicker = name; step(it); }
+    });
+  }
+  function kickerOf(s) {
+    var L = list().filter(function (x) { return x.part === s.part; }), i = L.indexOf(s);
+    return s.part + ", " + (i + 1) + " of " + L.length;
+  }
   function stamps() { return OPT.yesno.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }); }
 
   step({ id: "intro", box: "intro", ch: 0, kind: "intro" });
   step({ id: "consent", box: "gate", ch: 0, kind: "consent", lock: true, autoMs: 1300, size: "short", hint: "consent" });
-  step({ id: "home", box: "home", ch: 1, kind: "tiles", key: "residence", size: "short", kicker: "Home", prompt: "Where do you wake up during the semester?", hint: "tiles", core: true,
-    opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) });
-  step({ id: "year", box: "pass", ch: 2, kind: "tiles", key: "year", cols: "t3", kicker: "Your pass, 1 of 5", prompt: "What year are you in?", say: "Morning! Your year?", core: true,
-    opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) });
-  step({ id: "faculty", box: "pass", ch: 2, kind: "rows", key: "faculty", size: "tight", kicker: "Your pass, 2 of 5", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?" });
-  step({ id: "org", box: "pass", ch: 2, kind: "tiles", key: "org", cols: "t3", kicker: "Your pass, 3 of 5", prompt: "In student organizations, you are…", say: "Any student orgs?", core: true,
-    opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) });
-  step({ id: "scholarship", box: "pass", ch: 2, kind: "tiles", key: "scholarship", cols: "t3", kicker: "Your pass, 4 of 5", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() });
-  step({ id: "firstGen", box: "pass", ch: 2, kind: "tiles", key: "firstGen", cols: "t3", kicker: "Your pass, 5 of 5", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2700,
-    beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : 1700; } return 0; } });
-  step({ id: "sources", box: "news", ch: 3, kind: "vigs", multi: true, key: "sources", size: "tight", kicker: "Your phone", prompt: "Where does VSU news reach you?", lede: TAP + " every one you use for VSU matters.", none: true, other: "sourcesOther", otherPh: "Other: which one? (optional)", hint: "vigs", core: true,
-    opts: OPT.sources.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
-  step({ id: "mainSource", box: "news", ch: 3, kind: "pick", key: "mainSource", kicker: "Your phone", prompt: "Which one do you rely on most?", core: true, when: function () { return realSources().length > 1; } });
-  step({ id: "networks", box: "data", ch: 4, kind: "tiles", multi: true, exclusive: NO_SIM, key: "networks", cols: "t3", size: "short", kicker: "Mobile data, 1 of 6", prompt: "Which networks are your SIMs on?", lede: "Pick all that apply. Many phones carry two SIMs.", hint: "vigs", core: true,
-    opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) });
-  step({ id: "load", box: "data", ch: 4, kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", size: "short", kicker: "Mobile data, 2 of 6", prompt: "What kind of load do you usually buy?", lede: "Pick all that apply.", core: true, when: function () { return !simless(); },
-    opts: OPT.load.map(function (o) { return { v: o[0], art: function () { return TILE.loadKind(o[1]); } }; }) });
-  step({ id: "loadApps", box: "data", ch: 4, kind: "chipsMulti", key: "loadApps", size: "short", other: "loadAppsOther", otherPh: "Other: which app? (optional)", kicker: "Mobile data, 2 of 6", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return !simless() && A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps });
-  step({ id: "dataSpend", box: "data", ch: 4, kind: "tiles", key: "dataSpend", cols: "t3", size: "short", kicker: "Mobile data, 3 of 6", prompt: "In one week of classes, about how much do you spend on load?", lede: "Count one week only. For a monthly promo, count about a quarter of its price.", core: true, when: function () { return !simless(); },
-    opts: OPT.spend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) });
-  step({ id: "dataSchool", box: "data", ch: 4, kind: "tiles", key: "dataSchool", cols: "t3", size: "short", kicker: "Mobile data, 4 of 6", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: function () { return !simless() && A.dataSpend !== "Nothing"; },
-    opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) });
-  step({ id: "onlineCampus", box: "data", ch: 4, kind: "tiles", key: "onlineCampus", size: "short", kicker: "Mobile data, 5 of 6", prompt: "On campus, during class hours, how do you get online?", core: true,
-    opts: OPT.onlineCampus.map(function (o) { return { v: o[0], art: function () { return TILE.net(o[1]); } }; }) });
-  step({ id: "onlineHome", box: "data", ch: 4, kind: "tiles", key: "onlineHome", cols: "t3", size: "short", kicker: "Mobile data, 6 of 6", prompt: "Where you stay, how do you get online?", core: true,
-    opts: OPT.onlineHome.map(function (o) { return { v: o[0], art: function () { return TILE.net(o[1]); } }; }) });
-  step({ id: "scenario", box: "errand", ch: 5, kind: "vigs", key: "scenario", cols: "v3", size: "tight", kicker: "An office errand", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
-    opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) });
-  MOMENTS.forEach(function (m, i) {
-    step({ id: "m-" + m.k, box: "m-" + m.k, ch: 6, kind: "moment", k: m.k, kicker: "Scene " + (i + 1) + " of " + MOMENTS.length, prompt: m.title, hint: i === 0 ? "moment" : null, core: true });
-  });
-  step({ id: "map", box: "map", ch: 7, kind: "map", size: "tall", kicker: "From above", prompt: "Where on campus did a place give you trouble?", lede: "Drop up to three pins on places that were hard to find, closed when you got there, or not the right place for what you needed.", spareLede: true, hint: "map" });
-  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", hint: "jars" });
+  part(1, "Mornings", [
+    { id: "home", box: "home", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you wake up during the semester?", hint: "tiles", core: true,
+      opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
+    { id: "transport", box: "home", kind: "tiles", key: "transport", cols: "t3", size: "short", prompt: "How do you mostly get to your classes?", core: true,
+      opts: OPT.transport.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) }
+  ]);
+  /* Your form is answered in full: every question can be declined with Prefer not to say, but not skipped. */
+  part(2, "Your form", [
+    { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", lock: true, prompt: "What year are you in?", say: "Morning! Your year?", core: true,
+      extras: [NOT_SAID], opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
+    { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", lock: true, prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
+    { id: "org", box: "pass", kind: "tiles", key: "org", cols: "t3", size: "short", lock: true, prompt: "How involved are you in student orgs, including your course or department org?", say: "Any student orgs?", core: true,
+      opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
+    { id: "scholarship", box: "pass", kind: "tiles", key: "scholarship", cols: "t3", lock: true, prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: stamps() },
+    { id: "transferee", box: "pass", kind: "tiles", key: "transferee", cols: "t3", lock: true, prompt: "Did you study at another college or university before VSU?", say: "Studied elsewhere?", core: true, opts: stamps() },
+    { id: "firstGen", box: "pass", kind: "tiles", key: "firstGen", cols: "t3", lock: true, prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: stamps(), autoMs: 2900,
+      beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : HANDOVER_MS + 100; } return handoverLeft(); } }
+  ]);
+  part(3, "Getting online", [
+    { id: "networks", box: "data", kind: "tiles", multi: true, max: 2, exclusive: NO_SIM, key: "networks", cols: "t3", size: "bare", prompt: "Which networks are your SIMs on?", lede: "Pick up to two, one for each SIM.", hint: "vigs", core: true,
+      opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) },
+    { id: "load", box: "data", kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", cols: "t3", size: "short", prompt: "What kind of load do you usually buy?", lede: "Pick all that apply.", core: true, when: function () { return !simless(); },
+      opts: OPT.load.map(function (o) { return { v: o[0], art: function () { return TILE.loadKind(o[1]); } }; }) },
+    { id: "loadApps", box: "data", kind: "chipsMulti", key: "loadApps", size: "bare", other: "loadAppsOther", otherPh: "Other: which app? (optional)", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return !simless() && A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps },
+    { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only, not pocket Wi\u2011Fi. For a monthly promo or plan, count a quarter.", core: true, when: buysLoad,
+      opts: OPT.spend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
+    { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: function () { return usesData() && A.dataSpend !== "Nothing"; },
+      opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) },
+    { id: "signal", box: "data", kind: "tiles", key: "signal", size: "short", prompt: "Where can you use mobile data well enough to browse or use school apps?", core: true, when: usesData,
+      opts: OPT.signal.map(function (o) { return { v: o[0], art: function () { return TILE.where(o[1], o[2]); } }; }) },
+    { id: "onlineCampus", box: "data", kind: "tiles", multi: true, exclusive: NO_NET, key: "onlineCampus", size: "short", prompt: "On campus, during class hours, how do you get online?", lede: "Pick all that apply.", core: true,
+      opts: OPT.onlineCampus.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi\u2011Fi"), art: function () { return TILE.net(o[1]); } }; }) },
+    { id: "onlineHome", box: "data", kind: "tiles", multi: true, exclusive: NO_NET, key: "onlineHome", cols: "t3", size: "short", prompt: "Where you stay, how do you get online?", lede: "Pick all that apply.", core: true,
+      opts: OPT.onlineHome.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi\u2011Fi"), art: function () { return TILE.net(o[1]); } }; }) },
+    { id: "wifiSpend", box: "data", kind: "tiles", key: "wifiSpend", cols: "t3", size: "bare", prompt: "In one week of classes, about how much do you spend on Wi\u2011Fi?", lede: "Count piso Wi\u2011Fi, pocket Wi\u2011Fi load, and your share of any Wi\u2011Fi bill. For a monthly bill, count about a quarter.", core: true, when: paysWifi,
+      opts: OPT.spend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) }
+  ]);
+  /* The four channel questions run together, on one list, then the scenes on hearing from VSU. */
+  part(4, "Hearing from VSU", FIRSTS.map(function (f) {
+    return { id: f[0], box: "news", kind: "pick", key: f[0], size: "news", extras: f[2], prompt: f[1], core: true };
+  }).concat([{ k: "d", hint: "moment" }, { k: "o" }, { k: "f" }, { k: "g" }, { k: "k" }]));
+  part(5, "Reaching VSU", [
+    { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
+    opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { k: "a" }, { k: "e" },
+    { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== NOT_YET; } },
+    { k: "c" },
+    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, "Kept it to myself"], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { k: "p" }
+  ]);
+  part(6, "Students and alumni", [
+    { id: "askFirst", box: "peers", kind: "vigs", key: "askFirst", size: "tight", prompt: "The last time you had a question about a subject or a school process, where did you ask first?", core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { k: "b" }, { k: "n" },
+    { id: "trust", box: "trust", kind: "scale", key: "trust", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true },
+    { id: "postedAnonymously", box: "anon", kind: "tiles", key: "postedAnonymously", cols: "t3", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() },
+    { k: "l" }
+  ]);
+  part(7, "Campus life", [{ k: "i" }, { k: "j" }, { k: "m" }]);
+  /* The campus map is left out until it is reworked; its drawing and code stay for that. */
+  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
   step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
-  step({ id: "trust", box: "trust", ch: 10, kind: "scale", key: "trust", kicker: "In the group chat", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true });
-  step({ id: "postedAnonymously", box: "anon", ch: 10, kind: "tiles", key: "postedAnonymously", cols: "t3", kicker: "In the group chat", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() });
-  step({ id: "wouldUse", box: "net", ch: 11, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 1 of 4", prompt: "Picture an online network that VSU runs for its students, faculty, and staff. What would make you use it?", lede: "It's an idea being explored, not a VSU plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "postPreference", box: "net", ch: 11, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 2 of 4", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+  step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 1 of 5", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
+  step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 2 of 5", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 3 of 5", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "wantBack", box: "net", ch: 11, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "A network idea, 3 of 4", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
+  step({ id: "wantBack", box: "net", ch: 10, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "A network idea, 4 of 5", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
     opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
-  step({ id: "keepAway", box: "net", ch: 11, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 4 of 4", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
-  step({ id: "send", box: "send", ch: 12, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
-  step({ id: "final", box: "final", ch: 12, kind: "final", noMenu: true, when: function () { return sent; } });
+  step({ id: "keepAway", box: "net", ch: 10, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 5 of 5", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "send", box: "send", ch: 11, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
+  step({ id: "final", box: "final", ch: 11, kind: "final", noMenu: true, when: function () { return sent; } });
 
   var stepById = {};
   STEPS.forEach(function (s) { stepById[s.id] = s; });
   var CONSENT_AT = STEPS.indexOf(stepById.consent);
   function gated(s) { return STEPS.indexOf(s) > CONSENT_AT; }
   function cleared() { return A.consent && A.age18 === true; }
-  function autoOf(s) { return !s.multi && ["tiles", "rows", "pick", "scale", "moment", "gate", "consent", "vigs"].indexOf(s.kind) >= 0; }
-  function realSources() { return A.sources.filter(function (v) { return v !== NONE_SOURCE; }); }
+  function autoOf(s) { return !s.multi && ["tiles", "rows", "pick", "chipsOne", "scale", "moment", "gate", "consent", "vigs"].indexOf(s.kind) >= 0; }
   function happened(k) { var a = A.board[k]; return !!(a && HAPPENED.indexOf(a.often) >= 0); }
   function spent() { return Object.keys(A.coins).reduce(function (t, k) { return t + A.coins[k]; }, 0); }
 
@@ -1064,7 +1267,7 @@ a{color:var(--sea)}
       case "vigs": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "chipsMulti": return A[s.key].length > 0;
       case "tiles": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
-      case "map": return A.pins.length > 0;
+      case "map": return !!A.pins && A.pins.length > 0;
       case "coins": return spent() > 0;
       case "story": return A.story.trim().length > 0;
       case "send": return sent;
@@ -1078,7 +1281,12 @@ a{color:var(--sea)}
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
   function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
-  function vigBtn(o, i, star) { return '<button type="button" class="vig' + (star ? " star" : "") + '" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + o.art() + '<span class="lbl">' + esc(o.v) + "</span></button>"; }
+  function vigBtn(o, i, star) { return '<button type="button" class="vig' + (star ? " star" : "") + '" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + o.art() + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
+  function chipGrid(s) {
+    return '<div class="chips grid2" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) {
+      return '<button type="button" class="chip icon" data-v="' + esc(o[0]) + '" aria-pressed="false" style="--i:' + i + '">' + icon(o[1]) + "<span>" + esc(o[0]) + "</span></button>";
+    }).join("") + "</div>";
+  }
   function otherField(s) { return '<input class="field" data-other="' + s.other + '" type="text" maxlength="120" autocomplete="off" placeholder="' + esc(s.otherPh) + '" aria-label="' + esc(s.otherPh) + '" hidden style="margin-top:12px">'; }
 
   var RENDER = {
@@ -1087,13 +1295,13 @@ a{color:var(--sea)}
         "<p>This survey asks about student life and VSU's services: which campus problems are common, and how serious they are. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
         "<p>In line with the Data Privacy Act of 2012 (Republic Act No. 10173), your answers carry no name, are used only for this study, and are kept confidential. Please don't name anyone in them.</p>" +
         '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
-        '<div class="how">' + icon("tap") + "<span>" + (TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
+        '<div class="how">' + icon("tap") + "<span>" + (calm() ? TAP + " an answer, then Next. Use the arrows to go back or skip." : TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
         (/^https:\/\//.test(FORM_URL) ? '<p class="note">Prefer a plain form? <a href="' + esc(FORM_URL) + '" target="_blank" rel="noopener">Answer in Google Forms instead</a>. Please answer only once.</p>' : "") +
         '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">This might take 5\u201310 minutes.</span></div>';
     },
     consent: function () {
       return '<p class="kicker">At the gate</p><h2 class="sr" id="h-consent" tabindex="-1">Before you go in</h2><ul class="consent-list">' +
-        "<li>Skip any question or stop whenever you want.</li>" +
+        "<li>Decline any question, by skipping it or picking Prefer not to say, or stop whenever you want.</li>" +
         "<li>Your answers carry no name. They go to a private Google Sheet only the researcher opens; VSU's Research Ethics Board, if it reviews this survey, may check them in confidence.</li>" +
         "<li>No result is shared for a group under 10 people. Answers are deleted one academic year after the survey closes; only totals are kept.</li>" +
         "<li>With no name attached, a sent answer can't be taken back.</li>" +
@@ -1101,25 +1309,30 @@ a{color:var(--sea)}
         '<button type="button" class="agree" data-key="consent" data-v="yes" aria-pressed="false"><span class="box2">' + icon("check") + "</span><span>I'm a current VSU Main Campus student, I'm 18 or older, and I agree to take part.</span></button>";
     },
     tiles: function (s) {
-      return head(s) + '<div class="answers"><div class="tiles ' + (s.cols || "") + '" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(tileBtn).join("") + "</div></div>";
+      return head(s) + '<div class="answers"><div class="tiles ' + (s.cols || "") + '" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(tileBtn).join("") + "</div>" +
+        (s.extras ? '<div class="chips none-row" data-key="' + s.key + '">' + s.extras.map(function (x, i) { return chipBtn(x, x, i); }).join("") + "</div>" : "") + "</div>";
     },
     rows: function (s) {
       return head(s) + '<div class="answers"><div class="rows fac" data-key="faculty" role="group" aria-labelledby="h-' + s.id + '">' + FACULTIES.map(function (f, i) {
         return '<button type="button" class="row" data-v="Faculty of ' + esc(f[1]) + '" aria-pressed="false" style="--i:' + i + '"><span class="tab">' + f[0] + '</span><span class="txt">' + esc(f[1]) + "</span></button>";
-      }).join("") + '<button type="button" class="row" data-v="' + ANOTHER_UNIT + '" aria-pressed="false" style="--i:10"><span class="tab">' + icon("other") + '</span><span class="txt">Another unit</span></button></div></div>';
+      }).join("") + '<button type="button" class="row" data-v="' + NOT_SAID + '" aria-pressed="false" style="--i:10"><span class="tab">' + icon("ban") + '</span><span class="txt">Prefer not to say</span></button></div></div>';
     },
     vigs: function (s) {
       var h = head(s) + '<div class="answers"><div class="vigs ' + (s.cols || "") + '" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) { return vigBtn(o, i); }).join("") + "</div>";
-      if (s.none) h += '<div class="chips none-row" data-key="' + s.key + '">' + chipBtn("None of these", NONE_SOURCE, 0) + "</div>";
       if (s.other) h += otherField(s);
       return h + "</div>";
     },
-    pick: function (s) { return head(s) + '<div class="answers"><div class="vigs" data-key="mainSource" data-part="pick" role="group" aria-labelledby="h-' + s.id + '"></div></div>'; },
+    pick: function (s) {
+      return head(s) + '<div class="answers"><div class="vigs" data-key="' + s.key + '" data-part="pick" role="group" aria-labelledby="h-' + s.id + '">' +
+        CHANNELS.map(function (o, i) { return vigBtn({ v: o[0], art: VIG[o[1]] }, i, true); }).join("") + "</div>" +
+        '<div class="chips none-row outcomes" data-key="' + s.key + '" style="--n:' + s.extras.length + '">' + s.extras.map(function (x, i) { return chipBtn(x, x, i); }).join("") + "</div></div>";
+    },
     moment: function (s) {
       var m = byKey[s.k];
       return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(m.title) + '</h2><p class="statement">“' + esc(m.text) + "”</p>" +
-        '<p class="q" id="q-often-' + m.k + '">In the past 12 months at VSU, how often did this happen to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
+        '<p class="q" id="q-often-' + m.k + '">Since the start of this semester, how often has this happened to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
         OPT.often.map(function (o, i) { return chipBtn(o[1], o[0], i); }).join("") + "</div>" +
+        (m.k === "i" ? '<p class="note prefill" data-prefill="i" hidden>Picked for you, since you live at home and commute. Change it if it doesn\'t fit.</p>' : "") +
         '<div class="sev" data-sev="' + m.k + '" hidden><p class="q" id="q-matters-' + m.k + '">How much of a problem was it?</p><div class="chips c4" data-key="matters:' + m.k + '" role="group" aria-labelledby="q-matters-' + m.k + '">' +
         OPT.matters.map(function (o, i) { return chipBtn(o, o, i); }).join("") + "</div></div>";
     },
@@ -1134,7 +1347,7 @@ a{color:var(--sea)}
     },
     story: function (s) {
       return head(s) + '<div class="answers"><textarea class="field" id="story" maxlength="5000" placeholder="Start wherever it started…" aria-labelledby="h-story"></textarea>' +
-        '<button type="button" class="toggle" data-key="mayQuote" data-v="yes" aria-pressed="false"><span class="box2">' + icon("check") + "</span><span>You may quote this without my name.</span></button></div>";
+        '<button type="button" class="toggle" data-key="mayQuote" data-v="yes" aria-pressed="false"><span class="box2">' + icon("check") + "</span><span>You may quote short parts of this, without my name.</span></button></div>";
     },
     scale: function (s) {
       var words = ["", "1, not at all", "2, a little", "3, somewhat", "4, mostly", "5, completely"];
@@ -1142,11 +1355,8 @@ a{color:var(--sea)}
         [1, 2, 3, 4, 5].map(function (n) { return chipBtn(String(n), n, n - 1, ' aria-label="' + words[n] + '"'); }).join("") +
         '</div><div class="range-ends" aria-hidden="true"><span>Not at all</span><span>Completely</span></div></div>';
     },
-    chipsMulti: function (s) {
-      return head(s) + '<div class="answers"><div class="chips grid2" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) {
-        return '<button type="button" class="chip icon" data-v="' + esc(o[0]) + '" aria-pressed="false" style="--i:' + i + '">' + icon(o[1]) + "<span>" + esc(o[0]) + "</span></button>";
-      }).join("") + "</div>" + otherField(s) + "</div>";
-    },
+    chipsMulti: function (s) { return head(s) + '<div class="answers">' + chipGrid(s) + (s.other ? otherField(s) : "") + "</div>"; },
+    chipsOne: function (s) { return head(s) + '<div class="answers">' + chipGrid(s) + "</div>"; },
     send: function (s) {
       return head(s) + '<p class="lede">Built from your answers. Check them, add a note if you like, then send.</p>' +
         '<div class="strip noswipe" id="strip"></div>' +
@@ -1172,9 +1382,10 @@ a{color:var(--sea)}
     gate: { bg: "#1F7A8C", ink: "light", stage: gateStage },
     home: { bg: "#F2B33D", ink: "dark", stage: homeStage },
     pass: { bg: "#9ED1DB", ink: "dark", stage: function () { return passStage() + PASS_CARD; } },
-    news: { bg: "#7A5BA6", ink: "light", cls: "nostage" },
+    news: { bg: "#7A5BA6", ink: "light", stage: newsStage },
     data: { bg: "#2F6DB5", ink: "light", stage: dataStage },
-    errand: { bg: "#E4705A", ink: "dark", cls: "nostage" },
+    errand: { bg: "#E4705A", ink: "dark", cls: "talls", stage: errandStage },
+    peers: { bg: "#5E8C4A", ink: "light", cls: "talls", stage: peersStage },
     map: { bg: "#CFE6C8", ink: "dark", stage: mapStage },
     coins: { bg: "#E9A93A", ink: "dark", cls: "nostage" },
     story: { bg: "#E4705A", ink: "dark", stage: storyStage },
@@ -1244,6 +1455,7 @@ a{color:var(--sea)}
     if (key.indexOf("often:") === 0 || key.indexOf("matters:") === 0) {
       var k = key.slice(key.indexOf(":") + 1), a = A.board[k] || (A.board[k] = { often: null, matters: null });
       if (key.indexOf("often:") === 0) {
+        delete a.prefilled;
         a.often = a.often === v ? null : v;
         turnedOn = a.often !== null;
         if (HAPPENED.indexOf(a.often) < 0) a.matters = null;
@@ -1272,33 +1484,29 @@ a{color:var(--sea)}
       var arr = A[key], i = arr.indexOf(v);
       if (i >= 0) { arr.splice(i, 1); turnedOn = false; }
       else {
-        var ex = key === "sources" ? NONE_SOURCE : s.exclusive;
-        if (ex) {
-          if (v === ex) arr.length = 0;
-          else { var ni = arr.indexOf(ex); if (ni >= 0) arr.splice(ni, 1); }
-        }
-        arr.push(v);
+        /* An answer that stands alone (one, or a list) clears the others, and any pick clears it. */
+        var ex = [].concat(s.exclusive || []);
+        if (ex.indexOf(v) >= 0) arr.length = 0;
+        else for (var xi = arr.length - 1; xi >= 0; xi--) if (ex.indexOf(arr[xi]) >= 0) arr.splice(xi, 1);
+        if (s.max && arr.length >= s.max) { turnedOn = false; replay(btn && btn.closest("[data-key]"), "nudge-me"); }
+        else arr.push(v);
       }
-      if (key === "sources") fixMainSource();
       if (key === "load" && A.load.indexOf(APP_DATA) < 0) { A.loadApps.length = 0; A.loadAppsOther = ""; }
-      if (key === "networks" && simless()) { A.load.length = 0; A.loadApps.length = 0; A.loadAppsOther = ""; A.dataSpend = null; A.dataSchool = null; }
+      if (key === "networks" && simless()) { A.load.length = 0; A.loadApps.length = 0; A.loadAppsOther = ""; }
+      if ((key === "onlineHome" || key === "onlineCampus") && !paysWifi()) A.wifiSpend = null;
+      if (key === "networks" || key === "load") {
+        if (!buysLoad()) A.dataSpend = null;
+        if (!usesData()) { A.dataSchool = null; A.signal = null; }
+      }
     } else {
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
       if (key === "dataSpend" && A.dataSpend === "Nothing") A.dataSchool = null;
-      if (key === "mainSource") mainAuto = false;
+      if (key === "reachHow" && A.reachHow === NOT_YET) A.reachGot = null;
     }
     return turnedOn;
   }
-  /* With one source, it is the main one; with more, the respondent picks on the next step. */
-  var mainAuto = false;
-  function fixMainSource() {
-    var real = realSources();
-    if (real.length === 1) { A.mainSource = real[0]; mainAuto = true; }
-    else if (mainAuto || real.indexOf(A.mainSource) < 0) { A.mainSource = null; mainAuto = false; }
-  }
-
   view.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-v]");
     if (!btn || !view.contains(btn) || btn.disabled) return;
@@ -1336,7 +1544,6 @@ a{color:var(--sea)}
     else if (s.box === "trust") trustReact();
     else if (s.box === "anon") modes($(".scene", box), A.postedAnonymously || "none");
     else if (s.box === "net") netReact();
-    else if (s.box === "news" && s.id === "sources") { syncStep(s); }
     else if (s.box === "map") syncMap();
     void box;
   }
@@ -1351,45 +1558,65 @@ a{color:var(--sea)}
   }
 
   /* Home: the place you wake up in appears. */
-  var HOME_V = { "An on-campus dorm": "v-dorm", "A boarding house or apartment near campus": "v-house", "My family's home, and I commute": "v-jeep", "Somewhere else": "v-other" };
+  var HOME_V = { "An on-campus dorm": "v-dorm", "A boarding house or apartment near campus": "v-house", "My family's home, and I commute": "v-jeep", "A relative's or friend's house": "v-house", "Somewhere else": "v-other" };
   function homeReact() { $$(".v", boxEls.home).forEach(function (g) { g.classList.toggle("on", HOME_V[A.residence] === g.id); }); }
 
-  /* Your pass: the monitor fills, the card is printed and handed to you. */
-  var PASS_KEYS = ["year", "faculty", "org", "scholarship", "firstGen"];
+  /* Your form: the monitor fills, the form is printed and handed to you. */
+  var PASS_KEYS = ["year", "faculty", "org", "scholarship", "transferee", "firstGen"];
   function short(key) {
     var v = A[key];
     if (v === null) return "Skipped";
-    if (key === "faculty") { var f = FACULTIES.filter(function (x) { return "Faculty of " + x[1] === v; })[0]; return f ? f[0] : "Other unit"; }
+    if (v === NOT_SAID) return "Not said";
+    if (key === "faculty") { var f = FACULTIES.filter(function (x) { return "Faculty of " + x[1] === v; })[0]; return f ? f[0] : v; }
     if (key === "year") return v === "Graduate student" ? "Graduate" : v === "5th or higher" ? "5th+" : v + " year";
-    if (key === "org") return v === "An officer" ? "Officer" : v === "A member" ? "Member" : "None";
+    if (key === "org") return { "An officer or leader": "Officer", "An active member": "Active member", "A member, but I rarely take part": "Member", "Not a member of any": "None" }[v] || v;
     if (v === "Prefer not to say") return "Not said";
     return v;
   }
   function fillCard() {
     var card = $("#passcard");
-    ["year", "faculty", "org", "scholarship"].forEach(function (k) {
+    ["year", "faculty", "org", "scholarship", "transferee"].forEach(function (k) {
       var dd = $('[data-f="' + k + '"]', card), t = short(k);
       if (dd.textContent !== t) { dd.textContent = t; }
     });
-    card.style.setProperty("--band", A.org === "An officer" ? "#F2B33D" : A.org === "A member" ? "#1F7A8C" : "#9AA9A0");
+    card.style.setProperty("--band", A.org === "An officer or leader" ? "#F2B33D" : A.org === "An active member" || A.org === "A member, but I rarely take part" ? "#1F7A8C" : "#9AA9A0");
   }
+  var passSkipped = {};
+  function passType() { if (!calm()) replay($(".scene", boxEls.pass), "typing"); }
   function passReact(key) {
     var box = boxEls.pass, svg = $(".scene", box);
-    PASS_KEYS.forEach(function (k, i) { var bar = $('[data-bar="' + i + '"]', svg); bar.classList.toggle("on", A[k] !== null); });
-    if (key) replay(svg, "typing");
+    PASS_KEYS.forEach(function (k, i) {
+      var bar = $('[data-bar="' + i + '"]', svg);
+      bar.classList.toggle("on", A[k] !== null);
+      bar.classList.toggle("skip", A[k] === null && !!passSkipped[k]);
+    });
+    if (key) passType();
     fillCard();
     if (key === "firstGen" && !printed) printPass();
   }
+  /* The pass prints, then she hands it over; the walk moves on once it has left her hands. */
+  var printedAt = 0, HANDOVER_MS = 2650;
   function printPass() {
     printed = true;
+    printedAt = Date.now();
     fillCard();
-    var card = $("#passcard"), svg = $(".scene", boxEls.pass);
-    card.classList.remove("docked");
-    say(boxEls.pass, "pass-say", "Here's your pass!");
-    if (calm()) { card.classList.add("printed"); return; }
-    replay(card, "printing");
-    setTimeout(function () { card.classList.remove("printing"); card.classList.add("printed"); }, 1550);
+    var wrap = $("#passwrap");
+    wrap.classList.remove("docked", "gone");
+    say(boxEls.pass, "pass-say", "Here's your form!");
+    if (calm()) { wrap.classList.add("printed"); return; }
+    replay(wrap, "printing");
+    setTimeout(function () {
+      wrap.classList.remove("printing");
+      wrap.classList.add("printed");
+      if (curId !== "firstGen") return;
+      replay(wrap, "handing");
+      setTimeout(function () {
+        wrap.classList.remove("handing");
+        if (curId === "firstGen") { wrap.classList.add("gone"); say(boxEls.pass, "pass-say", "You're all set!"); }
+      }, 1000);
+    }, 1550);
   }
+  function handoverLeft() { return calm() ? 0 : Math.max(0, HANDOVER_MS - (Date.now() - printedAt)); }
 
   /* Mobile data: the load card, the gauge, and the signal answer each choice. */
   function dataReact() {
@@ -1402,11 +1629,14 @@ a{color:var(--sea)}
     $("#dt-arc", box).setAttribute("stroke-dashoffset", (circ * (1 - p)).toFixed(1));
     $("#dt-pct", box).textContent = sc ? sc[2] : (A.dataSpend === "Nothing" ? "0" : "?");
     var on = curId === "onlineHome" ? A.onlineHome : A.onlineCampus;
-    var wifi = on === "Campus Wi-Fi" || on === "Wi-Fi where I stay" || on === "Piso Wi-Fi" || on === "Both" || on === "Both mobile data and Wi-Fi";
+    function has(x) { return on.indexOf(x) >= 0; }
+    var wifi = has("Campus Wi-Fi") || has("Wi-Fi where I stay") || has("Piso Wi-Fi") || has("Pocket Wi-Fi");
+    var sig = OPT.signal.filter(function (o) { return o[0] === A.signal; })[0];
+    var data = curId === "signal" ? !!sig && (sig[1] || sig[2]) : has("Mobile data");
     $("#dt-wifi", box).setAttribute("stroke", wifi ? "#1F7A8C" : "#13261D");
-    $("#dt-campus", box).setAttribute("opacity", A.onlineCampus === "Campus Wi-Fi" || A.onlineCampus === "Both" ? "1" : ".35");
-    $$("#dt-bars rect", box).forEach(function (r) { r.setAttribute("fill", on === "Mobile data" || on === "Both" || on === "Both mobile data and Wi-Fi" ? "#D9483B" : "#13261D"); });
-    $("#dt-nonet", box).setAttribute("opacity", on === "I usually can't" ? "1" : "0");
+    $("#dt-campus", box).setAttribute("opacity", A.onlineCampus.indexOf("Campus Wi-Fi") >= 0 ? "1" : ".35");
+    $$("#dt-bars rect", box).forEach(function (r) { r.setAttribute("fill", data ? "#D9483B" : "#13261D"); });
+    $("#dt-nonet", box).setAttribute("opacity", has(NO_NET) || (curId === "signal" && sig && !sig[1] && !sig[2]) ? "1" : "0");
   }
 
   /* Scenes: the calendar marks how often; the backpack carries how much it mattered. */
@@ -1414,8 +1644,10 @@ a{color:var(--sea)}
     var box = boxEls["m-" + k], a = A.board[k], panel = panelEls["m-" + k];
     var sevOn = !!(a && HAPPENED.indexOf(a.often) >= 0);
     $('[data-sev="' + k + '"]', panel).hidden = !sevOn;
+    var pre = $('[data-prefill="' + k + '"]', panel);
+    if (pre) pre.hidden = !(a && a.prefilled);
     boxEls["m-" + k].classList.toggle("sev-on", sevOn);
-    if (what !== "matters") {
+    if (what !== "matters" && $(".cal-marks", box)) {
       var n = a ? MARKS[a.often] || 0 : 0;
       $(".cal-marks", box).innerHTML = MARK_ORDER.slice(0, n).map(function (ci, j) {
         var c = CELLS[ci];
@@ -1424,11 +1656,13 @@ a{color:var(--sea)}
       $(".cal-na", box).setAttribute("opacity", a && a.often === "Does not apply" ? "1" : "0");
       $(".cal-zero", box).setAttribute("opacity", a && a.often === "Never" ? "1" : "0");
     }
-    var items = a && a.matters ? LOADS[a.matters] : [];
-    $(".pack-load", box).innerHTML = items.map(function (svg, j) { return '<g class="item" style="animation-delay:' + j * 110 + 'ms">' + svg + "</g>"; }).join("");
     var pack = $(".pack", box);
-    pack.classList.toggle("heavy", !!a && a.matters === "Serious");
-    if (what === "matters" && items.length) replay(pack, "thud");
+    if (pack) {
+      var items = a && a.matters ? LOADS[a.matters] : [];
+      $(".pack-load", box).innerHTML = items.map(function (svg, j) { return '<g class="item" style="animation-delay:' + j * 110 + 'ms">' + svg + "</g>"; }).join("");
+      pack.classList.toggle("heavy", !!a && a.matters === "Serious");
+      if (what === "matters" && items.length) replay(pack, "thud");
+    }
     if (what) replay($(".hero2", box), "ack");
   }
 
@@ -1470,6 +1704,7 @@ a{color:var(--sea)}
     syncStep(stepById.map);
   }
   (function () {
+    if (!stepById.map) return;  // the map is out of the survey until it is reworked
     var svg = $("#map");
     svg.addEventListener("click", function (e) {
       var hit = e.target.closest("[data-pin]");
@@ -1492,10 +1727,10 @@ a{color:var(--sea)}
   })();
 
   /* Coins: tap a jar and a coin flies into it. */
-  function eligibleJars() {
-    var hit = MOMENTS.filter(function (m) { return happened(m.k); }).map(function (m) { return m.k; });
-    return hit.length ? hit : MOMENTS.map(function (m) { return m.k; });
-  }
+  /* Every problem has a jar, whether or not it happened to the respondent. */
+  var JAR_NAME = { d: "Missed notices", o: "Official or not", f: "Late for events", g: "Missed scholarships", k: "Work and OJT leads", a: "Finding the right office", e: "Process guides",
+    c: "Reaching teachers", p: "Unanswered concerns", b: "Wrong answers", n: "Lost answers", l: "Reaching seniors", i: "Housing", j: "Scams", m: "Food and supplies" };
+  function eligibleJars() { return MOMENTS.map(function (m) { return m.k; }); }
   function renderJars(fresh) {
     var keys = eligibleJars();
     Object.keys(A.coins).forEach(function (k) { if (keys.indexOf(k) < 0) delete A.coins[k]; });
@@ -1508,7 +1743,7 @@ a{color:var(--sea)}
       return '<div class="jarbox' + (n ? " has" : "") + '" style="--i:' + i + '">' +
         '<button type="button" class="jarhit" data-key="coin" data-v="' + k + '" aria-label="Drop a coin in: ' + esc(m.short) + (n ? ". It has " + n + (n === 1 ? " coin" : " coins") : "") + '"' + (left ? "" : " disabled") + "></button>" +
         '<span class="ic" style="background:' + m.bg + ";color:" + (m.ink === "light" ? "#FFFFFF" : "#13261D") + '" aria-hidden="true">' + icon(m.icon) + "</span>" +
-        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(m.short) + "</span>" +
+        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(JAR_NAME[k] || m.short) + "</span>" +
         '<button type="button" class="minus" data-key="coinminus" data-v="' + k + '" aria-label="Take a coin back from ' + esc(m.short) + '"' + (n ? "" : " disabled") + ">−</button></div>";
     }).join("");
   }
@@ -1570,20 +1805,20 @@ a{color:var(--sea)}
   /* ---------- Entering a step ---------- */
   function enter(s) {
     var box = boxEls[s.box];
+    if (s.part) { var kk = $(".kicker", panelEls[s.id]); if (kk) kk.textContent = kickerOf(s); }
     if (s.box === "gate") gateReact();
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
-      var svg = $(".scene", box), card = $("#passcard");
-      if (s.id === "firstGen" && printed) say(box, "pass-say", "Here's your pass!");
+      var svg = $(".scene", box), card = $("#passwrap");
+      if (s.id === "firstGen" && printed) say(box, "pass-say", "Here's your form!");
       else say(box, "pass-say", s.say);
       card.classList.toggle("docked", printed && s.id !== "firstGen");
+      if (!card.classList.contains("handing")) card.classList.remove("gone");
       passReact(null);
     }
-    if (s.id === "mainSource") {
-      var list = $('[data-part="pick"]', panelEls.mainSource), srcs = realSources();
-      list.innerHTML = OPT.sources.filter(function (o) { return srcs.indexOf(o[0]) >= 0; }).map(function (o, i) { return vigBtn({ v: o[0], art: VIG[o[1]] }, i, true); }).join("");
-    }
     if (s.box === "data") dataReact();
+    if (s.box === "news") $$(".topic", box).forEach(function (g) { g.classList.toggle("on", g.dataset.topic === s.id); });
+    if (s.k === "i" && A.residence === FAMILY_HOME && !A.board.i) A.board.i = { often: "Does not apply", matters: null, prefilled: true };
     if (s.kind === "moment") syncMoment(s.k, null);
     if (s.box === "map") renderPins(false);
     if (s.box === "coins") renderJars(null);
@@ -1611,6 +1846,7 @@ a{color:var(--sea)}
     if (leaving || !canLeave(s)) return;
     var n = nextOf(s);
     if (!n) return;
+    if (s.box === "pass" && s.key && !done(s)) { passSkipped[s.key] = true; passReact(null); passType(); }
     var wait = s.beforeNext ? s.beforeNext() : 0;
     if (wait > 0) {
       leaving = true;
@@ -1624,6 +1860,7 @@ a{color:var(--sea)}
   function guideLock(s) {
     var p = panelEls[s.id], target = null;
     if (s.kind === "consent") target = $(".agree", p);
+    else target = $(".answers [data-key]", p);
     if (!target) return;
     var first = target.matches("button") ? target : $("button", target);
     target.scrollIntoView({ block: "center", behavior: calm() ? "auto" : "smooth" });
@@ -1635,10 +1872,16 @@ a{color:var(--sea)}
 
   function cancelAnims(el) { if (el.getAnimations) el.getAnimations().forEach(function (a) { a.cancel(); }); }
   function isCurrent(el) { var s = stepById[curId]; return el === boxEls[s.box] || el === panelEls[s.id]; }
-  function slide(a, b, dir) {
+  function slide(a, b, dir, fade) {
     b.hidden = false;
     if (calm() || !b.animate) { a.hidden = true; return; }
     cancelAnims(a); cancelAnims(b);
+    if (fade) {
+      var gone = a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: "ease-out" });
+      b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: "ease-in" });
+      gone.onfinish = function () { if (!isCurrent(a)) a.hidden = true; };
+      return;
+    }
     var dx = dir < 0 ? -1 : 1;
     var out = a.animate([{ transform: "translateX(0)", opacity: 1 }, { transform: "translateX(" + (-dx * 18) + "%)", opacity: 0 }], { duration: 240, easing: "cubic-bezier(.4,0,.2,1)" });
     b.animate([{ transform: "translateX(" + (dx * 22) + "%)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 360, easing: "cubic-bezier(.2,.8,.2,1)" });
@@ -1663,11 +1906,11 @@ a{color:var(--sea)}
     curId = to.id;
     toBox.dataset.size = to.size || "";
     if (!from) { toBox.hidden = false; toPanel.hidden = false; }
-    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir);
+    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir, from.ch === to.ch);
     else {
       $$(".panel", toBox).forEach(function (p) { if (p !== toPanel) p.hidden = true; });
       toPanel.hidden = false;
-      slide(boxEls[from.box], toBox, dir);
+      slide(boxEls[from.box], toBox, dir, from.ch === to.ch);
     }
     toPanel.scrollTop = 0;
     setScene(BOXES[to.box]);
@@ -1764,6 +2007,7 @@ a{color:var(--sea)}
   var autoT = null;
   function armAuto(s) {
     cancelAuto();
+    if (calm()) return;  // without the visible countdown, moving on by itself would be a surprise
     var ms = s.autoMs || 900;
     nextBtn.style.setProperty("--auto", ms + "ms");
     if (!nextBtn.hidden) replay(nextBtn, "arming");
@@ -1856,13 +2100,19 @@ a{color:var(--sea)}
   var menu = $("#menu"), menuList = $("#menu-list");
   function openMenu() {
     var s = stepById[curId], L = list();
+    var all = 0, got = 0;
     menuList.innerHTML = CHAPTERS.map(function (name, i) {
       if (i === 0) return "";
       var steps = L.filter(function (x) { return x.ch === i && !x.noMenu; });
       if (!steps.length) return "";
-      var note = i === CHAPTERS.length - 1 ? "Review and send" : steps.filter(done).length + " of " + steps.length + " answered";
-      return '<li><button type="button" data-jump="' + steps[0].id + '"' + (i === s.ch ? ' aria-current="step"' : "") + "><span>" + esc(name) + "</span><small>" + note + "</small></button></li>";
+      var last = i === CHAPTERS.length - 1, n = steps.filter(done).length, pct = last ? 0 : Math.round(100 * n / steps.length);
+      if (!last) { all += steps.length; got += n; }
+      var note = last ? "Review and send" : n + " of " + steps.length + " answered";
+      return '<li><button type="button" data-jump="' + steps[0].id + '"' + (i === s.ch ? ' aria-current="step"' : "") + '><span class="mname">' + esc(name) +
+        (last ? "" : '<span class="mbar" aria-hidden="true"><i style="width:' + pct + '%"></i></span>') + "</span><small>" + note + "</small></button></li>";
     }).join("");
+    var total = all ? Math.round(100 * got / all) : 0;
+    $("#menu-total").innerHTML = '<span class="mbar big" aria-hidden="true"><i style="width:' + total + '%"></i></span><span>' + total + "% answered</span>";
     menu.hidden = false;
     chapBtn.setAttribute("aria-expanded", "true");
     var cur = $('[aria-current="step"]', menuList) || $("button", menuList);
@@ -1875,7 +2125,11 @@ a{color:var(--sea)}
     if (e.target === menu) { closeMenu(); return; }
     var b = e.target.closest("[data-jump]");
     if (!b) return;
-    var L = list(), to = b.dataset.jump, dir = idx(to, L) < idx(curId, L) ? -1 : 1;
+    var L = list(), to = b.dataset.jump;
+    /* Moving forward stops at the first question that must be answered first. */
+    var stop = L.filter(function (x, i) { return i > CONSENT_AT && i < idx(to, L) && x.lock && !done(x); })[0];
+    if (stop) to = stop.id;
+    var dir = idx(to, L) < idx(curId, L) ? -1 : 1;
     menu.hidden = true;
     chapBtn.setAttribute("aria-expanded", "false");
     go(to, dir);
@@ -1889,13 +2143,12 @@ a{color:var(--sea)}
     var hits = MOMENTS.filter(function (m) { return happened(m.k); });
     var top = Object.keys(A.coins).sort(function (a, b) { return A.coins[b] - A.coins[a]; })[0];
     var cells = [
-      cell("house", "#B7791F", "Home", A.residence || "Skipped"),
-      cell("cap", "#1F7A8C", "Your pass", [short("year"), short("faculty")].join(", ")),
-      cell("chat", "#7A5BA6", "News reaches you by", A.mainSource || realSources()[0] || (A.sources.length ? "None of these" : "Skipped")),
-      cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || "Skipped"),
+      cell("house", "#B7791F", "Mornings", A.residence || "Skipped"),
+      cell("cap", "#1F7A8C", "Your form", [short("year"), short("faculty")].join(", ")),
+      cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions || "Skipped"),
+      cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (simless() ? "No SIM" : !buysLoad() ? "No load" : "Skipped")),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
-      cell("pin", "#5E8C4A", "Places that let you down", A.pins.length ? A.pins.length + (A.pins.length === 1 ? " pin" : " pins") : "None"),
       cell("coin", "#C98A16", "Fix first", top ? byKey[top].short : "No coins spent"),
       cell("bubble", "#2C8C99", "Trust in group answers", A.trust ? A.trust + " of 5" : "Skipped"),
       cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
@@ -1917,6 +2170,8 @@ a{color:var(--sea)}
   });
   function record() {
     var r = JSON.parse(JSON.stringify(A));
+    delete r.pins;
+    r.channelOrder = CHANNELS.map(function (o) { return o[1]; });
     r.variant = "scenes";
     r.survey = SURVEY_ID;
     r.version = SURVEY_VERSION;

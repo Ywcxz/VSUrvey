@@ -1,5 +1,5 @@
 /**
- * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (scenes-v2)
+ * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (scenes-v3)
  * Project CAMPUS, decisions D-037, D-039, D-110, and D-111
  *
  * Receives one JSON record per response from the scenes survey page and
@@ -10,14 +10,14 @@
  * First-time setup
  * 1. Create a Google Sheet in your own account and keep it private.
  * 2. Extensions > Apps Script. Paste this file and save.
- * 3. Run setup() once and approve the permissions. It adds the "Responses v2" tab and its header row.
+ * 3. Run setup() once and approve the permissions. It adds the "Responses v3" tab and its header row.
  * 4. Run createVolunteerForm() once. The execution log shows the form's link.
  * 5. Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.
  * 6. Put the web app URL in the page's ENDPOINT, and the form link in VOLUNTEER_URL.
  *
- * Updating from scenes-v1
+ * Updating from an earlier version
  * 1. Replace the old code with this file and save.
- * 2. Run setup(). It adds the "Responses v2" tab; the v1 "Responses" tab is left as it is.
+ * 2. Run setup(). It adds the "Responses v3" tab; earlier tabs are left as they are.
  * 3. Run updateVolunteerForm() once. It edits the existing form in place, so its link stays the same.
  * 4. Deploy > Manage deployments > edit the web app > Version: New version > Deploy. The web app URL stays the same.
  *
@@ -32,16 +32,21 @@
  * When a question or an option changes on the page, change the lists below.
  */
 
-var SHEET_NAME = "Responses v2";
+var SHEET_NAME = "Responses v3";
 var VARIANT = "scenes";
-var VERSION_PREFIX = "scenes-v2";
-var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p"];
-var SOURCES = ["Official VSU website or portal", "Official VSU Facebook pages",
-  "Unofficial student Facebook groups or pages", "Messenger group chats", "Email",
-  "Campus bulletin boards", "Friends and classmates", "Other", "None of these"];
-var NETWORKS = ["Smart or TNT", "Globe, TM, or GOMO", "DITO", "Another network", "No SIM or mobile data"];
-var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "I don't buy load"];
-var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "Games", "Other"];
+var VERSION_PREFIX = "scenes-v3";
+var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p"];  // h (organization handovers) left in scenes-v3
+var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
+  "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
+  "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
+var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
+  "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
+var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "I don't use a SIM"];
+var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't buy load"];
+var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
+var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
+var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
+  "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
   "Notices and deadlines in one place", "Scholarships and opportunities in one place",
   "Events in one place", "Questions about my subjects", "My class schedule and rooms in one place",
@@ -49,7 +54,6 @@ var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and s
 var AWAY = ["Feeling watched by the university", "Fear of consequences for criticism",
   "Too many apps already", "My friends wouldn't be on it", "Hard or slow to use",
   "Uses too much mobile data", "Other"];
-var MAX_PINS = 3;
 var MAX_BODY = 60000;
 
 /* The interview-volunteer form. Its ID only opens it for accounts with edit access. */
@@ -69,17 +73,22 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
 
 function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
-    "residence", "year", "faculty", "org", "scholarship", "firstGen"];
-  multiHeaders_(h, "uses", SOURCES);
-  h.push("mainSource");
+    "residence", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"];
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
-  h.push("dataSpend", "dataSchool", "onlineCampus", "onlineHome", "scenario");
+  h.push("dataSpend", "dataSchool", "signal");
+  multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
+  multiHeaders_(h, "whereStaying", ONLINE_HOME);
+  h.push("wifiSpend");
+  h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "channelOrder", "scenario", "reachHow", "reachGot");
+  multiHeaders_(h, "concern", CONCERN);
+  h.push("askFirst");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
+  h.push("i prefilled");
   MOMENTS.forEach(function (k) { h.push(k + " coins"); });
-  for (var i = 1; i <= MAX_PINS; i++) h.push("pin" + i + " near", "pin" + i + " why", "pin" + i + " x", "pin" + i + " y");
   h.push("trust", "postedAnonymously");
+  multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
   h.push("postPreference", "wantBack");
   multiHeaders_(h, "away", AWAY);
@@ -117,23 +126,26 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 
 function row_(r, now) {
   var board = obj_(r.board), coins = obj_(r.coins);
-  var pins = Array.isArray(r.pins) ? r.pins.slice(0, MAX_PINS) : [];
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.year), cell_(r.faculty, 100),
-    cell_(r.org), cell_(r.scholarship), cell_(r.firstGen)];
-  multiCells_(row, r.sources, SOURCES, r.sourcesOther);
-  row.push(cell_(r.mainSource));
+    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
+    cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen)];
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
-  row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.onlineCampus), cell_(r.onlineHome), cell_(r.scenario));
+  row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.signal));
+  multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
+  multiCells_(row, r.onlineHome, ONLINE_HOME, "");
+  row.push(cell_(r.wifiSpend));
+  row.push(cell_(r.firstSuspensions), cell_(r.firstDocuments), cell_(r.firstEvents), cell_(r.firstScholarships), cell_(r.firstAnnouncements),
+    cell_(Array.isArray(r.channelOrder) ? r.channelOrder.join(" ") : "", 80),
+    cell_(r.scenario), cell_(r.reachHow), cell_(r.reachGot));
+  multiCells_(row, r.concern, CONCERN, "");
+  row.push(cell_(r.askFirst));
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
+  row.push(obj_(board.i).prefilled === true);  // "Doesn't apply" on housing, picked for a commuter and never changed
   MOMENTS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });
-  for (var i = 0; i < MAX_PINS; i++) {
-    var p = obj_(pins[i]);
-    row.push(cell_(p.near), cell_(p.why), num_(p.x, 0, 400), num_(p.y, 0, 400));
-  }
   row.push(num_(r.trust, 1, 5), cell_(r.postedAnonymously));
+  multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
   row.push(cell_(r.postPreference), cell_(r.wantBack));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
@@ -238,4 +250,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, SOURCES: SOURCES, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
