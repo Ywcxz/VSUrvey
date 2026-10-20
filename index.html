@@ -53,6 +53,8 @@ button,a,input,textarea{touch-action:manipulation}
 /* The news questions run long; on short phones their heading steps down a size so the eight channels stay in view. */
 @media (max-width:699px) and (max-height:700px){ .box[data-box="news"] .prompt{font-size:19px} }
 @media (max-width:699px) and (max-height:660px){ .box[data-box="news"] .prompt{font-size:17.5px;line-height:1.12;max-width:none} }
+/* The story screen keeps its privacy line; on the shortest phones its drawing gives up the room. */
+@media (max-width:699px) and (max-height:660px){ .box[data-box="story"][data-size="short"]{--stage-h:13vh} }
 .chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dots{display:flex;gap:4px;align-items:center;flex:none}
 .dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
@@ -1085,7 +1087,7 @@ a{color:var(--sea)}
     works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
     spend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱50", "< ₱50", "#1F7A8C"], ["₱50 to ₱99", "₱50–99", "#2F6DB5"], ["₱100 to ₱199", "₱100–199", "#7A5BA6"], ["₱200 or more", "₱200+", "#D9483B"], ["Not sure", "?", "#4A5E53"]],
     networks: [["Smart", "Smart"], ["TNT", "TNT"], ["Globe", "Globe"], ["TM", "TM"], ["GOMO", "GOMO"], ["DITO", "DITO"], ["I don't use a SIM", ""]],
-    load: [["Data for any site or app", "any"], ["Data for certain apps only", "apps"], ["Calls and texts", "calls"], ["A postpaid plan", "plan"], ["I don't buy load", "none"]],
+    load: [["Data for any site or app", "any"], ["Data for certain apps only", "apps"], ["Calls and texts", "calls"], ["A postpaid plan", "plan"], ["I don't use load", "none"]],
     /* Apps that app-specific promos bundle (D-120): social, messaging, video, games, and school apps. */
     apps: [["Facebook and Messenger", "chat"], ["TikTok", "note"], ["YouTube", "play"], ["Instagram", "camera"], ["X (Twitter)", "bubble"], ["WhatsApp or Viber", "people"], ["Netflix or other streaming", "eye"], ["Games", "game"], ["School apps, like Google Workspace, Zoom, or Canva", "cap"], ["Other", "other"]],
     school: [["Almost none", 0.05, "≈0"], ["About a quarter", 0.25, "¼"], ["About half", 0.5, "½"], ["About three quarters", 0.75, "¾"], ["Almost all", 0.95, "≈all"], ["Not sure", null, "?"]],
@@ -1102,18 +1104,20 @@ a{color:var(--sea)}
     away: [["Feeling watched by the university", "eye"], ["Fear of consequences for criticism", "megaphone"], ["Too many apps already", "stack"], ["My friends wouldn't be on it", "people"], ["Hard or slow to use", "snail"], ["Uses too much mobile data", "signal"], ["Other", "other"]]
   };
   /* Where each kind of VSU news is heard first (D-119): the same channels for all four, so the answers compare. */
-  var LATE = "Usually too late", NEVER = "I don't hear about it", NOT_MINE = "Doesn't apply to me";
+  /* "I don't look for these" (events, opportunities) is lack of interest, read apart from "I don't hear about it", a gap in awareness. */
+  var LATE = "Usually too late", NEVER = "I don't hear about it", NO_LOOK = "I don't look for these";
   var FIRSTS = [
     ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [LATE, NEVER]],
     ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear it first?", [LATE, NEVER]],
-    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear it first?", [LATE, NEVER, NOT_MINE]],
-    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [LATE, NEVER, NOT_MINE]],
+    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear it first?", [LATE, NEVER, NO_LOOK]],
+    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [LATE, NEVER, NO_LOOK]],
     ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear it first?", [LATE, NEVER]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
-  var NO_SIM = "I don't use a SIM", NO_LOAD = "I don't buy load", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't";
+  var NO_SIM = "I don't use a SIM", NO_LOAD = "I don't use load", SOMEONE_PAYS = "Someone else pays for it", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't";
   function simless() { return A.networks.length === 1 && A.networks[0] === NO_SIM; }
-  /* No load bought skips what load costs and covers, as no SIM does; calls and texts alone skip what data is used for. */
+  /* No load used skips what load costs and covers, as no SIM does; calls and texts alone skip what data is used for.
+     Load someone else buys counts as load used, so their data access is still asked about. */
   function buysLoad() { return !simless() && A.load.indexOf(NO_LOAD) < 0; }
   /* Wi-Fi that costs the student something: home Wi-Fi, piso Wi-Fi, or pocket Wi-Fi. */
   /* Until both questions on getting online are answered, the Wi-Fi question counts as coming, so the part's numbering holds. */
@@ -1196,14 +1200,14 @@ a{color:var(--sea)}
       beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : HANDOVER_MS + 100; } return handoverLeft(); } }
   ]);
   part(3, "Getting online", [
-    { id: "networks", box: "data", kind: "tiles", multi: true, max: 2, exclusive: NO_SIM, key: "networks", cols: "t3", size: "bare", prompt: "Which networks are your SIMs on?", lede: "Pick up to two, one for each SIM.", hint: "vigs", core: true,
+    { id: "networks", box: "data", kind: "tiles", multi: true, max: 2, exclusive: NO_SIM, key: "networks", cols: "t3", size: "bare", prompt: "Which mobile networks do you use?", lede: "Pick up to two.", hint: "vigs", core: true,
       opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) },
-    { id: "load", box: "data", kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", cols: "t3", size: "short", prompt: "What kind of load do you usually buy?", lede: "Pick all that apply.", core: true, when: function () { return !simless(); },
+    { id: "load", box: "data", kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", cols: "t3", size: "short", prompt: "What kind of load do you usually use?", lede: "Pick all that apply, including load someone else buys for you.", core: true, when: function () { return !simless(); },
       opts: OPT.load.map(function (o) { return { v: o[0], art: function () { return TILE.loadKind(o[1]); } }; }) },
     { id: "loadApps", box: "data", kind: "chipsMulti", key: "loadApps", size: "bare", other: "loadAppsOther", otherPh: "Other: which app? (optional)", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return !simless() && A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps },
-    { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only, not pocket Wi\u2011Fi. For a monthly promo or plan, count a quarter.", core: true, when: buysLoad,
+    { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only, not pocket Wi\u2011Fi. For a monthly promo or plan, count a quarter.", core: true, when: buysLoad,
       opts: OPT.spend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
-    { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: function () { return usesData() && A.dataSpend !== "Nothing"; },
+    { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: usesData,
       opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) },
     { id: "signal", box: "data", kind: "tiles", key: "signal", size: "short", prompt: "Where can you use mobile data well enough to browse or use school apps?", core: true, when: usesData,
       opts: OPT.signal.map(function (o) { return { v: o[0], art: function () { return TILE.where(o[1], o[2]); } }; }) },
@@ -1211,7 +1215,7 @@ a{color:var(--sea)}
       opts: OPT.onlineCampus.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi\u2011Fi"), art: function () { return TILE.net(o[1]); } }; }) },
     { id: "onlineHome", box: "data", kind: "tiles", multi: true, exclusive: NO_NET, key: "onlineHome", cols: "t3", size: "short", prompt: "Where you stay, how do you get online?", lede: "Pick all that apply.", core: true,
       opts: OPT.onlineHome.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi\u2011Fi"), art: function () { return TILE.net(o[1]); } }; }) },
-    { id: "wifiSpend", box: "data", kind: "tiles", key: "wifiSpend", cols: "t3", size: "bare", prompt: "In one week of classes, about how much do you spend on Wi\u2011Fi?", lede: "Count piso Wi\u2011Fi, pocket Wi\u2011Fi load, and your share of any Wi\u2011Fi bill. For a monthly bill, count about a quarter.", core: true, when: paysWifi,
+    { id: "wifiSpend", box: "data", kind: "tiles", key: "wifiSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS], prompt: "In one week of classes, about how much do you spend on Wi\u2011Fi?", lede: "Count piso Wi\u2011Fi, pocket Wi\u2011Fi load, and your share of any Wi\u2011Fi bill. For a monthly bill, count about a quarter.", core: true, when: paysWifi,
       opts: OPT.spend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) }
   ]);
   /* The four channel questions run together, on one list, then the scenes on hearing from VSU. */
@@ -1238,7 +1242,7 @@ a{color:var(--sea)}
   part(7, "Campus life", [{ k: "i" }, { k: "j" }, { k: "m" }]);
   /* The campus map is left out until it is reworked; its drawing and code stay for that. */
   step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
-  step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray all work. Please don't name anyone." });
+  step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray. Leave out names and details that could identify anyone." });
   step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 1 of 5", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
   step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 2 of 5", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
   step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 3 of 5", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
@@ -1292,7 +1296,7 @@ a{color:var(--sea)}
   var RENDER = {
     intro: function () {
       return '<div class="letter">' +
-        "<p>This survey asks about student life and VSU's services: which campus problems are common, and how serious they are. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
+        "<p>This survey asks about student life and VSU's services, including whether certain campus problems happen, how often, and how serious they are. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
         "<p>In line with the Data Privacy Act of 2012 (Republic Act No. 10173), your answers carry no name, are used only for this study, and are kept confidential. Please don't name anyone in them.</p>" +
         '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
         '<div class="how">' + icon("tap") + "<span>" + (calm() ? TAP + " an answer, then Next. Use the arrows to go back or skip." : TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
@@ -1301,7 +1305,7 @@ a{color:var(--sea)}
     },
     consent: function () {
       return '<p class="kicker">At the gate</p><h2 class="sr" id="h-consent" tabindex="-1">Before you go in</h2><ul class="consent-list">' +
-        "<li>Decline any question, by skipping it or picking Prefer not to say, or stop whenever you want.</li>" +
+        "<li>Skip any question, or stop anytime. In Your form, pick Prefer not to say instead.</li>" +
         "<li>Your answers carry no name. They go to a private Google Sheet only the researcher opens; VSU's Research Ethics Board, if it reviews this survey, may check them in confidence.</li>" +
         "<li>No result is shared for a group under 10 people. Answers are deleted one academic year after the survey closes; only totals are kept.</li>" +
         "<li>With no name attached, a sent answer can't be taken back.</li>" +
@@ -1502,7 +1506,6 @@ a{color:var(--sea)}
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
-      if (key === "dataSpend" && A.dataSpend === "Nothing") A.dataSchool = null;
       if (key === "reachHow" && A.reachHow === NOT_YET) A.reachGot = null;
     }
     return turnedOn;

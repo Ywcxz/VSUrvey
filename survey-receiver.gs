@@ -42,7 +42,7 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "I don't use a SIM"];
-var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't buy load"];
+var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
 var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",

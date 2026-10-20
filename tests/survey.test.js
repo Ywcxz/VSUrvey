@@ -145,7 +145,8 @@ async function walkAll(page, shot) {
   await at(page, "firstDocuments", shot);
   await page.click(btn("firstDocuments", "Official VSU pages or website"));
   await at(page, "firstEvents", shot);
-  assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 3, "events also offer Doesn't apply");
+  assert.strictEqual(await page.locator(inStep("firstEvents", ".none-row .chip")).count(), 3, "events also offer I don't look for these");
+  assert.strictEqual(await page.locator(btn("firstEvents", "I don't look for these")).count(), 1);
   await page.click(btn("firstEvents", "Unofficial groups, like freedom walls"));
   await at(page, "firstScholarships", shot);
   await page.click(btn("firstScholarships", "Usually too late"));
@@ -236,6 +237,8 @@ function rowOf(r) {
       assert.strictEqual(r.version, "scenes-v3");
       assert.strictEqual(r.survey, "student-life-2026");
       assert.strictEqual(rowOf(r).survey, "student-life-2026");
+      const gate = await t.page.evaluate(() => document.querySelector('[data-step="consent"] .consent-list li').textContent);
+      assert.ok(gate.indexOf("In Your form, pick Prefer not to say instead.") > 0, "the consent says Your form can't be skipped");
       const how = await t.page.evaluate(() => document.querySelector(".how span").textContent);
       assert.ok(how.indexOf(mobile ? "Tap an answer" : "Click an answer") === 0, "the intro says " + (mobile ? "Tap" : "Click") + " on a " + label + ": " + how);
       assert.strictEqual(r.consent, true);
@@ -394,7 +397,7 @@ function rowOf(r) {
     await t.page.click(btn("signal", "Where I stay only"));
     await t.page.evaluate(() => window.__survey.go("load"));
     await at(t.page, "load");
-    await t.page.click(btn("load", "I don't buy load"));
+    await t.page.click(btn("load", "I don't use load"));
     let a = await ans();
     assert.deepStrictEqual([a.dataSpend, a.dataSchool, a.signal], [null, null, null], "no load clears spending, schoolwork, and signal");
     let L = await steps();
@@ -410,6 +413,12 @@ function rowOf(r) {
     await t.page.click(btn("load", "A postpaid plan"));
     L = await steps();
     for (const id of ["dataSpend", "dataSchool", "signal"]) assert.ok(L.includes(id), id + " is asked of a postpaid plan");
+    await t.page.evaluate(() => window.__survey.go("dataSpend"));
+    await at(t.page, "dataSpend");
+    await t.page.click(btn("dataSpend", "Someone else pays for it"));
+    assert.strictEqual((await ans()).dataSpend, "Someone else pays for it", "load someone else pays for is its own answer");
+    L = await steps();
+    for (const id of ["dataSchool", "signal"]) assert.ok(L.includes(id), id + " is still asked when someone else pays");
     await t.page.evaluate(() => window.__survey.go("onlineHome"));
     await at(t.page, "onlineHome");
     await t.page.click(btn("onlineHome", "Mobile data"));

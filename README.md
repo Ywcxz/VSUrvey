@@ -18,7 +18,8 @@ The protocol the survey follows, and the problem each question bears on, are in 
 
 Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it on every run; the rest are done by hand.
 
-- [ ] The first screen says who runs the survey, that it is independent and not an official VSU survey, that answers carry no name, and how they are kept. (By hand)
+- [ ] The first screen says who runs the survey, that it is independent and not an official VSU survey, that answers carry no name, and how they are kept. The gate's first line says Your form can't be skipped. (By hand; the gate line is in the tests)
+- [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53, and settled Q-65 (whether D-038's 30% bar fits the semester window). Both are fixed before any answer is read. (By hand)
 - [ ] Every answer is in view without scrolling at 360 × 640 and the other sizes tested, with the news channels in any order. (Tests)
 - [ ] Every skip rule works: no SIM, no load, calls and texts only, app data, Wi-Fi spending, reaching someone, the housing default. (Tests)
 - [ ] A respondent can go back and change an answer, and the parts menu shows progress. (Tests)
@@ -28,6 +29,8 @@ Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it
 - [ ] Interview sign-ups go to the separate form, never into the survey sheet. (By hand)
 - [ ] Stories are quoted only where the writer ticked the box, and only after names and identifying details are removed. (By hand)
 - [ ] With reduced motion on, nothing moves on by itself and the walk still works. (Tests)
-- [ ] A pilot of at least 5 students is timed; the first screen's time estimate comes from its median and 90th percentile. (By hand)
+- [ ] A pilot of at least 5 students checks the wording, auto-advance (did anyone feel rushed, or move on by accident?), and the housing default (did commuters read it as picked for them?). (By hand)
+- [ ] The first screen's time estimate comes from the median and 90th percentile of at least 10 timed run-throughs, or is labeled preliminary. (By hand)
+- [ ] The Apps Script receiver is deployed and tested against `scenes-v3`, with a `?test=1` answer reaching the "Responses v3" tab. (By hand)
 - [ ] The rules for releasing results (the floor of 10, combinations, free text) are published in Chapter 8. (By hand)
 - [ ] The interview guide covers what the survey left out: trust in each channel and checking a post against an official source (Q-64), and organization handovers (P-08). (By hand)
