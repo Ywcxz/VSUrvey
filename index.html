@@ -753,40 +753,34 @@ a{color:var(--sea)}
       else b += '<path d="M26 22h68a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H56l-14 12V64H26a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8Z" fill="#F7FBF8" stroke="#7E8F86" stroke-width="2.5" stroke-dasharray="6 5"/><g fill="#9AA9A0"><circle cx="46" cy="43" r="4"/><circle cx="60" cy="43" r="4"/><circle cx="74" cy="43" r="4"/></g><path d="M30 76 L92 14" stroke="#D9483B" stroke-width="5" stroke-linecap="round"/>';
       return art(b + "</g>");
     },
-    /* How long a load lasts: a strip of days, lit for as long as it lasts. */
+    /* How long a promo is valid: a month of days, lit for as long as it is valid; a wave where it varies. */
     lasts: function (n) {
-      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><rect x="16" y="26" width="88" height="38" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="16" y="26" width="88" height="10" rx="5" fill="#D9483B"/>';
-      if (n < 0) b += '<text x="60" y="58" text-anchor="middle" font-size="14" font-weight="800" fill="#4A5E53" font-family="sans-serif">LOAD ₱</text>';
-      else if (!n) b += '<path d="M28 52c8-10 16 10 24 0s16 10 24 0 12 6 16 2" fill="none" stroke="#2F6DB5" stroke-width="3.5" stroke-linecap="round"/>';
-      else if (n === 30) b += '<text x="60" y="58" text-anchor="middle" font-size="16" font-weight="800" fill="#2F6DB5" font-family="sans-serif">30 days</text>';
-      else for (var i = 0; i < 7; i++) b += '<rect x="' + (21 + i * 11.4) + '" y="42" width="8.6" height="16" rx="2" fill="' + (i < n ? "#2F6DB5" : "#DCE5DF") + '"/>';
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><rect x="18" y="14" width="84" height="64" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="18" y="14" width="84" height="10" rx="5" fill="#D9483B"/>';
+      for (var i = 0; i < 35; i++) b += '<rect x="' + (23 + (i % 7) * 10.8) + '" y="' + (28 + Math.floor(i / 7) * 9.6) + '" width="8.8" height="7.6" rx="1.6" fill="' + (i < n ? "#2F6DB5" : "#DCE5DF") + '"/>';
+      if (!n) b += '<path d="M26 52c8-10 16 10 24 0s16 10 24 0 14 8 20 2" fill="none" stroke="#2F6DB5" stroke-width="4" stroke-linecap="round"/>';
       return art(b + "</g>");
     },
-    /* Whether data lasts until the promo expires: data (blue) against the days it is valid (the line). */
+    /* Whether a promo's data lasts while it is valid: the same days, each filled with the data left that day.
+       It lasts (some left on the last day), it runs out early (days still valid with none left), or it varies. */
     expiry: function (kind) {
-      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><path d="M18 60h84" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/><path d="M102 50v20" stroke="#D9483B" stroke-width="3" stroke-linecap="round"/><text x="102" y="44" text-anchor="middle" font-size="9" font-weight="800" fill="#D9483B" font-family="sans-serif">ends</text>';
-      if (kind === "full") b += '<rect x="18" y="30" width="84" height="16" rx="5" fill="#2F6DB5"/>';
-      else if (kind === "early") b += '<rect x="18" y="30" width="40" height="16" rx="5" fill="#2F6DB5"/><rect x="58" y="30" width="44" height="16" rx="5" fill="none" stroke="#9AA9A0" stroke-width="2" stroke-dasharray="4 3"/>';
-      else b += '<rect x="18" y="30" width="62" height="16" rx="5" fill="#2F6DB5" opacity=".55"/><path d="M80 26v24" stroke="#2F6DB5" stroke-width="2" stroke-dasharray="3 3"/>';
+      var full = [44, 37, 30, 23, 16, 10, 5], early = [44, 28, 12, 0, 0, 0, 0], varies = [44, 36, 28];
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><rect x="14" y="14" width="92" height="66" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="14" y="14" width="92" height="10" rx="5" fill="#D9483B"/>';
+      for (var i = 0; i < 7; i++) {
+        var x = 19.5 + i * 12, h = kind === "full" ? full[i] : kind === "early" ? early[i] : (varies[i] || 0);
+        b += '<rect x="' + x + '" y="28" width="9" height="46" rx="2" fill="' + (kind === "early" && !h ? "#F8DDD9" : "#E4EBE6") + '"/>';
+        if (h) b += '<rect x="' + x + '" y="' + (74 - h) + '" width="9" height="' + h + '" rx="2" fill="#2F6DB5"/>';
+      }
+      if (kind === "varies") b += '<text x="78" y="64" text-anchor="middle" font-size="30" font-weight="800" fill="#2F6DB5" font-family="sans-serif">?</text>';
       return art(b + "</g>");
     },
-    /* Reloading when data runs out early: a new load right away, waiting, or getting by on Wi-Fi. */
+    /* When data runs out early: a new load right away, waiting, getting by on Wi-Fi, or someone else's hotspot. */
     reload: function (kind) {
       var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">';
       if (kind === "now") b += '<rect x="26" y="24" width="56" height="40" rx="6" fill="#2F6DB5" stroke="#13261D" stroke-width="2"/><text x="54" y="50" text-anchor="middle" font-size="12" font-weight="800" fill="#FFFFFF" font-family="sans-serif">LOAD</text><path d="M92 20l-10 20h10l-8 20" fill="none" stroke="#F2B33D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>';
       else if (kind === "wait") b += '<path d="M44 18h32M44 72h32M48 18c0 18 24 18 24 27s-24 9-24 27M72 18c0 18-24 18-24 27s24 9 24 27" fill="none" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/><path d="M52 66h16l-8-10Z" fill="#F2B33D"/>';
+      else if (kind === "hotspot") b += '<g stroke="#13261D" stroke-width="2"><rect x="16" y="24" width="26" height="46" rx="5" fill="#2B3A67"/><rect x="78" y="24" width="26" height="46" rx="5" fill="#2B3A67"/></g><rect x="20" y="30" width="18" height="30" rx="2" fill="#F2B33D"/><rect x="82" y="30" width="18" height="30" rx="2" fill="#9ED1DB"/>' +
+        '<circle cx="29" cy="45" r="3.4" fill="#13261D"/><g fill="none" stroke="#1F7A8C" stroke-width="4" stroke-linecap="round"><path d="M50 37a12 12 0 0 1 0 18"/><path d="M58 31a20 20 0 0 1 0 30"/><path d="M66 25a28 28 0 0 1 0 42"/></g>';
       else b += '<g fill="none" stroke="#1F7A8C" stroke-width="5" stroke-linecap="round"><path d="M38 44a30 30 0 0 1 44 0"/><path d="M46 52a18 18 0 0 1 28 0"/></g><circle cx="60" cy="61" r="4" fill="#1F7A8C"/>';
-      return art(b + "</g>");
-    },
-    /* Weeks the data ran out: four weeks of classes, marked where it ran out. */
-    weeks: function (n) {
-      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">';
-      for (var i = 0; i < 4; i++) {
-        var x = 14 + i * 24, out = i < n;
-        b += '<rect x="' + x + '" y="26" width="20" height="38" rx="4" fill="' + (out ? "#F8DDD9" : "#F7FBF8") + '" stroke="#13261D" stroke-width="1.8"/>' +
-          '<text x="' + (x + 10) + '" y="22" text-anchor="middle" font-size="8" font-weight="700" fill="#4A5E53" font-family="sans-serif">W' + (i + 1) + "</text>" +
-          (out ? '<path d="M' + (x + 4) + ' 38l12 14M' + (x + 16) + ' 38l-12 14" stroke="#D9483B" stroke-width="3" stroke-linecap="round"/>' : '<circle cx="' + (x + 10) + '" cy="45" r="4" fill="#5E8C4A"/>');
-      }
       return art(b + "</g>");
     },
     /* Where mobile data gets a signal: campus on the left, where you stay on the right; a slash where it doesn't. */
@@ -1096,7 +1090,7 @@ a{color:var(--sea)}
   var A = {
     consent: false, age18: null, startedAt: null,
     residence: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null,
-    networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", dataRunsOut: null, loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
+    networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstSuspensions: null, firstDocuments: null, firstEvents: null, firstScholarships: null, firstAnnouncements: null,
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
     board: {}, coins: {},
@@ -1122,7 +1116,7 @@ a{color:var(--sea)}
     askFirst: [["A group chat", "gchat"], ["An unofficial student group or freedom wall", "group"], ["A classmate or senior, in person", "friends"], ["A teacher or adviser", "teacher"], ["Searched online", "search"], ["I didn't ask anyone", "noask"], ["It hasn't happened", "nothappened"]],
     works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
     /* Weekly load. The common promo prices get answers of their own (₱49 or ₱50, ₱99 or ₱100), so a ₱99 and a ₱100 promo land together. */
-    loadSpend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱49", "< ₱49", "#1F7A8C"], ["₱49 or ₱50", "₱49/50", "#2F6DB5"], ["₱51 to ₱98", "₱51–98", "#5E8C4A"], ["₱99 or ₱100", "₱99/100", "#7A5BA6"], ["More than ₱100", "₱100+", "#D9483B"]],
+    loadSpend: [["Under ₱49", "< ₱49", "#1F7A8C"], ["₱49 or ₱50", "₱49/50", "#2F6DB5"], ["₱51 to ₱98", "₱51–98", "#5E8C4A"], ["₱99 or ₱100", "₱99/100", "#7A5BA6"], ["₱101 to ₱199", "₱101–199", "#D9483B"], ["₱200 or more", "₱200+", "#B7791F"]],
     /* Monthly Wi-Fi where they stay: piso Wi-Fi coins, a share of a split bill, or a whole home plan. Piso Wi-Fi counts as Wi-Fi. */
     wifiSpend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱200", "< ₱200", "#1F7A8C"], ["₱200 to ₱499", "₱200–499", "#2F6DB5"], ["₱500 to ₱999", "₱500–999", "#7A5BA6"], ["₱1,000 to ₱1,999", "₱1k–2k", "#D9483B"], ["₱2,000 or more", "₱2k+", "#B7791F"]],
     networks: [["Smart", "Smart"], ["TNT", "TNT"], ["Globe", "Globe"], ["TM", "TM"], ["GOMO", "GOMO"], ["DITO", "DITO"]],
@@ -1130,11 +1124,10 @@ a{color:var(--sea)}
     /* Apps that app-specific promos bundle (D-120): social, messaging, video, games, and school apps. */
     apps: [["Facebook and Messenger", "chat"], ["TikTok", "note"], ["YouTube", "play"], ["Instagram", "camera"], ["X (Twitter)", "bubble"], ["WhatsApp or Viber", "people"], ["Netflix or other streaming", "eye"], ["Games", "game"], ["School apps, like Google Workspace, Zoom, or Canva", "cap"], ["Other", "other"]],
     school: [["Almost none", 0.05, "≈0"], ["About a quarter", 0.25, "¼"], ["About half", 0.5, "½"], ["About three quarters", 0.75, "¾"], ["Almost all", 0.95, "≈all"], ["Not sure", null, "?"]],
-    validity: [["1 day", 1], ["3 days", 3], ["7 days", 7], ["30 days", 30], ["It varies", 0], ["Regular load, no promo", -1]],
+    validity: [["1 day", 1], ["3 days", 3], ["7 days", 7], ["15 days", 15], ["30 days", 30], ["It varies", 0]],
     untilExpiry: [["Yes, until it expires", "full"], ["No, it runs out early", "early"], ["It varies", "varies"]],
-    reload: [["Yes, right away", "now"], ["No, I wait until I can", "wait"], ["No, I get by on Wi-Fi or app data", "getby"]],
-    reloadWhy: [["Data for any site ran out, but app data was left", "globe"], ["App data ran out, but data for any site was left", "chat"], ["I needed it for schoolwork right away", "cap"], ["To stay in touch with family or friends", "people"], ["Other", "other"]],
-    runsOut: [["Rarely or never", 0], ["Sometimes", 1], ["Often", 2], ["Most weeks", 4]],
+    reload: [["Yes, right away", "now"], ["No, I wait until I can", "wait"], ["No, I get by on Wi-Fi or app data", "getby"], ["No, I connect to someone else's hotspot", "hotspot"]],
+    reloadWhy: [["Data for any site ran out, but app data remained", "globe"], ["App data ran out, but data for any site remained", "chat"], ["I needed it for schoolwork right away", "cap"], ["To stay in touch with family or friends", "people"], ["Other", "other"]],
     twoSims: [["To switch when one has weak signal", "signal"], ["My main SIM has weak signal on campus or where I stay", "pin"], ["One for data, one for calls and texts", "chat"], ["One for school, one for personal", "cap"], ["I pick each network's promo by need, like exam week", "tag"], ["No particular reason", "other"], ["Other", "other"]],
     signal: [["On campus and where I stay", 1, 1], ["On campus only", 1, 0], ["Where I stay only", 0, 1], ["Neither, or hardly ever", 0, 0]],
     onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["I usually can't", "none"]],
@@ -1159,16 +1152,21 @@ a{color:var(--sea)}
     ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear it first?", [LATE, NEVER]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
-  var REGULAR = "Regular load, no promo", EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
-  /* The promo questions follow from one another: validity, then whether its data lasts, then reloading early, then why. */
-  function hasPromo() { return usesData() && A.validity !== REGULAR; }
-  function runsEarly() { return hasPromo() && (A.untilExpiry === null || A.untilExpiry === EARLY || A.untilExpiry === "It varies"); }
-  function reloadsNow() { return runsEarly() && (A.reload === null || A.reload === RELOAD_NOW); }
+  var EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
+  /* Questions the respondent has moved on from, answered or skipped. A follow-up counts as coming until its question is
+     answered or skipped, so a part's numbering holds; once skipped, the follow-up drops out. */
+  var left = {};
+  function gate(id, ok) { return ok || (A[stepById[id].key] === null && !left[id]); }
+  /* The promo questions follow from one another (D-120): validity; then whether its data lasts; then, only if it runs out
+     early, whether they reload right away; then, only if they do, why. Skipping validity means no promo. */
+  function hasPromo() { return usesData() && gate("validity", A.validity !== null); }
+  function runsEarly() { return hasPromo() && gate("untilExpiry", A.untilExpiry === EARLY); }
+  function reloadsNow() { return runsEarly() && gate("reload", A.reload === RELOAD_NOW); }
   /* A later promo answer that an earlier one rules out is cleared. */
   function clearPromoChain() {
     if (!hasPromo()) A.untilExpiry = null;
-    if (!runsEarly() || A.untilExpiry === null) A.reload = null;
-    if (!reloadsNow() || A.reload === null) { A.reloadWhy.length = 0; A.reloadWhyOther = ""; }
+    if (!runsEarly() || A.untilExpiry !== EARLY) A.reload = null;
+    if (!reloadsNow() || A.reload !== RELOAD_NOW) { A.reloadWhy.length = 0; A.reloadWhyOther = ""; }
   }
   var NO_REASON = "No particular reason", NOT_SURE = "Not sure", NO_LOAD = "I don't use load", SOMEONE_PAYS = "Someone else pays for it", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't";
   /* No load used skips what load costs and covers, as no SIM does; calls and texts alone skip what data is used for.
@@ -1262,17 +1260,15 @@ a{color:var(--sea)}
     { id: "load", box: "data", kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", cols: "t3", size: "short", prompt: "What kind of load do you usually use?", lede: "Pick all that apply, including load someone else buys for you.", core: true,
       opts: OPT.load.map(function (o) { return { v: o[0], art: function () { return TILE.loadKind(o[1]); } }; }) },
     { id: "loadApps", box: "data", kind: "chipsMulti", key: "loadApps", size: "bare", other: "loadAppsOther", otherPh: "Other: which app? (optional)", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps },
-    { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only. For a monthly promo or plan, count about a quarter.", core: true, when: buysLoad,
-      opts: OPT.loadSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
-    { id: "validity", box: "data", kind: "tiles", key: "validity", cols: "t3", size: "short", prompt: "How long is your usual promo valid?", core: true, when: usesData,
+    { id: "validity", box: "data", kind: "tiles", key: "validity", cols: "t3", size: "short", prompt: "How long is your usual promo valid?", lede: "Skip this if you don't use promos.", core: true, when: usesData,
       opts: OPT.validity.map(function (o) { return { v: o[0], art: function () { return TILE.lasts(o[1]); } }; }) },
     { id: "untilExpiry", box: "data", kind: "tiles", key: "untilExpiry", cols: "t3", size: "short", prompt: "Does its data usually last until it expires?", core: true, when: hasPromo,
       opts: OPT.untilExpiry.map(function (o) { return { v: o[0], art: function () { return TILE.expiry(o[1]); } }; }) },
-    { id: "reload", box: "data", kind: "tiles", key: "reload", cols: "t3", size: "short", prompt: "When it runs out early, do you usually reload right away?", core: true, when: runsEarly,
+    { id: "reload", box: "data", kind: "tiles", key: "reload", cols: "t4", size: "short", prompt: "When it runs out early, do you usually reload right away?", core: true, when: runsEarly,
       opts: OPT.reload.map(function (o) { return { v: o[0], art: function () { return TILE.reload(o[1]); } }; }) },
     { id: "reloadWhy", box: "data", kind: "chipsMulti", key: "reloadWhy", size: "bare", other: "reloadWhyOther", otherPh: "Other: why? (optional)", prompt: "Why do you reload right away?", lede: "Pick all that apply.", core: true, opts: OPT.reloadWhy, when: reloadsNow },
-    { id: "dataRunsOut", box: "data", kind: "tiles", key: "dataRunsOut", size: "short", prompt: "In a week of classes, does your data run out before you can load again?", core: true, when: usesData,
-      opts: OPT.runsOut.map(function (o) { return { v: o[0], art: function () { return TILE.weeks(o[1]); } }; }) },
+    { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only. For a monthly promo or plan, count about a quarter.", core: true, when: buysLoad,
+      opts: OPT.loadSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
     { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: usesData,
       opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) },
     { id: "signal", box: "data", kind: "tiles", key: "signal", size: "short", prompt: "Where can you use mobile data well enough to browse or use school apps?", core: true, when: usesData,
@@ -1564,11 +1560,11 @@ a{color:var(--sea)}
       if (key === "load" && A.load.indexOf(APP_DATA) < 0) { A.loadApps.length = 0; A.loadAppsOther = ""; }
       if (key === "onlineHome" && !paysWifi()) A.wifiSpend = null;
       if (key === "networks" && A.networks.length < 2) { A.twoSims.length = 0; A.twoSimsOther = ""; }
-      clearPromoChain();
       if (key === "networks" || key === "load") {
         if (!buysLoad()) A.dataSpend = null;
-        if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; A.dataRunsOut = null; }
+        if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; }
       }
+      clearPromoChain();
     } else {
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
@@ -1915,6 +1911,8 @@ a{color:var(--sea)}
     var s = stepById[curId];
     if (s.lock && !done(s)) { guideLock(s); return; }
     if (leaving || !canLeave(s)) return;
+    left[s.id] = true;
+    clearPromoChain();
     var n = nextOf(s);
     if (!n) return;
     if (s.box === "pass" && s.key && !done(s)) { passSkipped[s.key] = true; passReact(null); passType(); }
@@ -2201,6 +2199,7 @@ a{color:var(--sea)}
     var stop = L.filter(function (x, i) { return i > CONSENT_AT && i < idx(to, L) && x.lock && !done(x); })[0];
     if (stop) to = stop.id;
     var dir = idx(to, L) < idx(curId, L) ? -1 : 1;
+    if (dir > 0) L.slice(idx(curId, L), idx(to, L)).forEach(function (x) { left[x.id] = true; });
     menu.hidden = true;
     chapBtn.setAttribute("aria-expanded", "false");
     go(to, dir);
