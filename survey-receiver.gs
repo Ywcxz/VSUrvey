@@ -42,11 +42,11 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
-var TWO_SIMS = ["To switch when one has weak signal", "My usual SIM is weak at VSU", "One for data, one for calls and texts",
+var TWO_SIMS = ["To switch when one has weak signal", "My SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
   "One for school, one for personal", "Better promos on each", "No particular reason", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't"];
-var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "I usually can't"];
+var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];
 var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
   "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",

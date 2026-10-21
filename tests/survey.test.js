@@ -137,8 +137,8 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "onlineHome", shot);
   assert.strictEqual(await page.locator(btn("onlineHome", "Pocket Wi-Fi")).count(), 0, "pocket Wi-Fi is mobile data");
+  assert.strictEqual(await page.locator(btn("onlineHome", "Piso Wi-Fi")).count(), 0, "piso Wi-Fi counts as Wi-Fi");
   await page.click(btn("onlineHome", "Wi-Fi where I stay"));
-  await page.click(btn("onlineHome", "Piso Wi-Fi"));
   await next(page);
   await at(page, "wifiSpend", shot);
   await page.click(btn("wifiSpend", "₱200 to ₱499"));
@@ -283,7 +283,7 @@ function rowOf(r) {
       assert.deepStrictEqual(r.loadApps, ["Facebook and Messenger", "TikTok", "School apps, like Google Workspace, Zoom, or Canva"]);
       assert.strictEqual(r.signal, "On campus only");
       assert.deepStrictEqual(r.onlineCampus, ["Mobile data", "Campus Wi-Fi"]);
-      assert.deepStrictEqual(r.onlineHome, ["Wi-Fi where I stay", "Piso Wi-Fi"]);
+      assert.deepStrictEqual(r.onlineHome, ["Wi-Fi where I stay"]);
       assert.ok(!("online" in r), "the old online field is gone");
       assert.strictEqual(r.wantBack, "A fix, or a reason it can't be fixed");
       assert.strictEqual(Object.keys(r.board).length, 15);
@@ -325,7 +325,7 @@ function rowOf(r) {
       assert.strictEqual(row.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(row["loadApps: School apps, like Google Workspace, Zoom, or Canva"], true);
       assert.strictEqual(row["onCampus: Campus Wi-Fi"], true);
-      assert.strictEqual(row["whereStaying: Piso Wi-Fi"], true);
+      assert.strictEqual(row["whereStaying: Wi-Fi where I stay"], true);
       assert.strictEqual(row["whereStaying: unlisted"], "");
       assert.strictEqual(row.wantBack, "A fix, or a reason it can't be fixed");
       assert.ok(!h_has_pins(), "no pin columns");
