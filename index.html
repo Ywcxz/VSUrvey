@@ -1147,7 +1147,7 @@ a{color:var(--sea)}
     whichOffice: null, visitsTook: null, missClass: null, whyQuiet: [], whyQuietOther: "",
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
     board: {}, coins: {},
-    concernHeard: null, fbPosting: [], whereFound: null, lunch: null, cantGoOut: [], buySell: [],
+    concernHeard: null, fbPosting: [], whereFound: null, lunch: null, cantGoOut: [], buySell: [], whoJoin: [], whoRuns: null, offLoad: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
   };
@@ -1205,6 +1205,9 @@ a{color:var(--sea)}
     wantBack: [["That it was received", "received"], ["An answer", "answer"], ["A fix, or a reason it can't be fixed", "fix"], ["Only to be heard", "heard"], ["Not sure", "unsure"]],
     post: [["Under my real name", "name"], ["Under a made-up name other members can't link to me", "pen"], ["With no name, so no one can ever link it to me", "none"], ["Not sure", "unsure"]],
     pull: [["Official answers from offices", "office"], ["Easier to reach faculty and staff", "door"], ["Notices and deadlines in one place", "board"], ["Scholarships and opportunities in one place", "star"], ["Events in one place", "flag"], ["Questions about my subjects", "guide"], ["My class schedule and rooms in one place", "calendar"], ["A marketplace only for VSU people", "tag"], ["No ads or endless feeds", "ban"], ["Works on little mobile data", "signal"], ["Other", "other"]],
+    whoJoin: [["Faculty", "cap"], ["Office staff", "office"], ["Student orgs and councils", "flag"], ["Alumni", "star"], ["Incoming students", "guide"], ["Only students", "people"]],
+    whoRuns: [["VSU", "seal"], ["Students, with VSU's support", "people"], ["A student council or org", "flag"], ["An outside company", "tag"], ["Not sure", "other"]],
+    offLoad: [["Yes, much more", "spark"], ["Yes, a little more", "signal"], ["No difference", "ban"], ["Not sure", "other"]],
     away: [["Feeling watched by the university", "eye"], ["Fear of consequences for criticism", "megaphone"], ["Too many apps already", "stack"], ["My friends wouldn't be on it", "people"], ["Hard or slow to use", "snail"], ["Uses too much mobile data", "signal"], ["Other", "other"]]
   };
   /* Where each kind of VSU news is heard first (D-119): the same channels for all four, so the answers compare. */
@@ -1226,6 +1229,8 @@ a{color:var(--sea)}
   function raised(x) { return NOT_RAISED.indexOf(x) < 0; }
   function raisedIt() { return A.concern.some(raised); }
   /* Which office it was, and how many visits it took, follow the new-office question when it happened. */
+  /* Finding where you stay is asked of dorm residents, renters, and "somewhere else", not of those with family or relatives. */
+  function rents() { return ["An on-campus dorm", "A boarding house or apartment near campus", "Somewhere else"].indexOf(A.residence) >= 0; }
   function newOffice() { return A.scenario !== null && A.scenario !== NOT_ME; }
   var EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
   /* Questions the respondent has moved on from, answered or skipped. A follow-up counts as coming until its question is
@@ -1310,7 +1315,7 @@ a{color:var(--sea)}
     askFirst: "Asking first", fbPosting: "Posting in unofficial Facebook groups",
     whereFound: "Finding where you stay", lunch: "Lunch on a class day", cantGoOut: "When you can't go out", buySell: "Buying and selling"
   };
-  /* Follow-ups say so, and which answer brought them (D-126): the step they follow, and the answers to name. */
+  /* Follow-ups say so, and which answer brought them (D-126, D-129): the step they follow, and the answers to name. */
   var FU = {
     twoSims: ["networks", function () { return A.networks; }],
     loadApps: ["load", function () { return [APP_DATA]; }],
@@ -1326,10 +1331,38 @@ a{color:var(--sea)}
     concernHeard: ["concern", function () { return A.concern.filter(raised).slice(0, 2); }],
     whereFound: ["home", function () { return [A.residence]; }]
   };
+  /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
+     around only for those who rent, and reasons about app data only for those whose load includes it (D-129). */
+  var DORM = "An on-campus dorm", ANY_DATA = "Data for any site or app";
+  var SHOW_IF = {
+    whereFound: {
+      "Applied for a VSU dorm": function () { return A.residence === DORM; },
+      "A sign or tarpaulin outside": function () { return A.residence !== DORM; },
+      "Walking around and asking": function () { return A.residence !== DORM; }
+    },
+    reloadWhy: {
+      "I still had app data, but needed other sites": function () { return A.load.indexOf(APP_DATA) >= 0; },
+      "I still had data for any site, but wanted more app data": function () { return A.load.indexOf(APP_DATA) >= 0 && A.load.indexOf(ANY_DATA) >= 0; }
+    }
+  };
+  function fits(id, v) { var f = SHOW_IF[id] && SHOW_IF[id][v]; return !f || f(); }
+  function applyShowIf(s) {
+    if (!SHOW_IF[s.id]) return;
+    $$("[data-v]", panelEls[s.id]).forEach(function (b) { b.hidden = !fits(s.id, b.dataset.v); });
+  }
+  /* An answer that no longer fits is taken back. */
+  function pruneFits() {
+    Object.keys(SHOW_IF).forEach(function (id) {
+      var k = stepById[id].key, v = A[k];
+      if (Array.isArray(v)) { for (var i = v.length - 1; i >= 0; i--) if (!fits(id, v[i])) v.splice(i, 1); }
+      else if (v !== null && !fits(id, v)) A[k] = null;
+    });
+  }
   function becauseOf(s) {
     var f = FU[s.id], parent = stepById[f[0]], name = parent.kind === "moment" ? byKey[parent.k].title : LABEL[parent.id];
     var picks = f[1]().filter(Boolean).map(function (x) { return "\u201C" + x.replace("Wi-Fi", "Wi\u2011Fi") + "\u201D"; });
-    return picks.length ? "Because you picked " + picks.join(" and ") + " in " + name + "." : "Follows " + name + ".";
+    void name;
+    return picks.length ? "Because you picked " + picks.join(" and ") + "." : "";
   }
   function kickerOf(s) { return s.kicker; }
   function stamps() { return OPT.yesno.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }); }
@@ -1416,20 +1449,23 @@ a{color:var(--sea)}
   ]);
   /* Daily life (was Campus life): questions with answer options on housing, food, and buying and selling, then their scenes. */
   part(7, "Daily life", [
-    { id: "whereFound", box: "daily", kind: "chipsOne", key: "whereFound", size: "bare", prompt: "How did you find the place where you stay now?", core: true, opts: OPT.whereFound, when: function () { return A.residence !== null && A.residence !== FAMILY_HOME; } },
+    { id: "whereFound", box: "daily", kind: "chipsOne", key: "whereFound", size: "bare", prompt: "How did you find the place where you stay now?", core: true, opts: OPT.whereFound, when: rents },
     { id: "lunch", box: "daily", kind: "chipsOne", key: "lunch", size: "bare", prompt: "On a class day, where do you usually get lunch?", core: true, opts: OPT.lunch },
     { id: "cantGoOut", box: "daily", kind: "chipsMulti", key: "cantGoOut", exclusive: NOT_TO_ME, size: "bare", prompt: "When you need food or supplies but can't go out, what do you usually do?", lede: "Pick all that apply.", core: true, opts: OPT.cantGoOut },
     { id: "buySell", box: "daily", kind: "chipsMulti", key: "buySell", exclusive: NO_TRADE, size: "bare", prompt: "Where do you buy or sell things with other VSU people?", lede: "Pick all that apply.", core: true, opts: OPT.buySell },
     { k: "i" }, { k: "j" }, { k: "m" }
   ]);
   /* The campus map is left out until it is reworked; its drawing and code stay for that. */
-  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus issues should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
+  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus concerns should get more attention?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
   step({ id: "worksWell", box: "net", ch: 9, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
   step({ id: "wouldUse", box: "net", ch: 9, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "whoJoin", box: "net", ch: 9, kind: "chipsMulti", key: "whoJoin", exclusive: "Only students", size: "bare", kicker: "Who should be there", prompt: "Besides students, who should be able to join it?", lede: "Pick any that apply.", core: true, opts: OPT.whoJoin });
   step({ id: "postPreference", box: "net", ch: 9, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
   step({ id: "wantBack", box: "net", ch: 9, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
     opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
+  step({ id: "whoRuns", box: "net", ch: 9, kind: "chipsOne", key: "whoRuns", size: "bare", kicker: "Who should run it", prompt: "Who would you trust most to run it?", core: true, opts: OPT.whoRuns });
+  step({ id: "offLoad", box: "net", ch: 9, kind: "chipsOne", key: "offLoad", size: "bare", kicker: "Without using your load", prompt: "If it worked on campus Wi\u2011Fi without using your load, would you use it more?", core: true, opts: OPT.offLoad });
   step({ id: "keepAway", box: "net", ch: 9, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
   step({ id: "send", box: "send", ch: 10, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
   step({ id: "final", box: "final", ch: 10, kind: "final", noMenu: true, when: function () { return sent; } });
@@ -1685,13 +1721,15 @@ a{color:var(--sea)}
         if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; }
       }
       clearPromoChain();
+      pruneFits();
     } else {
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
       if (key === "reachHow" && (A.reachHow === null || A.reachHow === NOT_YET)) A.reachGot = null;
       if (key === "scenario" && !newOffice()) { A.whichOffice = null; A.visitsTook = null; }
-      if (key === "residence" && (A.residence === null || A.residence === FAMILY_HOME)) A.whereFound = null;
+      if (key === "residence" && !rents()) A.whereFound = null;
+      pruneFits();
       clearPromoChain();
     }
     return turnedOn;
@@ -1910,7 +1948,7 @@ a{color:var(--sea)}
   })();
 
   /* Coins: tap a jar and a coin flies into it. */
-  /* The jars are kinds of campus issues as students see them, including ones outside CAMPUS's scope, so the results show where
+  /* The jars are campus concerns as students see them, to get more attention, including ones outside CAMPUS's scope, so the results show where
      CAMPUS's problems rank among everything students care about (D-126). More coins than jars, so priorities can stack up. */
   var COINS = 25;
   var JARS = [
@@ -1999,7 +2037,8 @@ a{color:var(--sea)}
   /* ---------- Entering a step ---------- */
   function enter(s) {
     var box = boxEls[s.box];
-    if (FU[s.id]) { var bc = $(".because", panelEls[s.id]); if (bc) bc.textContent = becauseOf(s); }
+    if (FU[s.id]) { var bc = $(".because", panelEls[s.id]); if (bc) { bc.textContent = becauseOf(s); bc.hidden = !bc.textContent; } }
+    applyShowIf(s);
     if (s.box === "gate") gateReact();
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
@@ -2345,7 +2384,7 @@ a{color:var(--sea)}
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped")),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
-      cell("coin", "#C98A16", "Fix first", top ? jarById[top][1] : "No coins spent"),
+      cell("coin", "#C98A16", "Most attention", top ? jarById[top][1] : "No coins spent"),
       cell("bubble", "#2C8C99", "Posting in unofficial groups", A.fbPosting.join(", ") || "Skipped"),
       cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
     ];

@@ -47,6 +47,7 @@ var HEARD = ["Yes, and it was fixed", "Yes, but it wasn't fixed", "It's still be
 var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
 var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
 var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "Online shops", "I don't buy or sell with VSU people"];
+var WHO_JOIN = ["Faculty", "Office staff", "Student orgs and councils", "Alumni", "Incoming students", "Only students"];
 var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
   "Only talked about it with friends", "It hasn't happened"];
@@ -116,7 +117,8 @@ function headers_() {
   JARS.forEach(function (k) { h.push("coins: " + k); });
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
-  h.push("postPreference", "wantBack");
+  multiHeaders_(h, "whoJoin", WHO_JOIN);
+  h.push("postPreference", "wantBack", "whoRuns", "offLoad");
   multiHeaders_(h, "away", AWAY);
   h.push("comment", "raw");
   return h;
@@ -182,7 +184,8 @@ function row_(r, now) {
   JARS.forEach(function (k) { row.push(num_(coins[k], 1, 25)); });
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
-  row.push(cell_(r.postPreference), cell_(r.wantBack));
+  multiCells_(row, r.whoJoin, WHO_JOIN, "");
+  row.push(cell_(r.postPreference), cell_(r.wantBack), cell_(r.whoRuns), cell_(r.offLoad));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
   row.push(cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
@@ -285,4 +288,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS, JARS: JARS, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS, JARS: JARS, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
