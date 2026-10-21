@@ -1499,23 +1499,15 @@ a{color:var(--sea)}
   }
 
   /* ---------- Panels ---------- */
-  /* Bisaya for words a student may not know, shown beside the word; the answers recorded stay in English. To be checked by a
-     native speaker before launch. */
-  var GLOSS = [["errand", "lakaw/sugo"], ["allocation", "gahin"], ["anonymously", "walay pangalan"], ["consequences", "sangputanan"], ["Eateries", "karenderya"]];
-  /* Once per screen: an answer doesn't repeat a word its question already explained. */
-  function gloss(t, said) {
-    GLOSS.forEach(function (g) { var i = t.indexOf(g[0]); if (i >= 0 && !(said && said.indexOf(g[0]) >= 0)) t = t.slice(0, i + g[0].length) + " (" + g[1] + ")" + t.slice(i + g[0].length); });
-    return t;
-  }
   function head(s) {
-    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" + (FU[s.id] ? '<p class="because"></p>' : "") : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(gloss(s.prompt)) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
+    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" + (FU[s.id] ? '<p class="because"></p>' : "") : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
-  function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(gloss(o.label || o.v)) + "</span></button>"; }
+  function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
   function vigBtn(o, i, star) { return '<button type="button" class="vig' + (star ? " star" : "") + '" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + o.art() + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
   function chipGrid(s) {
     return '<div class="chips grid2" data-key="' + s.key + '" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(function (o, i) {
-      return '<button type="button" class="chip icon" data-v="' + esc(o[0]) + '" aria-pressed="false" style="--i:' + i + '">' + icon(o[1]) + "<span>" + esc(gloss(o[0], s.prompt)) + "</span></button>";
+      return '<button type="button" class="chip icon" data-v="' + esc(o[0]) + '" aria-pressed="false" style="--i:' + i + '">' + icon(o[1]) + "<span>" + esc(o[0]) + "</span></button>";
     }).join("") + "</div>";
   }
   function otherField(s) { return '<input class="field" data-other="' + s.other + '" type="text" maxlength="120" autocomplete="off" placeholder="' + esc(s.otherPh) + '" aria-label="' + esc(s.otherPh) + '" hidden style="margin-top:12px">'; }

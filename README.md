@@ -31,7 +31,6 @@ Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it
 - [ ] A pilot of at least 5 students checks the wording, auto-advance (did anyone feel rushed, or move on by accident?), and the housing default (did commuters read it as picked for them?). (By hand)
 - [ ] The first screen's time estimate comes from the median and 90th percentile of at least 10 timed run-throughs, or is labeled preliminary. The current "20–25 minutes" is a preliminary estimate from the page's own text and answer counts (about 24 minutes on a typical path, 18 to 31 across reading speeds), not a timing. (By hand)
 - [ ] The load bands' middles (about ₱50, ₱100, ₱150 a week) and the apps list are re-checked against the networks' current promos. (By hand)
-- [ ] A native speaker checks the Bisaya shown beside uncommon words: errand (lakaw/sugo), allocation (gahin), anonymously (walay pangalan), consequences (sangputanan), eateries (karenderya). (By hand)
 - [ ] The office types in "What kind of office was it?" are checked against VSU's own offices, so each office a student might mean has a clear answer. (By hand)
 - [ ] The Apps Script receiver is deployed and tested against `scenes-v3`, with a `?test=1` answer reaching the "Responses v3" tab. (By hand)
 - [ ] The rules for releasing results (the floor of 10, combinations, free text) are published in Chapter 8. (By hand)

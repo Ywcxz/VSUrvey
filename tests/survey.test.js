@@ -974,7 +974,7 @@ function rowOf(r) {
     assert.ok(await t.page.locator(inStep("m-i", ".note.prefill")).isHidden());
     assert.ok((await t.page.locator(inStep("m-i", ".q")).first().textContent()).startsWith("Since you started at VSU, how often has"), "housing asks since the respondent started at VSU");
     assert.ok((await t.page.locator(inStep("m-j", ".q")).first().textContent()).startsWith("Since the start of this semester, how often has"), "other scenes ask since the start of this semester");
-    assert.ok((await t.page.locator(inStep("missClass", "h2")).textContent()).includes("errand (lakaw/sugo)"), "an uncommon word carries its Bisaya");
+    assert.ok(!(await t.page.locator(inStep("missClass", "h2")).textContent()).includes("("), "no glosses in the questions");
     assert.strictEqual(await t.page.locator('[data-box="m-i"] .cal-marks').count(), 0, "no calendar on the scenes");
     const order = (await steps()).filter(x => x.startsWith("m-")).map(x => x.slice(2)).join("");
     assert.strictEqual(order, "dofgkacbnelijm", "scenes follow the parts, after each part's questions");
