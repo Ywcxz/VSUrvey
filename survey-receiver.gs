@@ -42,11 +42,11 @@ var CHECK_POST = ["Checked VSU's official page or website", "Asked a friend or c
   "Waited for more posts", "I didn't check", "Other"];
 var WHY_QUIET = ["I didn't know where to raise it", "I didn't think it would change anything", "I worried about the consequences",
   "It would take too much time or effort", "Someone else had already raised it", "Other"];
-var JARS = ["online", "news", "offices", "teachers", "guides", "aid", "heard", "housing", "food", "market", "around", "rooms", "storms", "safety", "health"];  // 25 coins
+var JARS = ["online", "news", "offices", "teachers", "guides", "aid", "heard", "housing", "food", "market", "around", "rooms", "storms", "safety", "health"];  // 25 coins, up to 10 a jar
 var HEARD = ["Yes, and it was fixed", "Yes, but it wasn't fixed", "It's still being looked into", "No, I never heard back"];
 var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
 var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
-var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "Online shops", "I don't buy or sell with VSU people"];
+var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "Online shops", "I don't buy or sell with people on campus"];
 var WHO_JOIN = ["Faculty", "Office staff", "Student orgs and councils", "Alumni", "Incoming students", "Only students"];
 var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
@@ -56,8 +56,8 @@ var WORKS = ["Everyone is already there", "News spreads fast", "Works with my lo
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
 var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
   "One for school, one for personal", "I pick each network's promo by need, like exam week", "No particular reason", "Other"];
-var RELOAD_WHY = ["I still had app data, but needed other sites", "I still had data for any site, but wanted more app data",
-  "Schoolwork couldn't wait", "To stay in touch with family or friends", "Other"];
+var RELOAD_WHY = ["My open-access data ran out, but my app-only data didn't", "My app-only data ran out, but my open-access data didn't",
+  "Both ran out", "Schoolwork couldn't wait", "To stay in touch with family or friends", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];
@@ -118,7 +118,7 @@ function headers_() {
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
   multiHeaders_(h, "whoJoin", WHO_JOIN);
-  h.push("postPreference", "wantBack", "whoRuns", "offLoad");
+  h.push("postPreference", "wantBack", "whoRuns", "hostedPay");
   multiHeaders_(h, "away", AWAY);
   h.push("comment", "raw");
   return h;
@@ -181,11 +181,11 @@ function row_(r, now) {
   multiCells_(row, r.buySell, BUY_SELL, "");
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
   row.push(obj_(board.i).prefilled === true);  // "Doesn't apply" on housing, picked for a commuter and never changed
-  JARS.forEach(function (k) { row.push(num_(coins[k], 1, 25)); });
+  JARS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });  // at most 10 in a jar
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
   multiCells_(row, r.whoJoin, WHO_JOIN, "");
-  row.push(cell_(r.postPreference), cell_(r.wantBack), cell_(r.whoRuns), cell_(r.offLoad));
+  row.push(cell_(r.postPreference), cell_(r.wantBack), cell_(r.whoRuns), cell_(r.hostedPay));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
   row.push(cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
