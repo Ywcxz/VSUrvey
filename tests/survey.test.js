@@ -125,11 +125,15 @@ async function walkAll(page, shot) {
   await page.click(btn("loadApps", "School apps, like Google Workspace, Zoom, or Canva"));
   await next(page);
   await at(page, "dataSpend", shot);
-  await page.click(btn("dataSpend", "₱80 to ₱119"));
+  await page.click(btn("dataSpend", "₱99 or ₱100"));
+  await at(page, "loadLasts", shot);
+  await page.click(btn("loadLasts", "About a week"));
+  await at(page, "dataRunsOut", shot);
+  await page.click(btn("dataRunsOut", "Sometimes"));
   await at(page, "dataSchool", shot);
   await page.click(btn("dataSchool", "About half"));
   await at(page, "signal", shot);
-  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 7 of 10");
+  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 9 of 12");
   await page.click(btn("signal", "On campus only"));
   await at(page, "onlineCampus", shot);
   await page.click(btn("onlineCampus", "Mobile data"));
@@ -275,7 +279,9 @@ function rowOf(r) {
       assert.strictEqual(r.askFirst, "A group chat");
       assert.deepStrictEqual(r.worksWell, ["Everyone is already there", "Works with my load promo"]);
       assert.strictEqual(rowOf(r).firstScholarships, "Usually too late");
-      assert.strictEqual(r.dataSpend, "₱80 to ₱119");
+      assert.strictEqual(r.dataSpend, "₱99 or ₱100");
+      assert.strictEqual(r.loadLasts, "About a week");
+      assert.strictEqual(r.dataRunsOut, "Sometimes");
       assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "Better promos on each"]);
       assert.strictEqual(r.dataSchool, "About half");
       assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
@@ -320,7 +326,8 @@ function rowOf(r) {
       assert.strictEqual(row.transport, "Habal-habal or tricycle");
       assert.strictEqual(row.transferee, "Yes");
       assert.strictEqual(row["wifiSpend (month)"], "₱200 to ₱499");
-      assert.strictEqual(row["dataSpend (week)"], "₱80 to ₱119");
+      assert.strictEqual(row["dataSpend (week)"], "₱99 or ₱100");
+      assert.strictEqual(row.dataRunsOut, "Sometimes");
       assert.strictEqual(row["twoSims: Better promos on each"], true);
       assert.strictEqual(row.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(row["loadApps: School apps, like Google Workspace, Zoom, or Canva"], true);
@@ -411,7 +418,11 @@ function rowOf(r) {
     await t.page.click(btn("load", "Data for any site or app"));
     await next(t.page);
     await at(t.page, "dataSpend");
-    await t.page.click(btn("dataSpend", "Under ₱40"));
+    await t.page.click(btn("dataSpend", "Under ₱49"));
+    await at(t.page, "loadLasts");
+    await t.page.click(btn("loadLasts", "About 3 days"));
+    await at(t.page, "dataRunsOut");
+    await t.page.click(btn("dataRunsOut", "Often"));
     await at(t.page, "dataSchool");
     await t.page.click(btn("dataSchool", "Almost all"));
     await at(t.page, "signal");
@@ -420,9 +431,9 @@ function rowOf(r) {
     await at(t.page, "load");
     await t.page.click(btn("load", "I don't use load"));
     let a = await ans();
-    assert.deepStrictEqual([a.dataSpend, a.dataSchool, a.signal], [null, null, null], "no load clears spending, schoolwork, and signal");
+    assert.deepStrictEqual([a.dataSpend, a.dataSchool, a.signal, a.loadLasts, a.dataRunsOut], [null, null, null, null, null], "no load clears spending, how long it lasts, running out, schoolwork, and signal");
     let L = await steps();
-    for (const id of ["loadApps", "dataSpend", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with no load");
+    for (const id of ["loadApps", "dataSpend", "loadLasts", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with no load");
     await next(t.page);
     await at(t.page, "onlineCampus");
     await t.page.evaluate(() => window.__survey.go("load"));
@@ -430,7 +441,7 @@ function rowOf(r) {
     await t.page.click(btn("load", "Calls and texts"));
     L = await steps();
     assert.ok(L.includes("dataSpend"), "calls and texts still cost load");
-    for (const id of ["dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with calls and texts only");
+    for (const id of ["loadLasts", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with calls and texts only");
     await t.page.click(btn("load", "A postpaid plan"));
     L = await steps();
     for (const id of ["dataSpend", "dataSchool", "signal"]) assert.ok(L.includes(id), id + " is asked of a postpaid plan");
@@ -637,7 +648,7 @@ function rowOf(r) {
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
       await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; a.networks = ["Smart", "DITO"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "loadLasts", "dataRunsOut", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);

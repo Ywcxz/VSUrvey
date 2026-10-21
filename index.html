@@ -753,6 +753,21 @@ a{color:var(--sea)}
       else b += '<path d="M26 22h68a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H56l-14 12V64H26a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8Z" fill="#F7FBF8" stroke="#7E8F86" stroke-width="2.5" stroke-dasharray="6 5"/><g fill="#9AA9A0"><circle cx="46" cy="43" r="4"/><circle cx="60" cy="43" r="4"/><circle cx="74" cy="43" r="4"/></g><path d="M30 76 L92 14" stroke="#D9483B" stroke-width="5" stroke-linecap="round"/>';
       return art(b + "</g>");
     },
+    /* How long a load lasts: a strip of days, lit for as long as it lasts. */
+    lasts: function (n) {
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><rect x="16" y="26" width="88" height="38" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="16" y="26" width="88" height="10" rx="5" fill="#D9483B"/>';
+      if (!n) b += '<path d="M28 52c8-10 16 10 24 0s16 10 24 0 12 6 16 2" fill="none" stroke="#2F6DB5" stroke-width="3.5" stroke-linecap="round"/>';
+      else if (n === 30) b += '<text x="60" y="58" text-anchor="middle" font-size="16" font-weight="800" fill="#2F6DB5" font-family="sans-serif">30 days</text>';
+      else for (var i = 0; i < 7; i++) b += '<rect x="' + (21 + i * 11.4) + '" y="42" width="8.6" height="16" rx="2" fill="' + (i < n ? "#2F6DB5" : "#DCE5DF") + '"/>';
+      return art(b + "</g>");
+    },
+    /* Whether data runs out: a data gauge, from full to empty. */
+    gauge: function (level) {
+      var w = { full: 62, half: 34, low: 14, empty: 0 }[level], hue = { full: "#5E8C4A", half: "#F2B33D", low: "#E4705A", empty: "#D9483B" }[level];
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><rect x="24" y="30" width="68" height="30" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2.5"/><rect x="92" y="38" width="6" height="14" rx="2" fill="#13261D"/>' +
+        (w ? '<rect x="27" y="33" width="' + w + '" height="24" rx="4" fill="' + hue + '"/>' : '<path d="M44 38 L72 52 M72 38 L44 52" stroke="#D9483B" stroke-width="4" stroke-linecap="round"/>');
+      return art(b + "</g>");
+    },
     /* Where mobile data gets a signal: campus on the left, where you stay on the right; a slash where it doesn't. */
     where: function (campus, home) {
       function bars(x, on) { return '<g fill="' + (on ? "#D9483B" : "#B8C4BD") + '">' + [0, 1, 2, 3].map(function (i) { return '<rect x="' + (x + i * 5) + '" y="' + (26 - i * 4) + '" width="3.6" height="' + (6 + i * 4) + '" rx="1"/>'; }).join("") + "</g>" + (on ? "" : '<path d="' + "M" + (x - 2) + " 34 L" + (x + 20) + ' 12" stroke="#D9483B" stroke-width="3" stroke-linecap="round"/>'); }
@@ -1060,7 +1075,7 @@ a{color:var(--sea)}
   var A = {
     consent: false, age18: null, startedAt: null,
     residence: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null,
-    networks: [], twoSims: [], twoSimsOther: "", load: [], loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
+    networks: [], twoSims: [], twoSimsOther: "", load: [], loadLasts: null, dataRunsOut: null, loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstSuspensions: null, firstDocuments: null, firstEvents: null, firstScholarships: null, firstAnnouncements: null,
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
     board: {}, coins: {},
@@ -1085,8 +1100,8 @@ a{color:var(--sea)}
     concern: [["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["Kept it to myself", "ban"], ["It hasn't happened", "other"]],
     askFirst: [["A group chat", "gchat"], ["An unofficial student group or freedom wall", "group"], ["A classmate or senior, in person", "friends"], ["A teacher or adviser", "teacher"], ["Searched online", "search"], ["I didn't ask anyone", "noask"], ["It hasn't happened", "nothappened"]],
     works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
-    /* Weekly load, in bands whose middles sit on common promo prices (about ₱50, ₱100, and ₱150 a week), so ₱99 and ₱100 share a band. */
-    loadSpend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱40", "< ₱40", "#1F7A8C"], ["₱40 to ₱79", "≈ ₱50", "#2F6DB5"], ["₱80 to ₱119", "≈ ₱100", "#7A5BA6"], ["₱120 to ₱179", "≈ ₱150", "#D9483B"], ["₱180 or more", "₱180+", "#B7791F"]],
+    /* Weekly load. The common promo prices get answers of their own (₱49 or ₱50, ₱99 or ₱100), so a ₱99 and a ₱100 promo land together. */
+    loadSpend: [["Under ₱49", "< ₱49", "#1F7A8C"], ["₱49 or ₱50", "₱49/50", "#2F6DB5"], ["₱51 to ₱98", "₱51–98", "#5E8C4A"], ["₱99 or ₱100", "₱99/100", "#7A5BA6"], ["₱101 to ₱199", "₱101–199", "#D9483B"], ["₱200 or more", "₱200+", "#B7791F"]],
     /* Monthly Wi-Fi where they stay: piso Wi-Fi coins, a share of a split bill, or a whole home plan. Piso Wi-Fi counts as Wi-Fi. */
     wifiSpend: [["Nothing", "₱0", "#7E8F86"], ["Under ₱200", "< ₱200", "#1F7A8C"], ["₱200 to ₱499", "₱200–499", "#2F6DB5"], ["₱500 to ₱999", "₱500–999", "#7A5BA6"], ["₱1,000 to ₱1,999", "₱1k–2k", "#D9483B"], ["₱2,000 or more", "₱2k+", "#B7791F"]],
     networks: [["Smart", "Smart"], ["TNT", "TNT"], ["Globe", "Globe"], ["TM", "TM"], ["GOMO", "GOMO"], ["DITO", "DITO"]],
@@ -1094,6 +1109,8 @@ a{color:var(--sea)}
     /* Apps that app-specific promos bundle (D-120): social, messaging, video, games, and school apps. */
     apps: [["Facebook and Messenger", "chat"], ["TikTok", "note"], ["YouTube", "play"], ["Instagram", "camera"], ["X (Twitter)", "bubble"], ["WhatsApp or Viber", "people"], ["Netflix or other streaming", "eye"], ["Games", "game"], ["School apps, like Google Workspace, Zoom, or Canva", "cap"], ["Other", "other"]],
     school: [["Almost none", 0.05, "≈0"], ["About a quarter", 0.25, "¼"], ["About half", 0.5, "½"], ["About three quarters", 0.75, "¾"], ["Almost all", 0.95, "≈all"], ["Not sure", null, "?"]],
+    lasts: [["About a day", 1], ["About 3 days", 3], ["About a week", 7], ["About a month", 30], ["It varies", 0]],
+    runsOut: [["Rarely or never", "full"], ["Sometimes", "half"], ["Often", "low"], ["Most weeks", "empty"]],
     twoSims: [["To switch when one has weak signal", "signal"], ["My SIM has weak signal on campus or where I stay", "pin"], ["One for data, one for calls and texts", "chat"], ["One for school, one for personal", "cap"], ["Better promos on each", "tag"], ["No particular reason", "other"], ["Other", "other"]],
     signal: [["On campus and where I stay", 1, 1], ["On campus only", 1, 0], ["Where I stay only", 0, 1], ["Neither, or hardly ever", 0, 0]],
     onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["I usually can't", "none"]],
@@ -1211,6 +1228,10 @@ a{color:var(--sea)}
     { id: "loadApps", box: "data", kind: "chipsMulti", key: "loadApps", size: "bare", other: "loadAppsOther", otherPh: "Other: which app? (optional)", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps },
     { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only. For a monthly promo or plan, count about a quarter.", core: true, when: buysLoad,
       opts: OPT.loadSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
+    { id: "loadLasts", box: "data", kind: "tiles", key: "loadLasts", cols: "t3", size: "short", prompt: "How long does your usual load last?", core: true, when: usesData,
+      opts: OPT.lasts.map(function (o) { return { v: o[0], art: function () { return TILE.lasts(o[1]); } }; }) },
+    { id: "dataRunsOut", box: "data", kind: "tiles", key: "dataRunsOut", size: "short", prompt: "In a week of classes, does your data run out before you can load again?", core: true, when: usesData,
+      opts: OPT.runsOut.map(function (o) { return { v: o[0], art: function () { return TILE.gauge(o[1]); } }; }) },
     { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: usesData,
       opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) },
     { id: "signal", box: "data", kind: "tiles", key: "signal", size: "short", prompt: "Where can you use mobile data well enough to browse or use school apps?", core: true, when: usesData,
@@ -1504,7 +1525,7 @@ a{color:var(--sea)}
       if (key === "networks" && A.networks.length < 2) { A.twoSims.length = 0; A.twoSimsOther = ""; }
       if (key === "networks" || key === "load") {
         if (!buysLoad()) A.dataSpend = null;
-        if (!usesData()) { A.dataSchool = null; A.signal = null; }
+        if (!usesData()) { A.dataSchool = null; A.signal = null; A.loadLasts = null; A.dataRunsOut = null; }
       }
     } else {
       var val = key === "trust" ? Number(v) : v;
@@ -1634,7 +1655,7 @@ a{color:var(--sea)}
     var sc = OPT.school.filter(function (o) { return o[0] === A.dataSchool; })[0];
     var p = sc && sc[1] !== null ? sc[1] : 0;
     $("#dt-arc", box).setAttribute("stroke-dashoffset", (circ * (1 - p)).toFixed(1));
-    $("#dt-pct", box).textContent = sc ? sc[2] : (A.dataSpend === "Nothing" ? "0" : "?");
+    $("#dt-pct", box).textContent = sc ? sc[2] : "?";
     var on = curId === "onlineHome" ? A.onlineHome : A.onlineCampus;
     function has(x) { return on.indexOf(x) >= 0; }
     var wifi = has("Campus Wi-Fi") || has("Wi-Fi where I stay");

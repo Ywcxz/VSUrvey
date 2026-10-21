@@ -80,7 +80,7 @@ function headers_() {
   multiHeaders_(h, "twoSims", TWO_SIMS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
-  h.push("dataSpend (week)", "dataSchool", "signal");
+  h.push("dataSpend (week)", "loadLasts", "dataRunsOut", "dataSchool", "signal");
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
   h.push("wifiSpend (month)");
@@ -136,7 +136,7 @@ function row_(r, now) {
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
-  row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.signal));
+  row.push(cell_(r.dataSpend), cell_(r.loadLasts), cell_(r.dataRunsOut), cell_(r.dataSchool), cell_(r.signal));
   multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
   row.push(cell_(r.wifiSpend));
