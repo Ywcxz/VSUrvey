@@ -50,8 +50,8 @@ var WORKS = ["Everyone is already there", "News spreads fast", "Works with my lo
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
 var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
   "One for school, one for personal", "I pick each network's promo by need, like exam week", "No particular reason", "Other"];
-var RELOAD_WHY = ["Data for any site ran out, but app data remained", "App data ran out, but data for any site remained",
-  "I needed it for schoolwork right away", "To stay in touch with family or friends", "Other"];
+var RELOAD_WHY = ["I still had app data, but needed other sites", "I still had data for any site, but wanted more app data",
+  "Schoolwork couldn't wait", "To stay in touch with family or friends", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];

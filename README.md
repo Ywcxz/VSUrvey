@@ -20,7 +20,7 @@ Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it
 
 - [ ] The first screen says who runs the survey, that it is independent and not an official VSU survey, that answers carry no name, and how they are kept. The gate's first line says any question can be skipped. (By hand; the gate line is in the tests)
 - [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53, and settled Q-65 (whether D-038's 30% bar fits the semester window). Both are fixed before any answer is read. (By hand)
-- [ ] Every answer is in view without scrolling at 360 × 640 and the other sizes tested, with up to three news channels ranked. (Tests)
+- [ ] On phones from 360 × 640, every screen keeps its drawing in view, and answers that don't fit can be scrolled to above the bottom bar; on computers, every answer is in view without scrolling. (Tests)
 - [ ] Every skip rule works: two SIMs, no load, calls and texts only, app data, the promo questions (no promo, data that lasts, not reloading), Wi-Fi spending, checking a post, the new office, reaching someone, keeping a concern to yourself, the housing default. (Tests)
 - [ ] A respondent can go back and change an answer, and the parts menu shows progress. (Tests)
 - [ ] Nothing is sent while `OPEN` is `false`, except answers marked as tests; previews never send. (Tests)

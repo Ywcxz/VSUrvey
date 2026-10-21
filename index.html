@@ -70,7 +70,8 @@ button,a,input,textarea{touch-action:manipulation}
 .stage>svg{display:block;width:100%;height:100%;max-width:620px;overflow:visible}
 .box[data-size="short"]{--stage-h:24vh}
 .box[data-size="tight"]{--stage-h:16vh}
-/* Phones show about 640 to 700 pixels of page once the browser's bars are counted, so the drawings give way to the answers. */
+/* Phones show about 640 to 700 pixels of page once the browser's bars are counted. Drawings stay in view at a fixed share of
+   the screen, and answers that don't fit scroll below them (D-125). */
 @media (max-height:720px){
   .box{--stage-h:24vh}
   .box[data-size="short"]{--stage-h:17vh}
@@ -82,22 +83,20 @@ button,a,input,textarea{touch-action:manipulation}
 @media (max-height:720px){ .box[data-size="bare"]{--stage-h:12vh} .box[data-size="tall"]{--stage-h:34vh} }
 @media (max-width:699px) and (min-height:721px){ .box[data-size="tall"]{--stage-h:38vh} }
 @media (max-height:680px){ .box[data-size="tall"]{--stage-h:30vh} }
-@media (max-width:699px) and (max-height:760px){ .box[data-size="bare"] .stage{display:none} }
 .box.nostage .stage{display:none}
 /* Hearing from VSU: a short drawing of the topic, kept on phones, with the channel tiles tightened to make room. */
 .box[data-size="news"]{--stage-h:18vh}
 .topic{opacity:0;transition:opacity .3s}
 .topic.on{opacity:1}
 @media (max-width:699px){ .box[data-size="news"]{--stage-h:14vh} .box[data-size="news"] .stage{padding-bottom:4px} }
-@media (max-width:699px) and (max-height:720px){ .box[data-size="news"]{--stage-h:9.5vh} .vigs[data-part="pick"]{gap:6px;grid-auto-rows:1fr} .vigs[data-part="pick"] .vig{padding:4px;gap:6px} .vigs[data-part="pick"] .vig .art{width:40px} .box[data-size="news"] .kicker{margin-bottom:2px} }
-/* Parts whose answers run long show their drawing only where the screen has room for it. */
-@media (max-width:699px) and (max-height:760px){ .box.talls .stage{display:none} }
+@media (max-width:699px) and (max-height:720px){ .vigs[data-part="pick"]{gap:6px;grid-auto-rows:1fr} .vigs[data-part="pick"] .vig{padding:4px;gap:6px} .vigs[data-part="pick"] .vig .art{width:40px} .box[data-size="news"] .kicker{margin-bottom:2px} }
+@media (max-width:699px){ .box[data-size="short"],.box[data-size="tight"],.box[data-size="bare"],.box[data-size="news"],.box.mbox{--stage-h:20vh} }
 .sheet{position:relative;flex:1;min-height:0;background:var(--card);color:var(--ink);border-radius:28px 28px 0 0;box-shadow:var(--shadow)}
 .panel{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 18px calc(96px + env(safe-area-inset-bottom,0px));scrollbar-width:thin;will-change:transform,opacity}
 .panel-in{max-width:620px;margin:0 auto}
 .sheet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--card) 62%);pointer-events:none;border-radius:0}
 .box.intro .sheet::after{display:none}
-@media (max-height:720px){ .box.mbox{--stage-h:13vh} }
+
 @media (max-width:380px){ .chip{padding:9px 12px;font-size:15px} .tile .lbl,.vig .lbl{font-size:14px} }
 .nudge-me{animation:nudgeMe .6s ease-in-out 2}
 @keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -109,6 +108,8 @@ button,a,input,textarea{touch-action:manipulation}
 .lede{font-size:15.5px;color:var(--ink-soft);margin:0 0 14px;max-width:52ch}
 .q{font:650 16px/1.25 var(--display);margin:18px 0 9px}
 .statement{font:600 18.5px/1.3 var(--display);margin:2px 0 4px;max-width:40ch}
+.statement:focus{outline:none}
+.statement:focus-visible{outline:3px solid var(--mango);outline-offset:4px;border-radius:6px}
 .note{font-size:14px;color:var(--ink-soft);margin:12px 0 0}
 .answers{margin-top:14px}
 
@@ -233,7 +234,7 @@ a{color:var(--sea)}
 .vig[aria-pressed="true"]{background:var(--pick);border-color:var(--mango)}
 .vig[aria-pressed="true"]::after{content:"";position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--mango) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2313261D' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/15px no-repeat;animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
 .vig.star[aria-pressed="true"]::after{background:var(--gumamela) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF'%3E%3Cpath d='m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z'/%3E%3C/svg%3E") center/15px no-repeat}
-.vig.star[aria-pressed="true"][data-rank]::after{content:attr(data-rank);background:var(--gumamela);color:#FFFFFF;font:800 14px/24px var(--display);text-align:center}
+.vig.star[aria-pressed="true"][data-rank]::after{content:attr(data-rank);left:8px;right:auto;width:auto;min-width:24px;padding:0 7px;border-radius:999px;background:var(--gumamela);color:#FFFFFF;font:800 13px/24px var(--display);text-align:center}
 .vig[aria-pressed="true"] .art .wake{animation:wake .7s cubic-bezier(.3,1.5,.5,1)}
 @keyframes wake{0%{transform:translateY(0)}35%{transform:translateY(-5px)}100%{transform:none}}
 .vig .art .ping{opacity:0;transition:opacity .25s}
@@ -467,7 +468,7 @@ a{color:var(--sea)}
   .vig .art{flex:none;width:50px;aspect-ratio:1/1;border-radius:10px}
   .vig .lbl{font-size:13px;line-height:1.17;padding:0 12px 0 0}
   .vig[aria-pressed="true"]::after{top:6px;right:6px;width:18px;height:18px;background-size:12px}
-  .vig.star[aria-pressed="true"][data-rank]::after{font-size:11.5px;line-height:18px}
+  .vig.star[aria-pressed="true"][data-rank]::after{top:3px;left:3px;right:auto;width:auto;padding:0 5px;font-size:11px;line-height:18px}
   .none-row{margin-top:8px}
   .none-row .chip{padding:7px 14px;min-height:38px;font-size:14.5px}
   .none-row.outcomes{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
@@ -1138,7 +1139,7 @@ a{color:var(--sea)}
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
     /* Where VSU news is heard first (D-119): official and student-run kept apart; no community page is named (D-044). */
-    channels: [["Official VSU pages or website", "web"], ["Group chats: class, org, dorm", "gchat"], ["In person: class or friends", "friends"], ["Student council or org pages", "page"], ["Unofficial groups, like freedom walls", "group"], ["Email or text message", "email"], ["Campus bulletin boards", "board"], ["Somewhere else", "other"]],
+    channels: [["Official VSU pages or website", "web"], ["Group chats: class, org, friends", "gchat"], ["In person: class or friends", "friends"], ["Student council or org pages", "page"], ["Unofficial groups, like freedom walls", "group"], ["Email or text message", "email"], ["Campus bulletin boards", "board"], ["Somewhere else", "other"]],
     groupChats: [["None", 0], ["1 to 5", 1], ["6 to 10", 2], ["11 to 20", 3], ["More than 20", 4]],
     officialHow: [["I get their notifications", "spark"], ["I check them myself", "eye"], ["Someone shares them with me", "people"], ["They usually don't reach me", "ban"]],
     checkPost: [["Checked VSU's official page or website", "seal"], ["Asked a friend or classmate", "people"], ["Asked in a group chat or group", "chat"], ["Asked an office or a teacher", "office"], ["Waited for more posts", "snail"], ["I didn't check", "ban"], ["Other", "other"]],
@@ -1162,8 +1163,8 @@ a{color:var(--sea)}
     school: [["Almost none", 0.05, "≈0"], ["About a quarter", 0.25, "¼"], ["About half", 0.5, "½"], ["About three quarters", 0.75, "¾"], ["Almost all", 0.95, "≈all"], ["Not sure", null, "?"]],
     validity: [["1 day", 1], ["3 days", 3], ["7 days", 7], ["15 days", 15], ["30 days", 30], ["It varies", 0]],
     untilExpiry: [["Yes, until it expires", "full"], ["No, it runs out early", "early"], ["It varies", "varies"]],
-    reload: [["Yes, right away", "now"], ["No, I wait until I can", "wait"], ["No, I get by on Wi-Fi or app data", "getby"], ["No, I connect to someone else's hotspot", "hotspot"]],
-    reloadWhy: [["Data for any site ran out, but app data remained", "globe"], ["App data ran out, but data for any site remained", "chat"], ["I needed it for schoolwork right away", "cap"], ["To stay in touch with family or friends", "people"], ["Other", "other"]],
+    reload: [["Yes, right away", "now"], ["Yes, but only when I can", "wait"], ["No, I get by on Wi-Fi or app data", "getby"], ["No, I connect to someone else's hotspot", "hotspot"]],
+    reloadWhy: [["I still had app data, but needed other sites", "globe"], ["I still had data for any site, but wanted more app data", "chat"], ["Schoolwork couldn't wait", "cap"], ["To stay in touch with family or friends", "people"], ["Other", "other"]],
     twoSims: [["To switch when one has weak signal", "signal"], ["My main SIM has weak signal on campus or where I stay", "pin"], ["One for data, one for calls and texts", "chat"], ["One for school, one for personal", "cap"], ["I pick each network's promo by need, like exam week", "tag"], ["No particular reason", "other"], ["Other", "other"]],
     signal: [["On campus and where I stay", 1, 1], ["On campus only", 1, 0], ["Where I stay only", 0, 1], ["Neither, or hardly ever", 0, 0]],
     onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["I usually can't", "none"]],
@@ -1186,7 +1187,7 @@ a{color:var(--sea)}
     ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear about it?", [LATE, NEVER]],
     ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear about it?", [LATE, NEVER, NO_LOOK]],
     ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear about it?", [LATE, NEVER, NO_LOOK]],
-    ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear about it?", [LATE, NEVER]]
+    ["firstAnnouncements", "When an org calls a meeting or announces something, where do you usually hear about it?", [LATE, NEVER]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
   var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
@@ -1198,7 +1199,7 @@ a{color:var(--sea)}
   var left = {};
   function gate(id, ok) { return ok || (A[stepById[id].key] === null && !left[id]); }
   /* The promo questions follow from one another (D-120): validity; then whether its data lasts; then, only if it runs out
-     early, whether they reload right away; then, only if they do, why. Skipping validity means no promo. */
+     early, whether they buy another promo on top of it; then, only if right away, why. Skipping validity means no promo. */
   function hasPromo() { return usesData() && gate("validity", A.validity !== null); }
   function runsEarly() { return hasPromo() && gate("untilExpiry", A.untilExpiry === EARLY); }
   function reloadsNow() { return runsEarly() && gate("reload", A.reload === RELOAD_NOW); }
@@ -1259,20 +1260,20 @@ a{color:var(--sea)}
   /* A part numbers its screens in the kicker ("Reaching VSU, 3 of 8"), counted from the screens the respondent will see. */
   function part(ch, name, items) {
     items.forEach(function (it) {
-      if (it.k) step({ id: "m-" + it.k, box: "m-" + it.k, ch: ch, part: name, kind: "moment", k: it.k, kicker: name, prompt: byKey[it.k].title, hint: it.hint || null, core: true });
+      if (it.k) step({ id: "m-" + it.k, box: "m-" + it.k, ch: ch, part: name, kind: "moment", k: it.k, kicker: byKey[it.k].title, prompt: byKey[it.k].title, hint: it.hint || null, core: true });
       else { it.ch = ch; it.part = name; it.kicker = LABEL[it.id] || name; step(it); }
     });
   }
   /* Each question carries a short label instead of a number, which follow-ups would change (D-125). A scene's title is its
-     label, so its kicker names the part. */
+     label, above its statement. */
   var LABEL = {
     home: "Where you wake up", transport: "Getting to class",
     year: "Year", faculty: "Faculty", org: "Student orgs", scholarship: "Scholarship", transferee: "Before VSU", firstGen: "First in your family",
-    networks: "Your networks", twoSims: "Two SIMs", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Does it last",
-    reload: "When it runs out", reloadWhy: "Why reload", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
+    networks: "Your networks", twoSims: "Two SIMs", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Data allocation",
+    reload: "Another promo", reloadWhy: "Why another promo", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
     onlineCampus: "Online on campus", onlineHome: "Online where you stay", wifiSpend: "Wi\u2011Fi in a month",
     firstClasses: "Class changes", firstSuspensions: "Suspensions and emergencies", firstDocuments: "Documents to submit", firstEvents: "Events",
-    firstScholarships: "Scholarships and jobs", firstAnnouncements: "Meetings and announcements", groupChats: "Your group chats",
+    firstScholarships: "Scholarships and jobs", firstAnnouncements: "Org announcements", groupChats: "Your group chats",
     officialHow: "VSU's official pages", checkPost: "Checking a post",
     scenario: "A new office", whichOffice: "Which office", visitsTook: "Visits it took", reachHow: "Reaching a teacher or staff", reachGot: "Did it work",
     missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it",
@@ -1309,13 +1310,13 @@ a{color:var(--sea)}
     { id: "load", box: "data", kind: "tiles", multi: true, exclusive: NO_LOAD, key: "load", cols: "t3", size: "short", prompt: "What kind of load do you usually use?", lede: "Pick all that apply, including load someone else buys for you.", core: true,
       opts: OPT.load.map(function (o) { return { v: o[0], art: function () { return TILE.loadKind(o[1]); } }; }) },
     { id: "loadApps", box: "data", kind: "chipsMulti", key: "loadApps", size: "bare", other: "loadAppsOther", otherPh: "Other: which app? (optional)", prompt: "Which apps does that data cover?", lede: "Pick all that apply.", when: function () { return A.load.indexOf(APP_DATA) >= 0; }, opts: OPT.apps },
-    { id: "validity", box: "data", kind: "tiles", key: "validity", cols: "t3", size: "short", prompt: "How long is your usual promo valid?", lede: "Skip this if you don't use promos.", core: true, when: usesData,
+    { id: "validity", box: "data", kind: "tiles", key: "validity", cols: "t3", size: "short", prompt: "What's the validity of your usual promo?", lede: "Skip this if you don't use promos.", core: true, when: usesData,
       opts: OPT.validity.map(function (o) { return { v: o[0], art: function () { return TILE.lasts(o[1]); } }; }) },
-    { id: "untilExpiry", box: "data", kind: "tiles", key: "untilExpiry", cols: "t3", size: "short", prompt: "Does its data usually last until it expires?", core: true, when: hasPromo,
+    { id: "untilExpiry", box: "data", kind: "tiles", key: "untilExpiry", cols: "t3", size: "short", prompt: "Does your promo's data allocation usually last until the promo expires?", lede: "Its data allocation is the data it comes with, like 1 GB or 3 GB.", core: true, when: hasPromo,
       opts: OPT.untilExpiry.map(function (o) { return { v: o[0], art: function () { return TILE.expiry(o[1]); } }; }) },
-    { id: "reload", box: "data", kind: "tiles", key: "reload", cols: "t4", size: "short", prompt: "When it runs out early, do you usually reload right away?", core: true, when: runsEarly,
+    { id: "reload", box: "data", kind: "tiles", key: "reload", cols: "t4", size: "short", prompt: "When your promo's data runs out early, do you usually buy another promo on top of it?", core: true, when: runsEarly,
       opts: OPT.reload.map(function (o) { return { v: o[0], art: function () { return TILE.reload(o[1]); } }; }) },
-    { id: "reloadWhy", box: "data", kind: "chipsMulti", key: "reloadWhy", size: "bare", other: "reloadWhyOther", otherPh: "Other: why? (optional)", prompt: "Why do you reload right away?", lede: "Pick all that apply.", core: true, opts: OPT.reloadWhy, when: reloadsNow },
+    { id: "reloadWhy", box: "data", kind: "chipsMulti", key: "reloadWhy", size: "bare", other: "reloadWhyOther", otherPh: "Other: why? (optional)", prompt: "Why do you buy another promo right away?", lede: "Pick all that apply.", core: true, opts: OPT.reloadWhy, when: reloadsNow },
     { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only. For a monthly promo or plan, count about a quarter.", core: true, when: buysLoad,
       opts: OPT.loadSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
     { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: usesData,
@@ -1333,9 +1334,9 @@ a{color:var(--sea)}
   /* Up to three channels per question, in the order they usually reach the respondent; the first is where they hear it first.
      Then two questions on habits, then the scenes, with a follow-up on checking a post after scene o. */
   part(4, "Hearing from campus", FIRSTS.map(function (f, i) {
-    return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " up to three, in the order you hear it.", spareLede: i > 0, core: true };
+    return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " where you hear it first. You can add a 2nd and 3rd.", spareLede: i > 0, core: true };
   }).concat([
-    { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many group chats for your classes, orgs, or dorm are you in?", core: true,
+    { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many group chats for classes, orgs, or friends are you in?", core: true,
       opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
     { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
     { k: "d", hint: "moment" }, { k: "o" },
@@ -1458,7 +1459,7 @@ a{color:var(--sea)}
     },
     moment: function (s) {
       var m = byKey[s.k];
-      return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(m.title) + '</h2><p class="statement">“' + esc(m.text) + "”</p>" +
+      return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="statement" id="h-' + s.id + '" tabindex="-1">“' + esc(m.text) + "”</h2>" +
         '<p class="q" id="q-often-' + m.k + '">Since the start of this semester, how often has this happened to you?</p><div class="chips" data-key="often:' + m.k + '" role="group" aria-labelledby="q-often-' + m.k + '">' +
         OPT.often.map(function (o, i) { return chipBtn(o[1], o[0], i); }).join("") + "</div>" +
         (m.k === "i" ? '<p class="note prefill" data-prefill="i" hidden>Picked for you, since you live at home and commute. Change it if it doesn\'t fit.</p>' : "") +
@@ -1578,7 +1579,7 @@ a{color:var(--sea)}
     /* Ranked picks show their place: 1 where heard first, then 2 and 3. */
     if (s.rank) $$('[data-part="pick"] [data-v]', p).forEach(function (b) {
       var i = A[s.key].indexOf(b.dataset.v);
-      if (i >= 0) { b.dataset.rank = String(i + 1); b.setAttribute("aria-label", b.dataset.v + ", picked " + (i + 1)); }
+      if (i >= 0) { b.dataset.rank = ["1st", "2nd", "3rd"][i]; b.setAttribute("aria-label", b.dataset.v + ", " + ["first", "second", "third"][i]); }
       else { delete b.dataset.rank; b.removeAttribute("aria-label"); }
     });
     $$("[data-other]", p).forEach(function (f) {

@@ -33,10 +33,24 @@ async function check(name, fn) {
   catch (e) { failed++; console.log("FAIL " + name + "\n     " + String((e && e.stack) || e).split("\n").slice(0, 4).join("\n     ")); }
 }
 
+/* On phones the drawing stays in view, and answers that don't fit scroll below it (D-125): the stage keeps at least 12% of the
+   screen where the part has one, and scrolling to the end brings the last answer above the bottom bar. Returns what fails. */
+const PHONE_FIT = `window.phoneFit = function (p, bottom) {
+  var box = p.closest(".box"), st = box.querySelector(".stage"), bad = [], has = st && !box.classList.contains("nostage");
+  if (has && getComputedStyle(st).display === "none") bad.push("drawing hidden");
+  else if (has && st.offsetHeight < innerHeight * 0.12) bad.push("drawing " + st.offsetHeight + "px");
+  p.scrollTop = p.scrollHeight;
+  var els = Array.from(p.querySelectorAll("[data-v], textarea, #send")).filter(function (e) { return e.offsetParent !== null; });
+  var last = els.reduce(function (m, e) { return Math.max(m, e.getBoundingClientRect().bottom); }, 0);
+  if (last > bottom + 1) bad.push("last answer " + Math.round(last - bottom) + "px under the bar");
+  p.scrollTop = 0;
+  return bad;
+};`;
 async function open(browser, o = {}) {
   const mobile = !!o.mobile;
   const ctx = await browser.newContext({ viewport: o.viewport || (mobile ? PHONE : DESKTOP), hasTouch: mobile, isMobile: mobile, reducedMotion: o.reduced ? "reduce" : "no-preference" });
   const page = await ctx.newPage();
+  await page.addInitScript(PHONE_FIT);
   const posts = [], errors = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
@@ -129,12 +143,12 @@ async function walkAll(page, shot) {
   assert.strictEqual(await page.locator(btn("validity", "Regular load, no promo")).count(), 0, "no promo means skipping the question");
   await page.click(btn("validity", "7 days"));
   await at(page, "untilExpiry", shot);
-  assert.strictEqual(await page.locator(inStep("untilExpiry", ".kicker")).textContent(), "Does it last");
+  assert.strictEqual(await page.locator(inStep("untilExpiry", ".kicker")).textContent(), "Data allocation");
   await page.click(btn("untilExpiry", "No, it runs out early"));
   await at(page, "reload", shot);
   await page.click(btn("reload", "Yes, right away"));
   await at(page, "reloadWhy", shot);
-  await page.click(btn("reloadWhy", "Data for any site ran out, but app data remained"));
+  await page.click(btn("reloadWhy", "I still had app data, but needed other sites"));
   await next(page);
   await at(page, "dataSpend", shot);
   await page.click(btn("dataSpend", "₱99 or ₱100"));
@@ -158,16 +172,16 @@ async function walkAll(page, shot) {
   await at(page, "firstClasses", shot);
   assert.strictEqual(await page.locator(inStep("firstClasses", ".kicker")).textContent(), "Class changes");
   const order = await page.locator(inStep("firstClasses", '[data-part="pick"] [data-v]')).evaluateAll(bs => bs.map(b => b.dataset.v));
-  assert.deepStrictEqual(order, ["Official VSU pages or website", "Group chats: class, org, dorm", "In person: class or friends", "Student council or org pages",
+  assert.deepStrictEqual(order, ["Official VSU pages or website", "Group chats: class, org, friends", "In person: class or friends", "Student council or org pages",
     "Unofficial groups, like freedom walls", "Email or text message", "Campus bulletin boards", "Somewhere else"], "the channels keep the owner's order");
-  await page.click(btn("firstClasses", "Group chats: class, org, dorm"));
+  await page.click(btn("firstClasses", "Group chats: class, org, friends"));
   await page.click(btn("firstClasses", "In person: class or friends"));
-  assert.strictEqual(await page.locator(btn("firstClasses", "In person: class or friends")).getAttribute("data-rank"), "2", "the second pick shows 2");
+  assert.strictEqual(await page.locator(btn("firstClasses", "In person: class or friends")).getAttribute("data-rank"), "2nd", "the second pick shows 2nd");
   await next(page);
   await at(page, "firstSuspensions", shot);
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 8, "every channel is offered");
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".none-row .chip")).count(), 2, "suspensions offer too late and never, apart");
-  await page.click(btn("firstSuspensions", "Group chats: class, org, dorm"));
+  await page.click(btn("firstSuspensions", "Group chats: class, org, friends"));
   await page.click(btn("firstSuspensions", "Official VSU pages or website"));
   await next(page);
   await at(page, "firstDocuments", shot);
@@ -194,7 +208,7 @@ async function walkAll(page, shot) {
   await page.click(btn("checkPost", "Asked a friend or classmate"));
   await next(page);
   for (const k of ["f", "g", "k"]) await scene(page, k, shot);
-  assert.strictEqual(await page.locator(inStep("m-k", ".kicker")).textContent(), "Hearing from campus", "a scene's kicker names its part");
+  assert.strictEqual(await page.locator(inStep("m-k", ".kicker")).textContent(), "Work and OJT", "a scene's title is its label");
   // Reaching out
   await at(page, "scenario", shot);
   assert.strictEqual(await page.locator(inStep("scenario", ".kicker")).textContent(), "A new office");
@@ -300,8 +314,8 @@ function rowOf(r) {
       assert.strictEqual(r.wifiSpend, "₱200 to ₱499");
       assert.strictEqual(r.faculty, "Faculty of Engineering");
       assert.strictEqual(r.firstGen, "Yes");
-      assert.deepStrictEqual(r.firstClasses, ["Group chats: class, org, dorm", "In person: class or friends"]);
-      assert.deepStrictEqual(r.firstSuspensions, ["Group chats: class, org, dorm", "Official VSU pages or website"], "picks keep their order");
+      assert.deepStrictEqual(r.firstClasses, ["Group chats: class, org, friends", "In person: class or friends"]);
+      assert.deepStrictEqual(r.firstSuspensions, ["Group chats: class, org, friends", "Official VSU pages or website"], "picks keep their order");
       assert.deepStrictEqual(r.firstDocuments, ["Official VSU pages or website"]);
       assert.deepStrictEqual(r.firstAnnouncements, ["Student council or org pages"]);
       assert.deepStrictEqual(r.firstEvents, ["Unofficial groups, like freedom walls"]);
@@ -327,8 +341,8 @@ function rowOf(r) {
       assert.strictEqual(r.validity, "7 days");
       assert.strictEqual(r.untilExpiry, "No, it runs out early");
       assert.strictEqual(r.reload, "Yes, right away");
-      assert.deepStrictEqual(r.reloadWhy, ["Data for any site ran out, but app data remained"]);
-      assert.strictEqual(rowOf(r)["reloadWhy: Data for any site ran out, but app data remained"], true);
+      assert.deepStrictEqual(r.reloadWhy, ["I still had app data, but needed other sites"]);
+      assert.strictEqual(rowOf(r)["reloadWhy: I still had app data, but needed other sites"], true);
       assert.ok(!("dataRunsOut" in r), "running out is asked by the promo questions");
       assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "I pick each network's promo by need, like exam week"]);
       assert.strictEqual(r.dataSchool, "About half");
@@ -653,7 +667,7 @@ function rowOf(r) {
   }
 
   for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 664 }, { width: 412, height: 720 }, { width: 1366, height: 768 }]) {
-    await check("from home to the pass, every answer is in view without scrolling at " + vp.width + "x" + vp.height, async () => {
+    await check("from home to the pass, " + (vp.width < 700 ? "the drawing stays in view and every answer can be scrolled to" : "every answer is in view without scrolling") + " at " + vp.width + "x" + vp.height, async () => {
       const mobile = vp.width < 700;
       const t = await open(browser, { viewport: vp, mobile, reduced: true });
       await t.page.click("#start");
@@ -668,16 +682,17 @@ function rowOf(r) {
           const p = document.querySelector('[data-step="' + id + '"]'), pr = p.getBoundingClientRect();
           const n = document.getElementById("next").getBoundingClientRect();
           const bottom = mobile ? Math.min(innerHeight - 84, n.top) : Math.min(pr.bottom, innerHeight);
+          if (mobile) return window.phoneFit(p, bottom);
           return Array.from(p.querySelectorAll("[data-v]")).filter(e => { const b = e.getBoundingClientRect(); return b.bottom > bottom + 1 || b.top < pr.top - 1; }).map(e => e.dataset.v);
         }, { id, mobile });
-        assert.deepStrictEqual(hidden, [], id + ": answers below the fold");
+        assert.deepStrictEqual(hidden, [], id + ": " + (mobile ? "drawing or reach" : "answers below the fold"));
       }
       await t.ctx.close();
     });
   }
 
   for (const vp of [{ width: 360, height: 640 }, { width: 390, height: 664 }, { width: 412, height: 720 }, { width: 390, height: 844 }, { width: 1366, height: 768 }]) {
-    await check("from the news to Send, every answer is in view without scrolling at " + vp.width + "x" + vp.height, async () => {
+    await check("from the news to Send, " + (vp.width < 700 ? "the drawing stays in view and every answer can be scrolled to" : "every answer is in view without scrolling") + " at " + vp.width + "x" + vp.height, async () => {
       const mobile = vp.width < 700;
       const t = await open(browser, { viewport: vp, mobile, reduced: true });
       await t.page.click("#start");
@@ -689,13 +704,14 @@ function rowOf(r) {
         const p = document.querySelector('[data-step="' + id + '"]'), pr = p.getBoundingClientRect();
         const n = document.getElementById("next"), nr = n.getBoundingClientRect();
         const bottom = mobile ? Math.min(innerHeight - 84, n.hidden ? innerHeight : nr.top) : Math.min(pr.bottom, innerHeight);
+        if (mobile) return window.phoneFit(p, bottom);
         return Array.from(p.querySelectorAll("[data-v], textarea, #send")).filter(e => e.offsetParent !== null && true).filter(e => { const b = e.getBoundingClientRect(); return b.bottom > bottom + 1 || b.top < pr.top - 1; }).map(e => e.dataset.v || e.id);
       };
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
       await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; a.networks = ["Smart", "DITO"]; a.validity = "7 days"; a.untilExpiry = "No, it runs out early"; a.reload = "Yes, right away";
         a.board.o = { often: "Several times", matters: null }; a.scenario = "Walked over and asked around"; a.reachHow = "Email"; a.concern = ["Kept it to myself"];
-        a.firstClasses = ["Unofficial groups, like freedom walls", "Group chats: class, org, dorm", "Campus bulletin boards"]; });
+        a.firstClasses = ["Unofficial groups, like freedom walls", "Group chats: class, org, friends", "Campus bulletin boards"]; });
       const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "validity", "untilExpiry", "reload", "reloadWhy", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "groupChats", "officialHow", "checkPost", "scenario", "whichOffice", "visitsTook", "reachHow", "reachGot", "missClass", "concern", "whyQuiet", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
@@ -705,7 +721,7 @@ function rowOf(r) {
           await t.page.click(inStep(id, '[data-key^="often"] .chip:nth-child(' + (scenes.indexOf(id) < 9 ? 2 : 1) + ")"));
           await t.page.evaluate(x => window.__survey.go(x), id);
         }
-        assert.deepStrictEqual(await t.page.evaluate(fold, { id, mobile }), [], id + ": answers below the fold");
+        assert.deepStrictEqual(await t.page.evaluate(fold, { id, mobile }), [], id + ": " + (mobile ? "drawing or reach" : "answers below the fold"));
       }
       if (mobile) assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Send", "Send is in the bottom bar");
       await t.ctx.close();
@@ -837,11 +853,11 @@ function rowOf(r) {
     // Ranking the channels
     await t.page.evaluate(() => window.__survey.go("firstClasses"));
     await at(t.page, "firstClasses");
-    for (const c of ["Email or text message", "Group chats: class, org, dorm", "Campus bulletin boards", "In person: class or friends"]) await t.page.click(btn("firstClasses", c));
-    assert.deepStrictEqual((await ans()).firstClasses, ["Email or text message", "Group chats: class, org, dorm", "Campus bulletin boards"], "at most three, in the order picked");
+    for (const c of ["Email or text message", "Group chats: class, org, friends", "Campus bulletin boards", "In person: class or friends"]) await t.page.click(btn("firstClasses", c));
+    assert.deepStrictEqual((await ans()).firstClasses, ["Email or text message", "Group chats: class, org, friends", "Campus bulletin boards"], "at most three, in the order picked");
     await t.page.click(btn("firstClasses", "Email or text message"));
-    assert.deepStrictEqual((await ans()).firstClasses, ["Group chats: class, org, dorm", "Campus bulletin boards"], "taking one back moves the rest up");
-    assert.strictEqual(await t.page.locator(btn("firstClasses", "Group chats: class, org, dorm")).getAttribute("data-rank"), "1");
+    assert.deepStrictEqual((await ans()).firstClasses, ["Group chats: class, org, friends", "Campus bulletin boards"], "taking one back moves the rest up");
+    assert.strictEqual(await t.page.locator(btn("firstClasses", "Group chats: class, org, friends")).getAttribute("data-rank"), "1st");
     assert.strictEqual(await t.page.locator(btn("firstClasses", "Email or text message")).getAttribute("data-rank"), null);
     await t.page.click(btn("firstClasses", "I don't hear about it"));
     assert.deepStrictEqual((await ans()).firstClasses, ["I don't hear about it"], "I don't hear about it stands alone");
@@ -940,7 +956,7 @@ function rowOf(r) {
     assert.strictEqual(await t.page.locator(btn("reload", "No, I connect to someone else's hotspot")).count(), 1, "someone else's hotspot is offered");
     await t.page.click(btn("reload", "Yes, right away"));
     await at(t.page, "reloadWhy");
-    await t.page.click(btn("reloadWhy", "App data ran out, but data for any site remained"));
+    await t.page.click(btn("reloadWhy", "I still had data for any site, but wanted more app data"));
     await t.page.evaluate(() => window.__survey.go("reload"));
     await at(t.page, "reload");
     await t.page.click(btn("reload", "No, I connect to someone else's hotspot"));
