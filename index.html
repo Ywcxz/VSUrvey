@@ -54,7 +54,6 @@ button,a,input,textarea{touch-action:manipulation}
 @media (max-width:699px) and (max-height:700px){ .box[data-box="news"] .prompt{font-size:19px} }
 @media (max-width:699px) and (max-height:660px){ .box[data-box="news"] .prompt{font-size:17.5px;line-height:1.12;max-width:none} }
 /* The story screen keeps its privacy line; on the shortest phones its drawing gives up the room. */
-@media (max-width:699px) and (max-height:660px){ .box[data-box="story"][data-size="short"]{--stage-h:13vh} }
 .chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dots{display:flex;gap:4px;align-items:center;flex:none}
 .dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
@@ -102,6 +101,8 @@ button,a,input,textarea{touch-action:manipulation}
 @keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .agree.nudge-me{box-shadow:0 0 0 4px rgba(242,179,61,.6)}
 .kicker{font:650 13.5px/1.2 var(--display);color:var(--ink-soft);margin:0 0 6px}
+.kicker .fu{display:inline-block;margin:0 7px 0 0;padding:2px 8px;border-radius:999px;background:var(--mango);color:#13261D;font:750 11.5px/1.35 var(--display);vertical-align:1px}
+.because{font-size:13.5px;line-height:1.3;color:var(--ink-soft);margin:0 0 8px;padding:1px 0 1px 10px;border-left:3px solid var(--mango)}
 .prompt{font:700 clamp(21px,5.6vw,27px)/1.12 var(--display);font-variation-settings:"opsz" 48;letter-spacing:-.012em;margin:0 0 6px;max-width:30ch}
 .prompt:focus{outline:none}
 .prompt:focus-visible{outline:3px solid var(--mango);outline-offset:4px;border-radius:6px}
@@ -395,7 +396,7 @@ a{color:var(--sea)}
 .purse b{font:750 18px/1 var(--display)}
 .coinfly{position:fixed;z-index:9;pointer-events:none;margin:-8px 0 0 -8px}
 .jars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (min-width:700px){ .jars{grid-template-columns:repeat(5,minmax(0,1fr))} }
+
 .jarbox{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px 10px;border-radius:18px;background:var(--tile);color:var(--tile-ink);border:2px solid transparent;cursor:pointer;text-align:center;transition:transform .12s,border-color .2s,background .2s}
 .jarbox:active{transform:scale(.96)}
 .jarbox.has{border-color:var(--mango);background:var(--pick)}
@@ -405,13 +406,24 @@ a{color:var(--sea)}
 @keyframes coinIn{from{transform:translateY(-46px)}to{transform:none}}
 .jarbox .ic{position:absolute;top:8px;left:8px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff}
 .jarbox .ic svg{width:15px;height:15px}
-.jarbox .lbl{font-size:13px;line-height:1.2;min-height:2.4em}
+.jarbox .lbl{font-size:13px;line-height:1.2;min-height:2.4em;text-align:center}
+.jarbox .lbl small{display:block;margin-top:3px;font-size:11px;line-height:1.2;color:var(--ink-soft);font-weight:500}
 .jarbox .n{font:750 14px/1 var(--display)}
 .jarhit{position:absolute;inset:0;width:100%;border:0;border-radius:inherit;background:transparent;cursor:pointer;z-index:1}
 .jarhit[disabled]{cursor:not-allowed}
 .jarbox .minus{z-index:2;position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--edge);background:var(--card);color:var(--ink);font:700 18px/1 var(--body);cursor:pointer;display:grid;place-items:center}
 .jarbox .minus[disabled]{visibility:hidden}
-
+/* On computers the 15 jars sit in rows, three across, so all of them fit beside the purse. */
+@media (min-width:700px){
+  .box[data-box="coins"] .panel-in{max-width:900px}
+  .jarbox{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;min-height:58px;padding:8px 44px 8px 10px;border-radius:14px;text-align:left}
+  .jar{order:3;flex:none;width:24px;height:34px;border-width:2px;border-top-width:3px;border-radius:5px 5px 9px 9px;padding:2px 0}
+  .jar i{width:16px;height:3px}
+  .jarbox .ic{position:static;flex:none;width:26px;height:26px}
+  .jarbox .lbl{order:2;flex:1;text-align:left;min-height:0}
+  .jarbox .n{order:4;min-width:1.2em;text-align:center}
+  .jarbox .minus{top:50%;margin-top:-14px;right:8px;width:28px;height:28px}
+}
 /* ---------- Story, trust, network ---------- */
 .panelpic{position:relative;width:100%;max-width:520px;border-radius:18px;overflow:hidden;background:#FFFFFF;color:#13261D;border:3px solid #13261D}
 .panelpic svg{display:block;width:100%;height:auto}
@@ -483,14 +495,15 @@ a{color:var(--sea)}
   .mbox .chips{gap:6px}
   .mbox .chip{padding:7px 13px;min-height:40px;font-size:15px}
   /* Phones: fifteen jars as two columns of short rows: icon, name, a small jar, and a minus to take a coin back. */
-  .jars{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .jars{grid-template-columns:1fr;gap:5px}
   .jarbox{flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;min-height:38px;padding:4px 30px 4px 5px;border-radius:12px;text-align:left}
   .jar{flex:none;order:3;width:16px;height:22px;border-width:1.5px;border-top-width:2.5px;border-radius:4px 4px 7px 7px;padding:1px 0;gap:1px}
   .jar i{width:10px;height:2px}
   .jarbox .ic{position:static;flex:none;width:20px;height:20px;border-radius:6px}
   .jarbox .ic svg{width:13px;height:13px}
-  .jarbox .lbl{order:2;flex:1;font-size:11.5px;line-height:1.15;min-height:0}
-  .jarbox .n{display:none}
+  .jarbox .lbl{order:2;flex:1;font-size:13px;line-height:1.15;min-height:0;text-align:left}
+  .jarbox .lbl small{display:inline;margin:0 0 0 6px}
+  .jarbox .n{order:4;font-size:12px;min-width:1em;text-align:center}
   .jarbox .minus{top:50%;right:4px;width:22px;height:22px;margin-top:-11px;font-size:14px}
   .purse{position:sticky;top:-20px;z-index:3;background:var(--card);margin:0 -18px 8px;padding:6px 18px}
   .purse .coinstack i{width:13px;height:13px}
@@ -573,6 +586,9 @@ a{color:var(--sea)}
 
   /* ---------- Icons (24 x 24, stroked) ---------- */
   var ICON = {
+    storm: '<path d="M7 15a4 4 0 0 1 .4-8A5 5 0 0 1 17 8.5 3.3 3.3 0 0 1 17 15Z"/><path d="M12.5 15l-2 3.5h3l-2 3"/>',
+    shield: '<path d="M12 3.5 19 6.5v5c0 4.5-3 7.5-7 9.5-4-2-7-5-7-9.5v-5Z"/><path d="M9 12l2 2 4-4"/>',
+    heart: '<path d="M12 19.5s-7-4.3-7-9.6A3.9 3.9 0 0 1 12 7.6a3.9 3.9 0 0 1 7 2.3c0 5.3-7 9.6-7 9.6Z"/>',
     dorm: '<rect x="5" y="3.5" width="14" height="17.5" rx="1.5"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M10 21v-4h4v4"/>',
     house: '<path d="M3.5 11 12 4l8.5 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/>',
     jeep: '<path d="M2.5 15V9h12.5l3 3h3.5v3"/><path d="M2.5 15h19"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5.5 9V6.5h8V9"/>',
@@ -849,7 +865,7 @@ a{color:var(--sea)}
   var V1_MOMENTS = [
     { k: "a", icon: "office", title: "Finding an office", bg: "#2C8C99", ink: "light", short: "Finding the right office", text: "I needed several visits or messages to find the right office or person.",
       props: '<rect x="118" y="70" width="36" height="106" rx="3" fill="#F7FBF8"/><rect x="126" y="94" width="20" height="82" rx="2" fill="#13261D"/><rect x="206" y="70" width="36" height="106" rx="3" fill="#F7FBF8"/><rect x="214" y="94" width="20" height="82" rx="2" fill="#D9483B"/><rect x="177" y="56" width="6" height="120" fill="#13261D"/><g><path d="M183 64h40l8 8-8 8h-40z" fill="#F2B33D"/><path d="M177 90h-40l-8 8 8 8h40z" fill="#F7FBF8"/><path d="M183 116h34l8 8-8 8h-34z" fill="#9ED1DB"/><animateTransform attributeName="transform" type="rotate" values="-2 180 98;2 180 98;-2 180 98" dur="5s" repeatCount="indefinite"/></g>' },
-    { k: "b", icon: "bubble", title: "Answers in the group chat", bg: "#E9A93A", ink: "dark", short: "Wrong answers from other students", text: "Other students gave me an answer about a school process that turned out wrong.",
+    { k: "b", icon: "bubble", title: "Answers in the group chat", bg: "#E9A93A", ink: "dark", short: "Unsure answers from other students", text: "Other students answered my question about a school process, and I couldn't tell if the answer was right.",
       props: '<rect x="138" y="30" width="84" height="146" rx="14" fill="#13261D"/><rect x="144" y="42" width="72" height="122" rx="8" fill="#F7FBF8"/><g><rect x="150" y="52" width="46" height="18" rx="9" fill="#9ED1DB"/><rect x="164" y="78" width="46" height="18" rx="9" fill="#F2B33D"/><rect x="150" y="104" width="40" height="18" rx="9" fill="#9ED1DB"/><rect x="168" y="130" width="42" height="18" rx="9" fill="#F2B33D"/><text x="160" y="117" font-size="12" font-weight="800" fill="#13261D" font-family="sans-serif">?</text><animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="3s" repeatCount="indefinite"/></g>' },
     { k: "c", icon: "door", title: "Reaching faculty or staff", bg: "#7A5BA6", ink: "light", short: "Reaching faculty or staff", text: "I wanted to reach a faculty or staff member outside class and couldn't easily.",
       props: '<rect x="138" y="64" width="84" height="112" rx="4" fill="#F7FBF8"/><rect x="148" y="76" width="64" height="100" rx="3" fill="#1F7A8C"/><circle cx="202" cy="128" r="3.5" fill="#F2B33D"/><rect x="158" y="86" width="44" height="12" rx="3" fill="#F7FBF8"/><g transform="translate(180 40)"><circle r="17" fill="#F7FBF8" stroke="#13261D" stroke-width="3"/><path d="M0 0H7" stroke="#13261D" stroke-width="3" stroke-linecap="round"/><path d="M0 0V-11" stroke="#13261D" stroke-width="3" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="8s" repeatCount="indefinite"/></path></g>' },
@@ -901,8 +917,6 @@ a{color:var(--sea)}
   /* Drawings carried over from scenes-v1. */
   var HOME_V1 = "<svg class=\"stage\" viewBox=\"0 0 360 200\" aria-hidden=\"true\">\n      <rect width=\"360\" height=\"200\" rx=\"22\" fill=\"rgba(255,255,255,.24)\"/>\n      <path d=\"M0 168H360V178a22 22 0 0 1-22 22H22A22 22 0 0 1 0 178Z\" fill=\"rgba(0,0,0,.12)\"/>\n      <path d=\"M40 168h280\" stroke=\"rgba(19,38,29,.25)\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/>\n      <g class=\"v v-dorm\" id=\"v-dorm\"><rect x=\"138\" y=\"44\" width=\"84\" height=\"124\" rx=\"3\" fill=\"#F7FBF8\"/><rect x=\"138\" y=\"44\" width=\"84\" height=\"12\" fill=\"#1F7A8C\"/>\n        <g fill=\"#9ED1DB\"><rect x=\"150\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"172\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"150\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"172\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"150\" y=\"114\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"114\" width=\"16\" height=\"14\"/></g>\n        <rect x=\"170\" y=\"138\" width=\"20\" height=\"30\" fill=\"#13261D\"/></g>\n      <g class=\"v v-house\" id=\"v-house\"><path d=\"M128 98 L180 60 L232 98 Z\" fill=\"#D9483B\"/><rect x=\"136\" y=\"98\" width=\"88\" height=\"70\" fill=\"#F7FBF8\"/>\n        <rect x=\"146\" y=\"108\" width=\"22\" height=\"18\" fill=\"#9ED1DB\"/><rect x=\"192\" y=\"108\" width=\"22\" height=\"18\" fill=\"#9ED1DB\"/><rect x=\"170\" y=\"134\" width=\"20\" height=\"34\" fill=\"#7A5E44\"/>\n        <rect x=\"150\" y=\"80\" width=\"60\" height=\"14\" rx=\"3\" fill=\"#F2B33D\"/><text x=\"180\" y=\"91\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#13261D\" font-family=\"sans-serif\">Bedspace</text>\n        <path d=\"M232 112 H286\" stroke=\"#4A5E53\" stroke-width=\"1.2\"/><rect x=\"240\" y=\"112\" width=\"12\" height=\"16\" fill=\"#1F7A8C\"/><rect x=\"258\" y=\"112\" width=\"10\" height=\"12\" fill=\"#D9483B\"/><rect x=\"272\" y=\"112\" width=\"10\" height=\"14\" fill=\"#F7FBF8\"/></g>\n      <g class=\"v v-jeep\" id=\"v-jeep\"><path d=\"M70 168 V140 L92 124 L114 140 V168 Z\" fill=\"#F7FBF8\"/><rect x=\"86\" y=\"148\" width=\"12\" height=\"20\" fill=\"#7A5E44\"/>\n        <g class=\"jeep\"><path d=\"M156 162 V136 H236 L250 148 H262 V162 Z\" fill=\"#D9483B\"/><path d=\"M156 136 H236\" stroke=\"#F2B33D\" stroke-width=\"4\"/><g fill=\"#9ED1DB\"><rect x=\"164\" y=\"142\" width=\"16\" height=\"10\"/><rect x=\"186\" y=\"142\" width=\"16\" height=\"10\"/><rect x=\"208\" y=\"142\" width=\"16\" height=\"10\"/></g><circle cx=\"176\" cy=\"164\" r=\"8\" fill=\"#13261D\"/><circle cx=\"240\" cy=\"164\" r=\"8\" fill=\"#13261D\"/><circle cx=\"176\" cy=\"164\" r=\"3\" fill=\"#C9C2B3\"/><circle cx=\"240\" cy=\"164\" r=\"3\" fill=\"#C9C2B3\"/></g></g>\n      <g class=\"v v-other\" id=\"v-other\"><rect x=\"176\" y=\"80\" width=\"8\" height=\"88\" fill=\"#7A5E44\"/><rect x=\"146\" y=\"62\" width=\"68\" height=\"40\" rx=\"8\" fill=\"#F7FBF8\"/><text x=\"180\" y=\"91\" text-anchor=\"middle\" font-size=\"26\" font-weight=\"800\" fill=\"#1F7A8C\" font-family=\"sans-serif\">?</text></g>\n    </svg>";
   var MAP_V1 = "<svg id=\"map\" viewBox=\"0 0 320 250\" role=\"img\" aria-label=\"Sketch map: Mt. Pangasugan, upper campus, lower campus with the dorms and the VSU market, the highway, and the sea\">\n          <rect class=\"m-land\" width=\"320\" height=\"250\"/>\n          <path class=\"m-hill\" d=\"M0 0H320V24C270 32 230 16 180 22C130 28 90 12 40 20C24 23 10 22 0 20Z\"/>\n          <text class=\"m-lbl\" x=\"214\" y=\"14\">Mt. Pangasugan</text>\n          <rect class=\"m-zone\" x=\"16\" y=\"32\" width=\"288\" height=\"82\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"52\">Upper campus</text>\n          <path class=\"m-road\" d=\"M160 114 C148 124 174 134 160 146\"/>\n          <rect class=\"m-zone\" x=\"16\" y=\"146\" width=\"288\" height=\"68\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"166\">Lower campus</text>\n          <g class=\"m-poi\" transform=\"translate(84 180)\"><path d=\"M-9 8V-4L0-10 9-4V8Z\"/><path d=\"M-3 8V2h6v6\"/></g>\n          <text class=\"m-lbl\" x=\"84\" y=\"204\" text-anchor=\"middle\">Dorms</text>\n          <g class=\"m-poi\" transform=\"translate(224 180)\"><path d=\"M-11-4H11L8-10H-8Z\"/><path d=\"M-9-4V8M9-4V8M-11 8H11\"/></g>\n          <text class=\"m-lbl\" x=\"224\" y=\"204\" text-anchor=\"middle\">VSU market</text>\n          <rect class=\"m-roadfill\" x=\"0\" y=\"220\" width=\"320\" height=\"16\"/>\n          <path class=\"m-dash\" d=\"M0 228H320\" stroke-dasharray=\"8 7\"/>\n          <text class=\"m-lbl\" x=\"314\" y=\"216\" text-anchor=\"end\">Highway</text>\n          <rect class=\"m-sea\" x=\"0\" y=\"236\" width=\"320\" height=\"14\"/>\n          <text class=\"m-lbl\" x=\"8\" y=\"247\">Sea</text>\n          <g id=\"map-pins\"></g>\n        </svg>";
-  var STORY_V1 = "<svg viewBox=\"0 0 360 150\" aria-hidden=\"true\"><rect width=\"360\" height=\"150\" fill=\"#9ED1DB\"/><path d=\"M0 112 C60 100 120 106 180 102 C240 98 300 104 360 100 V150 H0 Z\" fill=\"#5E8C4A\"/><path d=\"M200 102 C230 70 260 56 300 50 C330 46 350 60 360 70 V102Z\" fill=\"#1E4D3A\" opacity=\".7\"/><rect x=\"40\" y=\"84\" width=\"40\" height=\"22\" fill=\"#F7FBF8\"/><path d=\"M36 86 L60 72 L84 86Z\" fill=\"#D9483B\"/><rect x=\"250\" y=\"80\" width=\"34\" height=\"24\" fill=\"#F7FBF8\"/></svg>";
-  var BRIDGE_V1 = "<svg class=\"stage bridge\" id=\"bridge\" viewBox=\"0 0 360 170\" aria-hidden=\"true\">\n      <rect width=\"360\" height=\"170\" rx=\"22\" fill=\"rgba(255,255,255,.18)\"/>\n      <path d=\"M0 110 H78 L70 170 H0 Z\" fill=\"#1E4D3A\"/><path d=\"M360 110 H282 L290 170 H360 Z\" fill=\"#1E4D3A\"/>\n      <text class=\"cap\" x=\"38\" y=\"102\" text-anchor=\"middle\">Your question</text><text class=\"cap\" x=\"322\" y=\"102\" text-anchor=\"middle\">Their answer</text>\n      <path class=\"rope\" d=\"M78 92 Q180 128 282 92\" fill=\"none\" stroke=\"#F7FBF8\" stroke-width=\"2.5\"/>\n      <g id=\"planks\"><rect class=\"plank\" x=\"84\" y=\"110\" width=\"34\" height=\"9\" rx=\"2\" fill=\"#F2B33D\"/><rect class=\"plank\" x=\"122\" y=\"114\" width=\"36\" height=\"9\" rx=\"2\" fill=\"#F2B33D\"/><rect class=\"plank\" x=\"162\" y=\"116\" width=\"36\" height=\"9\" rx=\"2\" fill=\"#F2B33D\"/><rect class=\"plank\" x=\"202\" y=\"114\" width=\"36\" height=\"9\" rx=\"2\" fill=\"#F2B33D\"/><rect class=\"plank\" x=\"242\" y=\"110\" width=\"34\" height=\"9\" rx=\"2\" fill=\"#F2B33D\"/></g>\n      <path class=\"rope\" d=\"M78 110 Q180 132 282 110\" fill=\"none\" stroke=\"#F7FBF8\" stroke-width=\"2\"/>\n    </svg>";
 
   /* ---------- Stages: one drawing per place on the walk ---------- */
   var FRAME = '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.2)"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>';
@@ -1000,8 +1014,6 @@ a{color:var(--sea)}
 
   /* The campus map, as in v1, drawn bigger. */
   function mapStage() { return '<div class="mapwrap noswipe">' + MAP_V1.replace('<svg id="map"', '<svg id="map" preserveAspectRatio="xMidYMid meet"') + "</div>"; }
-  function storyStage() { return '<div class="panelpic">' + STORY_V1 + '<div class="caption empty" id="caption">Your story appears here as you type.</div><span class="stamp" id="stamp">May quote</span></div>'; }
-  function trustStage() { return BRIDGE_V1.replace('class="stage bridge"', 'class="scene bridge"').replace('viewBox="0 0 360 170"', 'viewBox="0 0 360 170" preserveAspectRatio="xMidYMid meet"'); }
 
   /* Hearing from VSU: a phone lighting up beside a notice board. */
   function newsStage() {
@@ -1040,6 +1052,16 @@ a{color:var(--sea)}
       '<g transform="translate(70 8)"><circle r="10" fill="#D9483B" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g></g>');
   }
   /* Reaching VSU: an office window, a bell, and a note waiting for an answer. */
+  /* Daily life: a boarding house, a food stall, and a phone with something for sale. */
+  function dailyStage() {
+    return stageSvg(FRAME +
+      '<g><path d="M30 92 L76 60 L122 92 V170 H30Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M22 96 L76 56 L130 96" fill="none" stroke="#D9483B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<rect x="42" y="106" width="20" height="18" fill="#9ED1DB" stroke="#13261D" stroke-width="1.5"/><rect x="90" y="106" width="20" height="18" fill="#9ED1DB" stroke="#13261D" stroke-width="1.5"/><rect x="66" y="132" width="20" height="38" fill="#7A5E44" stroke="#13261D" stroke-width="1.5"/><rect x="38" y="134" width="24" height="12" rx="2" fill="#F2B33D" stroke="#13261D" stroke-width="1.2"/></g>' +
+      '<g><rect x="150" y="104" width="86" height="66" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M142 104h102l-8-26h-86Z" fill="#F2B33D" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M162 78l-4 26M184 78v26M206 78l4 26" stroke="#13261D" stroke-width="1.5"/>' +
+      '<rect x="150" y="122" width="86" height="10" fill="#A0704F" stroke="#13261D" stroke-width="1.5"/><circle cx="170" cy="117" r="7" fill="#E4705A" stroke="#13261D" stroke-width="1.2"/><circle cx="190" cy="117" r="7" fill="#8FB97D" stroke="#13261D" stroke-width="1.2"/><circle cx="210" cy="117" r="7" fill="#F2B33D" stroke="#13261D" stroke-width="1.2"/></g>' +
+      '<g><rect x="262" y="70" width="52" height="96" rx="9" fill="#13261D"/><rect x="267" y="80" width="42" height="76" rx="4" fill="#F7FBF8"/><rect x="273" y="88" width="30" height="20" rx="3" fill="#9ED1DB"/><path d="M273 116h30M273 124h22" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/><path d="M276 132h16l6 6-6 6h-16Z" fill="#D9483B"/><circle cx="281" cy="138" r="1.8" fill="#FFFFFF"/></g>' +
+      '<g><path d="M318 128h28l-4 42h-20Z" fill="#E9C27D" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M326 128v-6a6 6 0 0 1 12 0v6" fill="none" stroke="#13261D" stroke-width="2"/></g>');
+  }
   function errandStage() {
     return stageSvg(FRAME +
       '<g><rect x="70" y="26" width="220" height="140" rx="8" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="70" y="26" width="220" height="26" rx="8" fill="#1F7A8C" stroke="#13261D" stroke-width="2"/><rect x="146" y="34" width="68" height="10" rx="5" fill="#F7FBF8" opacity=".85"/>' +
@@ -1065,6 +1087,7 @@ a{color:var(--sea)}
       '<g class="mode" data-mode="none"><circle cx="146" cy="66" r="15" fill="#DCE5DF"/><text x="146" y="72" text-anchor="middle" font-size="16" font-weight="800" fill="#4A5E53" font-family="sans-serif">?</text></g>' +
       '<g class="mode" data-mode="Yes"><circle cx="146" cy="66" r="15" fill="#7A5BA6"/><path d="M133 63c4-3 22-3 26 0-1 5-5 7-7 7-2 0-3-2-6-2s-4 2-6 2c-2 0-6-2-7-7Z" fill="#13261D"/></g>' +
       '<g class="mode" data-mode="No"><circle cx="146" cy="66" r="15" fill="#A0704F"/><path d="M134 62c1-11 23-11 24 0-5-4-19-4-24 0Z" fill="#1B1B22"/><circle cx="141" cy="68" r="1.6" fill="#13261D"/><circle cx="151" cy="68" r="1.6" fill="#13261D"/></g>' +
+      '<g class="mode" data-mode="nick"><circle cx="146" cy="66" r="15" fill="#F2B33D"/><text x="146" y="71" text-anchor="middle" font-size="12" font-weight="800" fill="#13261D" font-family="sans-serif">Aa</text></g>' +
       '<g class="mode" data-mode="Prefer not to say"><circle cx="146" cy="66" r="15" fill="#C9C2B3"/><rect x="128" y="60" width="36" height="12" rx="6" fill="#F7FBF8" opacity=".85"/></g>' +
       '<rect x="168" y="58" width="58" height="8" rx="4" fill="#13261D"/><rect x="168" y="70" width="40" height="6" rx="3" fill="#C9C2B3"/>' +
       '<rect x="132" y="94" width="96" height="8" rx="4" fill="#DCE5DF"/><rect x="132" y="108" width="80" height="8" rx="4" fill="#DCE5DF"/><rect x="132" y="122" width="88" height="8" rx="4" fill="#DCE5DF"/>' +
@@ -1124,7 +1147,7 @@ a{color:var(--sea)}
     whichOffice: null, visitsTook: null, missClass: null, whyQuiet: [], whyQuietOther: "",
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
     board: {}, coins: {},
-    story: "", mayQuote: false, trust: null, postedAnonymously: null,
+    concernHeard: null, fbPosting: [], whereFound: null, lunch: null, cantGoOut: [], buySell: [],
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
   };
@@ -1146,10 +1169,16 @@ a{color:var(--sea)}
     office: [["Registrar or records", "folder"], ["Cashier or accounting", "coin"], ["My college or department office", "cap"], ["Student affairs or services", "people"], ["Scholarships or financial aid", "star"], ["Library, clinic, or another service", "office"], ["Not sure", "other"]],
     visits: [["Just one", 1], ["Two or three", 3], ["Four or more", 5], ["It still isn't done", 0]],
     missClass: [["Yes, more than once", "stack"], ["Yes, once", "calendar"], ["No", "cap"], ["I haven't had an errand", "other"]],
+    heard: [["Yes, and it was fixed", "spark"], ["Yes, but it wasn't fixed", "ban"], ["It's still being looked into", "snail"], ["No, I never heard back", "mail"]],
+    fbPosting: [["Yes, under my real name", "people"], ["Yes, under a nickname", "tag"], ["Yes, anonymously", "mask"], ["No, I only read", "eye"], ["No, I'm not in any", "other"]],
+    whereFound: [["Word of mouth: friends, family, or seniors", "people"], ["A Facebook group or post", "group"], ["A sign or tarpaulin outside", "flagpage"], ["Walking around and asking", "walk"], ["Applied for a VSU dorm", "dorm"], ["Family arranged it", "house"], ["Other", "other"]],
+    lunch: [["A canteen on campus", "basket"], ["Eateries near campus", "tag"], ["Food I bring", "house"], ["Someone buys it for me", "people"], ["I often skip it", "ban"]],
+    cantGoOut: [["Ask a friend or classmate to buy it", "people"], ["Use a pasabuy or delivery", "jeep"], ["Wait until I can go", "calendar"], ["Go without", "ban"], ["It doesn't happen to me", "other"]],
+    buySell: [["Facebook groups or Marketplace", "group"], ["Group chats", "chat"], ["In person on campus", "walk"], ["Online shops", "tag"], ["I don't buy or sell with VSU people", "ban"]],
     whyQuiet: [["I didn't know where to raise it", "search"], ["I didn't think it would change anything", "ban"], ["I worried about the consequences", "mask"], ["It would take too much time or effort", "snail"], ["Someone else had already raised it", "people"], ["Other", "other"]],
     reachHow: [["Went in person", "walk"], ["Messenger or another chat app", "message"], ["Text or call", "call"], ["Email", "email"], ["Commented or posted on a page", "page"], ["Asked someone to pass it on", "friends"], ["It hasn't happened", "nothappened"]],
     reachGot: [["Yes, the same day", "sameday"], ["Yes, but it took days", "days"], ["Only partly", "partly"], ["No, I got no answer", "none"]],
-    concern: [["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["Kept it to myself", "ban"], ["It hasn't happened", "other"]],
+    concern: [["Kept it to myself", "ban"], ["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["It hasn't happened", "other"]],
     askFirst: [["A group chat", "gchat"], ["An unofficial student group or freedom wall", "group"], ["A classmate or senior, in person", "friends"], ["A teacher or adviser", "teacher"], ["Searched online", "search"], ["I didn't ask anyone", "noask"], ["It hasn't happened", "nothappened"]],
     works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
     /* Weekly load. The common promo prices get answers of their own (₱49 or ₱50, ₱99 or ₱100), so a ₱99 and a ₱100 promo land together. */
@@ -1191,6 +1220,11 @@ a{color:var(--sea)}
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
   var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
+  var ONLY_READ = "No, I only read", NOT_IN = "No, I'm not in any", NOT_TO_ME = "It doesn't happen to me", NO_TRADE = "I don't buy or sell with VSU people";
+  /* A concern raised with someone who could act on it, or posted online, brings "Did you learn what happened to it?" (D-126). */
+  var NOT_RAISED = [KEPT, "Only talked about it with friends", "It hasn't happened"];
+  function raised(x) { return NOT_RAISED.indexOf(x) < 0; }
+  function raisedIt() { return A.concern.some(raised); }
   /* Which office it was, and how many visits it took, follow the new-office question when it happened. */
   function newOffice() { return A.scenario !== null && A.scenario !== NOT_ME; }
   var EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
@@ -1229,9 +1263,9 @@ a{color:var(--sea)}
   var NOT_SAID = "Prefer not to say", FAMILY_HOME = "My family's home, and I commute";
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
-  /* The 15 scenes: v1's 13, less organization handovers (h), plus finding an old answer (P-10), telling official from not (P-06), and a concern that went nowhere (P-23).
-     Ordered by part (D-119): hearing from VSU, reaching VSU, students and alumni, campus life. In Hearing from VSU the four
-     channel questions come first, then the scenes; elsewhere a scene follows the question it goes with. Letters stay. */
+  /* The 14 scenes: v1's 13, less organization handovers (h), plus finding an old answer (P-10) and telling official from not (P-06).
+     A concern that went nowhere (p, P-23) became a follow-up question in Reaching out (D-126). Ordered by part (D-119), and in
+     each part after the questions with answer options. Letters stay. */
   var MOMENTS = (function () {
     var by = {};
     V1_MOMENTS.forEach(function (m) { by[m.k] = m; });
@@ -1244,17 +1278,13 @@ a{color:var(--sea)}
         '<g><rect x="136" y="58" width="40" height="56" fill="#F7FBF8"/><rect x="141" y="64" width="30" height="4" rx="2" fill="#13261D"/><rect x="141" y="72" width="26" height="3" rx="1.5" fill="#C9C2B3"/><rect x="141" y="78" width="28" height="3" rx="1.5" fill="#C9C2B3"/><circle cx="160" cy="100" r="8" fill="none" stroke="#D9483B" stroke-width="2.5"/><path d="M156 100.5l3 3 5-6" fill="none" stroke="#D9483B" stroke-width="2"/></g>' +
         '<g><rect x="184" y="58" width="40" height="56" fill="#F7FBF8"/><rect x="189" y="64" width="30" height="4" rx="2" fill="#13261D"/><rect x="189" y="72" width="26" height="3" rx="1.5" fill="#C9C2B3"/><rect x="189" y="78" width="28" height="3" rx="1.5" fill="#C9C2B3"/><circle cx="208" cy="100" r="8" fill="none" stroke="#D9483B" stroke-width="2.5" stroke-dasharray="3 3"/></g>' +
         '<g><circle cx="180" cy="34" r="15" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><text x="180" y="41" text-anchor="middle" font-size="19" font-weight="800" fill="#B4527C" font-family="sans-serif">?</text><animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="2.2s" repeatCount="indefinite"/></g>' };
-    by.p = { k: "p", icon: "megaphone", title: "A concern that went nowhere", bg: "#4F6D8F", ink: "light", short: "Never heard back on a concern", text: "I raised a concern with an office or the university and never learned what happened to it.",
-      props: '<rect x="134" y="104" width="92" height="74" rx="7" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><rect x="156" y="112" width="48" height="6" rx="3" fill="#13261D"/><rect x="152" y="132" width="56" height="26" rx="4" fill="#E9C27D" stroke="#13261D" stroke-width="1.5"/><path d="M160 141h40M160 149h28" stroke="#7A5E44" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<g><rect x="166" y="40" width="28" height="36" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.6"/><path d="M171 49h18M171 56h14M171 63h16" stroke="#C9C2B3" stroke-width="2.4" stroke-linecap="round"/><animateTransform attributeName="transform" type="translate" values="0 0;0 34;0 34;0 0" keyTimes="0;.45;.8;1" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.4;.5;.95;1" dur="3.6s" repeatCount="indefinite"/></g>' +
-        '<g><path d="M236 46h44a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8h-26l-12 10v-10h-6a8 8 0 0 1-8-8V54a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><g fill="#4F6D8F"><circle cx="246" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="258" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".25s" repeatCount="indefinite"/></circle><circle cx="270" cy="64" r="3.5"><animate attributeName="opacity" values=".25;1;.25" dur="1.5s" begin=".5s" repeatCount="indefinite"/></circle></g></g>' };
-    return ["d", "o", "f", "g", "k", "a", "e", "c", "p", "b", "n", "l", "i", "j", "m"].map(function (k) { return by[k]; });
+    return ["d", "o", "f", "g", "k", "a", "c", "b", "n", "e", "l", "i", "j", "m"].map(function (k) { return by[k]; });
   })();
   var byKey = {};
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
 
   /* ---------- The walk: chapters and steps ---------- */
-  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from campus", "Reaching out", "Students and alumni", "Campus life", "Coins", "Your story", "Network idea", "Send"];
+  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from campus", "Reaching out", "Students and alumni", "Daily life", "Coins", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
   /* A part numbers its screens in the kicker ("Reaching VSU, 3 of 8"), counted from the screens the respondent will see. */
@@ -1276,9 +1306,31 @@ a{color:var(--sea)}
     firstScholarships: "Scholarships and jobs", firstAnnouncements: "Org announcements", groupChats: "Your group chats",
     officialHow: "VSU's official pages", checkPost: "Checking a post",
     scenario: "A new office", whichOffice: "Which office", visitsTook: "Visits it took", reachHow: "Reaching a teacher or staff", reachGot: "Did it work",
-    missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it",
-    askFirst: "Asking first", trust: "Trusting an answer", postedAnonymously: "Posting anonymously"
+    missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it", concernHeard: "Hearing back",
+    askFirst: "Asking first", fbPosting: "Posting in unofficial Facebook groups",
+    whereFound: "Finding where you stay", lunch: "Lunch on a class day", cantGoOut: "When you can't go out", buySell: "Buying and selling"
   };
+  /* Follow-ups say so, and which answer brought them (D-126): the step they follow, and the answers to name. */
+  var FU = {
+    twoSims: ["networks", function () { return A.networks; }],
+    loadApps: ["load", function () { return [APP_DATA]; }],
+    untilExpiry: ["validity", function () { return [A.validity]; }],
+    reload: ["untilExpiry", function () { return [EARLY]; }],
+    reloadWhy: ["reload", function () { return [RELOAD_NOW]; }],
+    wifiSpend: ["onlineHome", function () { return A.onlineHome.indexOf("Wi-Fi where I stay") >= 0 ? ["Wi-Fi where I stay"] : []; }],
+    checkPost: ["m-o", function () { var a = A.board.o, o = a && OPT.often.filter(function (x) { return x[0] === a.often; })[0]; return o ? [o[1]] : []; }],
+    whichOffice: ["scenario", function () { return [A.scenario]; }],
+    visitsTook: ["scenario", function () { return [A.scenario]; }],
+    reachGot: ["reachHow", function () { return [A.reachHow]; }],
+    whyQuiet: ["concern", function () { return [KEPT]; }],
+    concernHeard: ["concern", function () { return A.concern.filter(raised).slice(0, 2); }],
+    whereFound: ["home", function () { return [A.residence]; }]
+  };
+  function becauseOf(s) {
+    var f = FU[s.id], parent = stepById[f[0]], name = parent.kind === "moment" ? byKey[parent.k].title : LABEL[parent.id];
+    var picks = f[1]().filter(Boolean).map(function (x) { return "\u201C" + x.replace("Wi-Fi", "Wi\u2011Fi") + "\u201D"; });
+    return picks.length ? "Because you picked " + picks.join(" and ") + " in " + name + "." : "Follows " + name + ".";
+  }
   function kickerOf(s) { return s.kicker; }
   function stamps() { return OPT.yesno.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }); }
   function yesNo() { return stamps().slice(0, 2); }
@@ -1352,31 +1404,35 @@ a{color:var(--sea)}
     { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
     { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
     { id: "missClass", box: "errand", kind: "chipsOne", key: "missClass", size: "bare", prompt: "Since the start of this semester, has an errand at an office made you miss a class?", core: true, opts: OPT.missClass },
-    { k: "a" }, { k: "e" }, { k: "c" },
-    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, "Kept it to myself"], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, KEPT], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
     { id: "whyQuiet", box: "errand", kind: "chipsMulti", key: "whyQuiet", size: "bare", other: "whyQuietOther", otherPh: "Other: why? (optional)", prompt: "Why did you keep it to yourself?", lede: "Pick all that apply.", core: true, opts: OPT.whyQuiet, when: function () { return A.concern.indexOf(KEPT) >= 0; } },
-    { k: "p" }
+    { id: "concernHeard", box: "errand", kind: "chipsOne", key: "concernHeard", size: "bare", prompt: "Did you learn what happened to it?", core: true, opts: OPT.heard, when: raisedIt },
+    { k: "a" }, { k: "c" }
   ]);
   part(6, "Students and alumni", [
     { id: "askFirst", box: "peers", kind: "vigs", key: "askFirst", size: "tight", prompt: "The last time you had a question about a subject or a school process, where did you ask first?", core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { k: "b" }, { k: "n" },
-    { id: "trust", box: "trust", kind: "scale", key: "trust", prompt: "A classmate answers your clearance question in a student group. How far would you trust it?", core: true },
-    { id: "postedAnonymously", box: "anon", kind: "tiles", key: "postedAnonymously", cols: "t3", prompt: "Have you ever posted a question or concern about VSU anonymously?", core: true, opts: stamps() },
-    { k: "l" }
+    { id: "fbPosting", box: "anon", kind: "chipsMulti", key: "fbPosting", exclusive: [ONLY_READ, NOT_IN], size: "bare", prompt: "Have you posted a question or concern about VSU in an unofficial Facebook group?", lede: "Pick all that apply.", core: true, opts: OPT.fbPosting },
+    { k: "b" }, { k: "n" }, { k: "e" }, { k: "l" }
   ]);
-  part(7, "Campus life", [{ k: "i" }, { k: "j" }, { k: "m" }]);
+  /* Daily life (was Campus life): questions with answer options on housing, food, and buying and selling, then their scenes. */
+  part(7, "Daily life", [
+    { id: "whereFound", box: "daily", kind: "chipsOne", key: "whereFound", size: "bare", prompt: "How did you find the place where you stay now?", core: true, opts: OPT.whereFound, when: function () { return A.residence !== null && A.residence !== FAMILY_HOME; } },
+    { id: "lunch", box: "daily", kind: "chipsOne", key: "lunch", size: "bare", prompt: "On a class day, where do you usually get lunch?", core: true, opts: OPT.lunch },
+    { id: "cantGoOut", box: "daily", kind: "chipsMulti", key: "cantGoOut", exclusive: NOT_TO_ME, size: "bare", prompt: "When you need food or supplies but can't go out, what do you usually do?", lede: "Pick all that apply.", core: true, opts: OPT.cantGoOut },
+    { id: "buySell", box: "daily", kind: "chipsMulti", key: "buySell", exclusive: NO_TRADE, size: "bare", prompt: "Where do you buy or sell things with other VSU people?", lede: "Pick all that apply.", core: true, opts: OPT.buySell },
+    { k: "i" }, { k: "j" }, { k: "m" }
+  ]);
   /* The campus map is left out until it is reworked; its drawing and code stay for that. */
-  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
-  step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray. Leave out names and details that could identify anyone." });
-  step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
-  step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+  step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus issues should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
+  step({ id: "worksWell", box: "net", ch: 9, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
+  step({ id: "wouldUse", box: "net", ch: 9, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "postPreference", box: "net", ch: 9, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "wantBack", box: "net", ch: 10, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
+  step({ id: "wantBack", box: "net", ch: 9, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
     opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
-  step({ id: "keepAway", box: "net", ch: 10, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
-  step({ id: "send", box: "send", ch: 11, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
-  step({ id: "final", box: "final", ch: 11, kind: "final", noMenu: true, when: function () { return sent; } });
+  step({ id: "keepAway", box: "net", ch: 9, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "send", box: "send", ch: 10, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
+  step({ id: "final", box: "final", ch: 10, kind: "final", noMenu: true, when: function () { return sent; } });
 
   var stepById = {};
   STEPS.forEach(function (s) { stepById[s.id] = s; });
@@ -1399,7 +1455,6 @@ a{color:var(--sea)}
       case "tiles": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "map": return !!A.pins && A.pins.length > 0;
       case "coins": return spent() > 0;
-      case "story": return A.story.trim().length > 0;
       case "send": return sent;
       default: return A[s.key] !== null && A[s.key] !== undefined;
     }
@@ -1407,7 +1462,7 @@ a{color:var(--sea)}
 
   /* ---------- Panels ---------- */
   function head(s) {
-    return (s.kicker ? '<p class="kicker">' + esc(s.kicker) + "</p>" : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
+    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" + (FU[s.id] ? '<p class="because"></p>' : "") : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
   function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
@@ -1427,7 +1482,7 @@ a{color:var(--sea)}
         '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
         '<div class="how">' + icon("tap") + "<span>" + (calm() ? TAP + " an answer, then Next. Use the arrows to go back or skip." : TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
         (/^https:\/\//.test(FORM_URL) ? '<p class="note">Prefer a plain form? <a href="' + esc(FORM_URL) + '" target="_blank" rel="noopener">Answer in Google Forms instead</a>. Please answer only once.</p>' : "") +
-        '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">This might take 5\u201310 minutes.</span></div>';
+        '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">This might take 20\u201325 minutes.</span></div>';
     },
     consent: function () {
       return '<p class="kicker">At the gate</p><h2 class="sr" id="h-consent" tabindex="-1">Before you go in</h2><ul class="consent-list">' +
@@ -1473,11 +1528,7 @@ a{color:var(--sea)}
         '<p class="q" id="area-q">Or add a pin by area</p><div class="pinpick" data-key="area" role="group" aria-labelledby="area-q">' + AREAS.map(function (a, i) { return '<button type="button" class="chip" data-v="' + i + '">' + esc(a.n) + "</button>"; }).join("") + "</div></div>";
     },
     coins: function (s) {
-      return head(s) + '<div class="answers"><div class="purse"><span class="coinstack" id="purse" aria-hidden="true"></span><b id="coins-left" aria-live="polite">10 coins left</b></div><div class="jars" id="jars"></div></div>';
-    },
-    story: function (s) {
-      return head(s) + '<div class="answers"><textarea class="field" id="story" maxlength="5000" placeholder="Start wherever it started…" aria-labelledby="h-story"></textarea>' +
-        '<button type="button" class="toggle" data-key="mayQuote" data-v="yes" aria-pressed="false"><span class="box2">' + icon("check") + "</span><span>You may quote short parts of this, without my name.</span></button></div>";
+      return head(s) + '<div class="answers"><div class="purse"><span class="coinstack" id="purse" aria-hidden="true"></span><b id="coins-left" aria-live="polite">' + COINS + ' coins left</b></div><div class="jars" id="jars"></div></div>';
     },
     scale: function (s) {
       var words = ["", "1, not at all", "2, a little", "3, somewhat", "4, mostly", "5, completely"];
@@ -1490,8 +1541,8 @@ a{color:var(--sea)}
     send: function (s) {
       return head(s) + '<p class="lede">Built from your answers. Check them, add a note if you like, then send.</p>' +
         '<div class="strip noswipe" id="strip"></div>' +
-        '<p class="q" id="q-comment">Anything you\'d like to tell the researcher? (optional)</p>' +
-        '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="q-comment" placeholder="A question, a worry, or anything we missed"></textarea>' +
+        '<p class="q" id="q-comment">Anything we missed? (optional)</p>' +
+        '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="q-comment" placeholder="A campus problem we didn\'t ask about, or anything else for the researcher. Leave out names and details that could identify anyone."></textarea>' +
         '<p class="note">Please don\'t include your name. If you\'d like a reply, text Leo at <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a> instead.</p>" +
         '<p class="skipped" id="skipped"></p>' +
         '<div class="sendrow"><button type="button" class="btn" id="send">Send my answers</button></div><p class="note" id="send-note" aria-live="polite"></p>';
@@ -1516,10 +1567,9 @@ a{color:var(--sea)}
     data: { bg: "#2F6DB5", ink: "light", stage: dataStage },
     errand: { bg: "#E4705A", ink: "dark", cls: "talls", stage: errandStage },
     peers: { bg: "#5E8C4A", ink: "light", cls: "talls", stage: peersStage },
+    daily: { bg: "#2C8C99", ink: "light", stage: dailyStage },
     map: { bg: "#CFE6C8", ink: "dark", stage: mapStage },
     coins: { bg: "#E9A93A", ink: "dark", cls: "nostage" },
-    story: { bg: "#E4705A", ink: "dark", stage: storyStage },
-    trust: { bg: "#2C8C99", ink: "light", stage: trustStage },
     anon: { bg: "#4C5BA8", ink: "light", stage: anonStage },
     net: { bg: "#2E6B3A", ink: "light", stage: netStage },
     send: { bg: "#13261D", ink: "light", cls: "nostage" },
@@ -1559,8 +1609,6 @@ a{color:var(--sea)}
     if (key.indexOf("often:") === 0) { a = A.board[key.slice(6)]; return !!a && a.often === v; }
     if (key.indexOf("matters:") === 0) { a = A.board[key.slice(8)]; return !!a && a.matters === v; }
     if (key === "consent") return A.consent;
-    if (key === "mayQuote") return A.mayQuote;
-    if (key === "trust") return A.trust === Number(v);
     if (key === "why") { var p = A.pins[activePin]; return !!p && p.why === v; }
     if (key === "area") return false;
     var cur = A[key];
@@ -1608,10 +1656,6 @@ a{color:var(--sea)}
       turnedOn = A.consent;
       if (A.consent && !A.startedAt) A.startedAt = new Date().toISOString();
       gateReact();
-    } else if (key === "mayQuote") {
-      A.mayQuote = !A.mayQuote;
-      turnedOn = A.mayQuote;
-      $("#stamp").classList.toggle("on", A.mayQuote);
     } else if (key === "why") {
       var pin = A.pins[activePin];
       if (pin) { pin.why = pin.why === v ? null : v; turnedOn = pin.why !== null; }
@@ -1635,6 +1679,7 @@ a{color:var(--sea)}
       if (key === "onlineHome" && !paysWifi()) A.wifiSpend = null;
       if (key === "networks" && A.networks.length < 2) { A.twoSims.length = 0; A.twoSimsOther = ""; }
       if (key === "concern" && A.concern.indexOf(KEPT) < 0) { A.whyQuiet.length = 0; A.whyQuietOther = ""; }
+      if (key === "concern" && !raisedIt()) A.concernHeard = null;
       if (key === "networks" || key === "load") {
         if (!buysLoad()) A.dataSpend = null;
         if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; }
@@ -1646,6 +1691,7 @@ a{color:var(--sea)}
       turnedOn = A[key] !== null;
       if (key === "reachHow" && (A.reachHow === null || A.reachHow === NOT_YET)) A.reachGot = null;
       if (key === "scenario" && !newOffice()) { A.whichOffice = null; A.visitsTook = null; }
+      if (key === "residence" && (A.residence === null || A.residence === FAMILY_HOME)) A.whereFound = null;
       clearPromoChain();
     }
     return turnedOn;
@@ -1668,13 +1714,6 @@ a{color:var(--sea)}
   view.addEventListener("input", function (e) {
     var t = e.target;
     if (t.dataset.other) { A[t.dataset.other] = t.value.slice(0, 120); return; }
-    if (t.id === "story") {
-      A.story = t.value;
-      var cap = $("#caption"), txt = t.value.trim();
-      cap.textContent = txt ? (txt.length > 180 ? txt.slice(0, 180) + "…" : txt) : "Your story appears here as you type.";
-      cap.classList.toggle("empty", !txt);
-      updateNav();
-    }
     if (t.id === "comment") A.comment = t.value;
   });
 
@@ -1684,12 +1723,13 @@ a{color:var(--sea)}
     if (s.box === "home") homeReact();
     else if (s.box === "pass") passReact(key);
     else if (s.box === "data") dataReact();
-    else if (s.box === "trust") trustReact();
-    else if (s.box === "anon") modes($(".scene", box), A.postedAnonymously || "none");
+    else if (s.box === "anon") modes($(".scene", box), postMode());
     else if (s.box === "net") netReact();
     else if (s.box === "map") syncMap();
     void box;
   }
+  /* The poster's face: a real face, a nickname, a mask, or a question mark; the last pick shows. */
+  function postMode() { var last = A.fbPosting[A.fbPosting.length - 1]; return { "Yes, under my real name": "No", "Yes, under a nickname": "nick", "Yes, anonymously": "Yes" }[last] || "none"; }
   function modes(scope, mode) { $$(".mode", scope).forEach(function (g) { g.classList.toggle("on", g.dataset.mode === mode); }); }
 
   /* Gate: the guard lets you in once you tick the box. */
@@ -1870,29 +1910,46 @@ a{color:var(--sea)}
   })();
 
   /* Coins: tap a jar and a coin flies into it. */
-  /* Every problem has a jar, whether or not it happened to the respondent. */
-  var JAR_NAME = { d: "Missed notices", o: "Official or not", f: "Late for events", g: "Missed scholarships", k: "Work and OJT leads", a: "Finding the right office", e: "Process guides",
-    c: "Reaching teachers", p: "Unanswered concerns", b: "Wrong answers", n: "Lost answers", l: "Reaching seniors", i: "Housing", j: "Scams", m: "Food and supplies" };
-  function eligibleJars() { return MOMENTS.map(function (m) { return m.k; }); }
+  /* The jars are kinds of campus issues as students see them, including ones outside CAMPUS's scope, so the results show where
+     CAMPUS's problems rank among everything students care about (D-126). More coins than jars, so priorities can stack up. */
+  var COINS = 25;
+  var JARS = [
+    ["online", "Getting online", "Wi\u2011Fi and mobile data", "wifi", "#2F6DB5"],
+    ["news", "News on time", "Announcements and notices", "megaphone", "#7A5BA6"],
+    ["offices", "Offices and paperwork", "Enrollment, clearance, documents", "office", "#E4705A"],
+    ["teachers", "Reaching teachers", "And staff, outside class", "door", "#B4527C"],
+    ["guides", "Clear guides", "How to do things, answers you can trust", "guide", "#4C5BA8"],
+    ["aid", "Scholarships and jobs", "Aid, part-time work, OJT", "star", "#1F7A8C"],
+    ["heard", "Being heard", "Concerns that get a response", "bubble", "#4F6D8F"],
+    ["housing", "Housing", "Dorms, boarding houses, boardmates", "house", "#2C8C99"],
+    ["food", "Food and supplies", "Getting what you need", "basket", "#6A9A57"],
+    ["market", "Buying and selling", "Safe deals between VSU people", "tag", "#D9483B"],
+    ["around", "Getting around", "Transport to and around campus", "jeep", "#B7791F"],
+    ["rooms", "Classrooms and labs", "Rooms, equipment, study spaces", "board", "#3F8F7A"],
+    ["storms", "Storms and emergencies", "Typhoons, floods, outages", "storm", "#5B6B7A"],
+    ["safety", "Safety and security", "On campus and where you stay", "shield", "#8A4F7D"],
+    ["health", "Health and wellbeing", "Clinic and counseling", "heart", "#C0504D"]
+  ];
+  var jarById = {};
+  JARS.forEach(function (j) { jarById[j[0]] = j; });
   function renderJars(fresh) {
-    var keys = eligibleJars();
-    Object.keys(A.coins).forEach(function (k) { if (keys.indexOf(k) < 0) delete A.coins[k]; });
-    var left = 10 - spent();
+    Object.keys(A.coins).forEach(function (k) { if (!jarById[k]) delete A.coins[k]; });
+    var left = COINS - spent();
     $("#coins-left").textContent = left === 1 ? "1 coin left" : left + " coins left";
     $("#purse").innerHTML = new Array(left + 1).join("<i></i>");
-    $("#jars").innerHTML = keys.map(function (k, i) {
-      var m = byKey[k], n = A.coins[k] || 0, coins = "";
+    $("#jars").innerHTML = JARS.map(function (m, i) {
+      var k = m[0], n = A.coins[k] || 0, coins = "";
       for (var j = 0; j < n; j++) coins += "<i" + (fresh === k && j === n - 1 ? ' class="fresh"' : "") + "></i>";
       return '<div class="jarbox' + (n ? " has" : "") + '" style="--i:' + i + '">' +
-        '<button type="button" class="jarhit" data-key="coin" data-v="' + k + '" aria-label="Drop a coin in: ' + esc(m.short) + (n ? ". It has " + n + (n === 1 ? " coin" : " coins") : "") + '"' + (left ? "" : " disabled") + "></button>" +
-        '<span class="ic" style="background:' + m.bg + ";color:" + (m.ink === "light" ? "#FFFFFF" : "#13261D") + '" aria-hidden="true">' + icon(m.icon) + "</span>" +
-        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(JAR_NAME[k] || m.short) + "</span>" +
-        '<button type="button" class="minus" data-key="coinminus" data-v="' + k + '" aria-label="Take a coin back from ' + esc(m.short) + '"' + (n ? "" : " disabled") + ">−</button></div>";
+        '<button type="button" class="jarhit" data-key="coin" data-v="' + k + '" aria-label="Drop a coin in: ' + esc(m[1] + ", " + m[2]) + (n ? ". It has " + n + (n === 1 ? " coin" : " coins") : "") + '"' + (left ? "" : " disabled") + "></button>" +
+        '<span class="ic" style="background:' + m[4] + ';color:#FFFFFF" aria-hidden="true">' + icon(m[3]) + "</span>" +
+        '<span class="jar" aria-hidden="true">' + coins + '</span><span class="n" aria-hidden="true">' + n + '</span><span class="lbl" aria-hidden="true">' + esc(m[1]) + '<small>' + esc(m[2]) + "</small></span>" +
+        '<button type="button" class="minus" data-key="coinminus" data-v="' + k + '" aria-label="Take a coin back from ' + esc(m[1]) + '"' + (n ? "" : " disabled") + ">\u2212</button></div>";
     }).join("");
   }
   function coin(k, d, btn) {
     var n = A.coins[k] || 0;
-    if (d > 0 && spent() >= 10) return false;
+    if (d > 0 && spent() >= COINS) return false;
     var next = Math.max(0, n + d);
     var from = $("#purse"), fromRect = from.lastElementChild ? from.lastElementChild.getBoundingClientRect() : from.getBoundingClientRect();
     if (next) A.coins[k] = next; else delete A.coins[k];
@@ -1915,12 +1972,6 @@ a{color:var(--sea)}
     return d > 0;
   }
 
-  /* Trust: the bridge builds one plank per point. */
-  function trustReact() {
-    var t = A.trust || 0, svg = $(".scene", boxEls.trust);
-    $$(".plank", svg).forEach(function (p, i) { p.classList.toggle("on", i < t); });
-    svg.classList.toggle("sturdy", t >= 4);
-  }
 
   /* The network: what draws you fills the phone; how you'd post; what keeps you away rings it. */
   function netReact() {
@@ -1948,7 +1999,7 @@ a{color:var(--sea)}
   /* ---------- Entering a step ---------- */
   function enter(s) {
     var box = boxEls[s.box];
-    if (s.part) { var kk = $(".kicker", panelEls[s.id]); if (kk) kk.textContent = kickerOf(s); }
+    if (FU[s.id]) { var bc = $(".because", panelEls[s.id]); if (bc) bc.textContent = becauseOf(s); }
     if (s.box === "gate") gateReact();
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
@@ -1965,8 +2016,7 @@ a{color:var(--sea)}
     if (s.kind === "moment") syncMoment(s.k, null);
     if (s.box === "map") renderPins(false);
     if (s.box === "coins") renderJars(null);
-    if (s.box === "trust") trustReact();
-    if (s.box === "anon") modes($(".scene", box), A.postedAnonymously || "none");
+    if (s.box === "anon") modes($(".scene", box), postMode());
     if (s.box === "net") netReact();
     if (s.box === "send") buildSend();
     if (s.box === "final") buildFinal();
@@ -2295,8 +2345,8 @@ a{color:var(--sea)}
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped")),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
-      cell("coin", "#C98A16", "Fix first", top ? byKey[top].short : "No coins spent"),
-      cell("bubble", "#2C8C99", "Trust in group answers", A.trust ? A.trust + " of 5" : "Skipped"),
+      cell("coin", "#C98A16", "Fix first", top ? jarById[top][1] : "No coins spent"),
+      cell("bubble", "#2C8C99", "Posting in unofficial groups", A.fbPosting.join(", ") || "Skipped"),
       cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
     ];
     $("#strip").innerHTML = cells.join("");

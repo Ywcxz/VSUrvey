@@ -35,16 +35,21 @@
 var SHEET_NAME = "Responses v3";
 var VARIANT = "scenes";
 var VERSION_PREFIX = "scenes-v3";
-var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p"];  // h (organization handovers) left in scenes-v3
+var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o"];  // h left in scenes-v3; p became a question (concernHeard)
 var FIRSTS = ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements"];  // each ranked up to three
 var OFFICIAL_HOW = ["I get their notifications", "I check them myself", "Someone shares them with me", "They usually don't reach me"];
 var CHECK_POST = ["Checked VSU's official page or website", "Asked a friend or classmate", "Asked in a group chat or group", "Asked an office or a teacher",
   "Waited for more posts", "I didn't check", "Other"];
 var WHY_QUIET = ["I didn't know where to raise it", "I didn't think it would change anything", "I worried about the consequences",
   "It would take too much time or effort", "Someone else had already raised it", "Other"];
-var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
+var JARS = ["online", "news", "offices", "teachers", "guides", "aid", "heard", "housing", "food", "market", "around", "rooms", "storms", "safety", "health"];  // 25 coins
+var HEARD = ["Yes, and it was fixed", "Yes, but it wasn't fixed", "It's still being looked into", "No, I never heard back"];
+var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
+var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
+var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "Online shops", "I don't buy or sell with VSU people"];
+var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
-  "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
+  "Only talked about it with friends", "It hasn't happened"];
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
@@ -101,16 +106,19 @@ function headers_() {
   h.push("scenario", "whichOffice", "visitsTook", "reachHow", "reachGot", "missClass");
   multiHeaders_(h, "concern", CONCERN);
   multiHeaders_(h, "whyQuiet", WHY_QUIET);
-  h.push("askFirst");
+  h.push("concernHeard", "askFirst");
+  multiHeaders_(h, "fbPosting", FB_POSTING);
+  h.push("whereFound", "lunch");
+  multiHeaders_(h, "cantGoOut", CANT_GO_OUT);
+  multiHeaders_(h, "buySell", BUY_SELL);
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
   h.push("i prefilled");
-  MOMENTS.forEach(function (k) { h.push(k + " coins"); });
-  h.push("trust", "postedAnonymously");
+  JARS.forEach(function (k) { h.push("coins: " + k); });
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
   h.push("postPreference", "wantBack");
   multiHeaders_(h, "away", AWAY);
-  h.push("story", "mayQuote", "comment", "raw");
+  h.push("comment", "raw");
   return h;
 }
 
@@ -164,16 +172,19 @@ function row_(r, now) {
   row.push(cell_(r.scenario), cell_(r.whichOffice), cell_(r.visitsTook), cell_(r.reachHow), cell_(r.reachGot), cell_(r.missClass));
   multiCells_(row, r.concern, CONCERN, "");
   multiCells_(row, r.whyQuiet, WHY_QUIET, r.whyQuietOther);
-  row.push(cell_(r.askFirst));
+  row.push(cell_(r.concernHeard), cell_(r.askFirst));
+  multiCells_(row, r.fbPosting, FB_POSTING, "");
+  row.push(cell_(r.whereFound), cell_(r.lunch));
+  multiCells_(row, r.cantGoOut, CANT_GO_OUT, "");
+  multiCells_(row, r.buySell, BUY_SELL, "");
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
   row.push(obj_(board.i).prefilled === true);  // "Doesn't apply" on housing, picked for a commuter and never changed
-  MOMENTS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });
-  row.push(num_(r.trust, 1, 5), cell_(r.postedAnonymously));
+  JARS.forEach(function (k) { row.push(num_(coins[k], 1, 25)); });
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
   row.push(cell_(r.postPreference), cell_(r.wantBack));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
-  row.push(cell_(r.story, 5000), r.mayQuote === true, cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
+  row.push(cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
 }
 
@@ -274,4 +285,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS, JARS: JARS, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
