@@ -18,12 +18,11 @@ The protocol the survey follows, and the problem each question bears on, are in 
 
 Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it on every run; the rest are done by hand.
 
-- [ ] The first screen says who runs the survey, that it is independent and not an official VSU survey, that answers carry no name, and how they are kept. The gate's first line says Your form can't be skipped. (By hand; the gate line is in the tests)
+- [ ] The first screen says who runs the survey, that it is independent and not an official VSU survey, that answers carry no name, and how they are kept. The gate's first line says any question can be skipped. (By hand; the gate line is in the tests)
 - [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53, and settled Q-65 (whether D-038's 30% bar fits the semester window). Both are fixed before any answer is read. (By hand)
 - [ ] Every answer is in view without scrolling at 360 × 640 and the other sizes tested, with the news channels in any order. (Tests)
-- [ ] Every skip rule works: no SIM, no load, calls and texts only, app data, Wi-Fi spending, reaching someone, the housing default. (Tests)
+- [ ] Every skip rule works: two SIMs, no load, calls and texts only, app data, the promo questions (regular load, data that lasts, waiting to reload), Wi-Fi spending, reaching someone, the housing default. (Tests)
 - [ ] A respondent can go back and change an answer, and the parts menu shows progress. (Tests)
-- [ ] Your form can't be skipped, and each of its questions offers Prefer not to say. (Tests)
 - [ ] Nothing is sent while `OPEN` is `false`, except answers marked as tests; previews never send. (Tests)
 - [ ] Test answers are marked and are deleted from the sheet before analysis. (By hand)
 - [ ] Interview sign-ups go to the separate form, never into the survey sheet. (By hand)

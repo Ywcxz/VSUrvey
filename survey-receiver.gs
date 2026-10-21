@@ -42,8 +42,10 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
-var TWO_SIMS = ["To switch when one has weak signal", "My SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
-  "One for school, one for personal", "Better promos on each", "No particular reason", "Other"];
+var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
+  "One for school, one for personal", "I pick each network's promo by need, like exam week", "No particular reason", "Other"];
+var RELOAD_WHY = ["Data for any site ran out, but app data was left", "App data ran out, but data for any site was left",
+  "I needed it for schoolwork right away", "To stay in touch with family or friends", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];
@@ -80,7 +82,9 @@ function headers_() {
   multiHeaders_(h, "twoSims", TWO_SIMS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
-  h.push("dataSpend (week)", "loadLasts", "dataRunsOut", "dataSchool", "signal");
+  h.push("dataSpend (week)", "validity", "untilExpiry", "reload");
+  multiHeaders_(h, "reloadWhy", RELOAD_WHY);
+  h.push("dataRunsOut", "dataSchool", "signal");
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
   h.push("wifiSpend (month)");
@@ -136,7 +140,9 @@ function row_(r, now) {
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
-  row.push(cell_(r.dataSpend), cell_(r.loadLasts), cell_(r.dataRunsOut), cell_(r.dataSchool), cell_(r.signal));
+  row.push(cell_(r.dataSpend), cell_(r.validity), cell_(r.untilExpiry), cell_(r.reload));
+  multiCells_(row, r.reloadWhy, RELOAD_WHY, r.reloadWhyOther);
+  row.push(cell_(r.dataRunsOut), cell_(r.dataSchool), cell_(r.signal));
   multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
   row.push(cell_(r.wifiSpend));
@@ -254,4 +260,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };

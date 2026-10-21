@@ -113,7 +113,7 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "twoSims", shot);
   await page.click(btn("twoSims", "To switch when one has weak signal"));
-  await page.click(btn("twoSims", "Better promos on each"));
+  await page.click(btn("twoSims", "I pick each network's promo by need, like exam week"));
   await next(page);
   await at(page, "load", shot);
   await page.click(btn("load", "Data for certain apps only"));
@@ -126,14 +126,21 @@ async function walkAll(page, shot) {
   await next(page);
   await at(page, "dataSpend", shot);
   await page.click(btn("dataSpend", "₱99 or ₱100"));
-  await at(page, "loadLasts", shot);
-  await page.click(btn("loadLasts", "About a week"));
+  await at(page, "validity", shot);
+  await page.click(btn("validity", "7 days"));
+  await at(page, "untilExpiry", shot);
+  await page.click(btn("untilExpiry", "No, it runs out early"));
+  await at(page, "reload", shot);
+  await page.click(btn("reload", "Yes, right away"));
+  await at(page, "reloadWhy", shot);
+  await page.click(btn("reloadWhy", "Data for any site ran out, but app data was left"));
+  await next(page);
   await at(page, "dataRunsOut", shot);
   await page.click(btn("dataRunsOut", "Sometimes"));
   await at(page, "dataSchool", shot);
   await page.click(btn("dataSchool", "About half"));
   await at(page, "signal", shot);
-  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 9 of 12");
+  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 12 of 15");
   await page.click(btn("signal", "On campus only"));
   await at(page, "onlineCampus", shot);
   await page.click(btn("onlineCampus", "Mobile data"));
@@ -248,7 +255,7 @@ function rowOf(r) {
       assert.strictEqual(r.survey, "student-life-2026");
       assert.strictEqual(rowOf(r).survey, "student-life-2026");
       const gate = await t.page.evaluate(() => document.querySelector('[data-step="consent"] .consent-list li').textContent);
-      assert.ok(gate.indexOf("In Your form, pick Prefer not to say instead.") > 0, "the consent says Your form can't be skipped");
+      assert.ok(gate.indexOf("Skip any question") === 0, "the consent says any question can be skipped");
       const how = await t.page.evaluate(() => document.querySelector(".how span").textContent);
       assert.ok(how.indexOf(mobile ? "Tap an answer" : "Click an answer") === 0, "the intro says " + (mobile ? "Tap" : "Click") + " on a " + label + ": " + how);
       assert.strictEqual(r.consent, true);
@@ -280,9 +287,13 @@ function rowOf(r) {
       assert.deepStrictEqual(r.worksWell, ["Everyone is already there", "Works with my load promo"]);
       assert.strictEqual(rowOf(r).firstScholarships, "Usually too late");
       assert.strictEqual(r.dataSpend, "₱99 or ₱100");
-      assert.strictEqual(r.loadLasts, "About a week");
+      assert.strictEqual(r.validity, "7 days");
+      assert.strictEqual(r.untilExpiry, "No, it runs out early");
+      assert.strictEqual(r.reload, "Yes, right away");
+      assert.deepStrictEqual(r.reloadWhy, ["Data for any site ran out, but app data was left"]);
+      assert.strictEqual(rowOf(r)["reloadWhy: Data for any site ran out, but app data was left"], true);
       assert.strictEqual(r.dataRunsOut, "Sometimes");
-      assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "Better promos on each"]);
+      assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "I pick each network's promo by need, like exam week"]);
       assert.strictEqual(r.dataSchool, "About half");
       assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
       assert.deepStrictEqual(r.load, ["Data for certain apps only", "Calls and texts"]);
@@ -328,7 +339,7 @@ function rowOf(r) {
       assert.strictEqual(row["wifiSpend (month)"], "₱200 to ₱499");
       assert.strictEqual(row["dataSpend (week)"], "₱99 or ₱100");
       assert.strictEqual(row.dataRunsOut, "Sometimes");
-      assert.strictEqual(row["twoSims: Better promos on each"], true);
+      assert.strictEqual(row["twoSims: I pick each network's promo by need, like exam week"], true);
       assert.strictEqual(row.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(row["loadApps: School apps, like Google Workspace, Zoom, or Canva"], true);
       assert.strictEqual(row["onCampus: Campus Wi-Fi"], true);
@@ -348,12 +359,13 @@ function rowOf(r) {
     const t = await open(browser, {});
     const vals = await t.page.evaluate(() => {
       const get = (step, key) => Array.from(document.querySelectorAll('[data-step="' + step + '"] [data-key="' + key + '"] [data-v]')).map(b => b.dataset.v);
-      return { twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
+      return { reloadWhy: get("reloadWhy", "reloadWhy"), twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
     });
     assert.deepStrictEqual(vals.concern.slice().sort(), receiver.CONCERN.slice().sort());
     assert.deepStrictEqual(vals.works.slice().sort(), receiver.WORKS.slice().sort());
     assert.deepStrictEqual(vals.networks.slice().sort(), receiver.NETWORKS.slice().sort());
     assert.deepStrictEqual(vals.twoSims.slice().sort(), receiver.TWO_SIMS.slice().sort());
+    assert.deepStrictEqual(vals.reloadWhy.slice().sort(), receiver.RELOAD_WHY.slice().sort());
     assert.deepStrictEqual(vals.oc.slice().sort(), receiver.ONLINE_CAMPUS.slice().sort());
     assert.deepStrictEqual(vals.oh.slice().sort(), receiver.ONLINE_HOME.slice().sort());
     assert.deepStrictEqual(vals.load.slice().sort(), receiver.LOAD.slice().sort());
@@ -419,8 +431,8 @@ function rowOf(r) {
     await next(t.page);
     await at(t.page, "dataSpend");
     await t.page.click(btn("dataSpend", "Under ₱49"));
-    await at(t.page, "loadLasts");
-    await t.page.click(btn("loadLasts", "About 3 days"));
+    await at(t.page, "validity");
+    await t.page.click(btn("validity", "Regular load, no promo"));
     await at(t.page, "dataRunsOut");
     await t.page.click(btn("dataRunsOut", "Often"));
     await at(t.page, "dataSchool");
@@ -431,9 +443,9 @@ function rowOf(r) {
     await at(t.page, "load");
     await t.page.click(btn("load", "I don't use load"));
     let a = await ans();
-    assert.deepStrictEqual([a.dataSpend, a.dataSchool, a.signal, a.loadLasts, a.dataRunsOut], [null, null, null, null, null], "no load clears spending, how long it lasts, running out, schoolwork, and signal");
+    assert.deepStrictEqual([a.dataSpend, a.dataSchool, a.signal, a.validity, a.dataRunsOut], [null, null, null, null, null], "no load clears spending, validity, running out, schoolwork, and signal");
     let L = await steps();
-    for (const id of ["loadApps", "dataSpend", "loadLasts", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with no load");
+    for (const id of ["loadApps", "dataSpend", "validity", "untilExpiry", "reload", "reloadWhy", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with no load");
     await next(t.page);
     await at(t.page, "onlineCampus");
     await t.page.evaluate(() => window.__survey.go("load"));
@@ -441,7 +453,7 @@ function rowOf(r) {
     await t.page.click(btn("load", "Calls and texts"));
     L = await steps();
     assert.ok(L.includes("dataSpend"), "calls and texts still cost load");
-    for (const id of ["loadLasts", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with calls and texts only");
+    for (const id of ["validity", "untilExpiry", "reload", "reloadWhy", "dataRunsOut", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with calls and texts only");
     await t.page.click(btn("load", "A postpaid plan"));
     L = await steps();
     for (const id of ["dataSpend", "dataSchool", "signal"]) assert.ok(L.includes(id), id + " is asked of a postpaid plan");
@@ -466,16 +478,10 @@ function rowOf(r) {
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
-    const FORM = ["year", "faculty", "org", "scholarship", "transferee", "firstGen"];
     for (let i = 0; i < 90 && (await current(t.page)) !== "send"; i++) {
       const before = await current(t.page);
-      if (FORM.includes(before)) {
-        assert.ok(await t.page.locator("#next.locked").count() === 1, "a form question can't be skipped (" + before + ")");
-        await t.page.click(btn(before, "Prefer not to say"));
-      } else {
-        assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Skip", "the button says Skip on an unanswered step (" + before + ")");
-        await next(t.page);
-      }
+      assert.strictEqual(await t.page.locator("#next-lbl").textContent(), "Skip", "the button says Skip on an unanswered step (" + before + ")");
+      await next(t.page);
       await t.page.waitForFunction(x => window.__survey.current() !== x, before, { timeout: 5000 });
     }
     await at(t.page, "send");
@@ -487,7 +493,7 @@ function rowOf(r) {
     assert.deepStrictEqual(r.board, {});
     assert.ok(!("pins" in r));
     for (const k of ["transport", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "reachHow", "reachGot", "askFirst", "wifiSpend"]) assert.strictEqual(r[k], null, k);
-    for (const k of ["year", "faculty", "org", "scholarship", "transferee", "firstGen"]) assert.strictEqual(r[k], "Prefer not to say", k + " was declined, not skipped");
+    for (const k of ["year", "faculty", "org", "scholarship", "transferee", "firstGen"]) assert.strictEqual(r[k], null, k + " can be skipped");
     assert.deepStrictEqual(r.concern, []);
     assert.deepStrictEqual(r.worksWell, []);
     assert.strictEqual(receiver.refusal_(r), "");
@@ -574,11 +580,6 @@ function rowOf(r) {
     await at(t.page, "home");
     await t.page.click("#chap");
     await t.page.click('#menu [data-jump="coins"]');
-    await at(t.page, "year");
-    assert.ok(true, "the menu stops at the first form question still to answer");
-    await t.page.evaluate(() => { const a = window.__survey.answers; for (const k of ["year", "faculty", "org", "scholarship", "transferee", "firstGen"]) a[k] = "Prefer not to say"; });
-    await t.page.click("#chap");
-    await t.page.click('#menu [data-jump="coins"]');
     await at(t.page, "coins");
     await t.page.click("#chap");
     await t.page.keyboard.press("Escape");
@@ -647,8 +648,8 @@ function rowOf(r) {
       };
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
-      await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; a.networks = ["Smart", "DITO"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "loadLasts", "dataRunsOut", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; a.networks = ["Smart", "DITO"]; a.validity = "7 days"; a.untilExpiry = "No, it runs out early"; a.reload = "Yes, right away"; });
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "validity", "untilExpiry", "reload", "reloadWhy", "dataRunsOut", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);
@@ -719,7 +720,7 @@ function rowOf(r) {
     await at(t.page, "transport");
     await t.page.evaluate(() => window.__survey.go("firstGen"));
     await at(t.page, "firstGen");
-    await t.page.click(btn("firstGen", "Prefer not to say"));
+    await t.page.click(btn("firstGen", "No"));
     await next(t.page);
     await at(t.page, "networks");
     assert.deepStrictEqual(t.errors, []);
@@ -798,10 +799,10 @@ function rowOf(r) {
     assert.ok(await t.page.locator('[data-box="pass"] .scene.typing').count() === 1, "an answer is typed in");
     assert.ok(/\bon\b/.test(await bar(0)), "and its line fills");
     await at(t.page, "faculty");
-    assert.ok(await t.page.locator("#next.locked").count() === 1, "a form question can't be skipped");
-    await t.page.click(btn("faculty", "Prefer not to say"));
-    assert.ok(/\bon\b/.test(await bar(1)), "Prefer not to say is typed in too");
+    assert.strictEqual(await t.page.locator(btn("faculty", "Prefer not to say")).count(), 0, "no Prefer not to say in Your form");
+    await next(t.page);
     await at(t.page, "org");
+    assert.ok(/\bskip\b/.test(await bar(1)), "a skip is typed in as a short grey line");
     await t.page.evaluate(() => window.__survey.go("firstGen"));
     await at(t.page, "firstGen");
     await t.page.click(btn("firstGen", "No"));
@@ -809,6 +810,44 @@ function rowOf(r) {
     assert.strictEqual(await current(t.page), "firstGen", "the walk waits while the pass is handed over");
     await at(t.page, "networks");
     assert.ok(await t.page.evaluate(() => document.getElementById("passwrap").classList.contains("gone")), "the pass has left the desk");
+    assert.deepStrictEqual(t.errors, []);
+    await t.ctx.close();
+  });
+
+  await check("the promo questions follow from one another, and clear when ruled out", async () => {
+    const t = await open(browser, { mobile: true });
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "home");
+    const steps = () => t.page.evaluate(() => window.__survey.steps());
+    const ans = () => t.page.evaluate(() => window.__survey.answers);
+    await t.page.evaluate(() => { window.__survey.answers.load.push("Data for any site or app"); window.__survey.go("validity"); });
+    await at(t.page, "validity");
+    await t.page.click(btn("validity", "30 days"));
+    await at(t.page, "untilExpiry");
+    await t.page.click(btn("untilExpiry", "Yes, until it expires"));
+    let L = await steps();
+    assert.ok(!L.includes("reload") && !L.includes("reloadWhy"), "data that lasts brings no reload questions");
+    await t.page.evaluate(() => window.__survey.go("untilExpiry"));
+    await at(t.page, "untilExpiry");
+    await t.page.click(btn("untilExpiry", "No, it runs out early"));
+    await at(t.page, "reload");
+    await t.page.click(btn("reload", "Yes, right away"));
+    await at(t.page, "reloadWhy");
+    await t.page.click(btn("reloadWhy", "App data ran out, but data for any site was left"));
+    await t.page.evaluate(() => window.__survey.go("reload"));
+    await at(t.page, "reload");
+    await t.page.click(btn("reload", "No, I wait until I can"));
+    assert.deepStrictEqual((await ans()).reloadWhy, [], "waiting clears the reasons for reloading");
+    assert.ok(!(await steps()).includes("reloadWhy"));
+    await t.page.evaluate(() => window.__survey.go("validity"));
+    await at(t.page, "validity");
+    await t.page.click(btn("validity", "Regular load, no promo"));
+    const a = await ans();
+    assert.deepStrictEqual([a.untilExpiry, a.reload], [null, null], "regular load clears the promo questions");
+    L = await steps();
+    for (const id of ["untilExpiry", "reload", "reloadWhy"]) assert.ok(!L.includes(id), id + " is skipped for regular load");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
   });
