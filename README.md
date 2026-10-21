@@ -31,6 +31,7 @@ Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it
 - [ ] With reduced motion on, nothing moves on by itself and the walk still works. (Tests)
 - [ ] A pilot of at least 5 students checks the wording, auto-advance (did anyone feel rushed, or move on by accident?), and the housing default (did commuters read it as picked for them?). (By hand)
 - [ ] The first screen's time estimate comes from the median and 90th percentile of at least 10 timed run-throughs, or is labeled preliminary. (By hand)
+- [ ] The load bands' middles (about ₱50, ₱100, ₱150 a week) and the apps list are re-checked against the networks' current promos. (By hand)
 - [ ] The Apps Script receiver is deployed and tested against `scenes-v3`, with a `?test=1` answer reaching the "Responses v3" tab. (By hand)
 - [ ] The rules for releasing results (the floor of 10, combinations, free text) are published in Chapter 8. (By hand)
 - [ ] The interview guide covers what the survey left out: trust in each channel and checking a post against an official source (Q-64), and organization handovers (P-08). (By hand)

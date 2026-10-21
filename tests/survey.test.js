@@ -107,8 +107,13 @@ async function walkAll(page, shot) {
   await page.click(btn("firstGen", "Yes"));
   if (SHOTS && shot) { await page.waitForTimeout(1700); await page.screenshot({ path: path.join(SHOTS, shot + "-firstGen-printed.png") }); }
   await at(page, "networks", shot);
+  assert.strictEqual(await page.locator(btn("networks", "I don't use a SIM")).count(), 0, "no SIM means skipping the question");
   await page.click(btn("networks", "Smart"));
   await page.click(btn("networks", "DITO"));
+  await next(page);
+  await at(page, "twoSims", shot);
+  await page.click(btn("twoSims", "To switch when one has weak signal"));
+  await page.click(btn("twoSims", "Better promos on each"));
   await next(page);
   await at(page, "load", shot);
   await page.click(btn("load", "Data for certain apps only"));
@@ -120,22 +125,23 @@ async function walkAll(page, shot) {
   await page.click(btn("loadApps", "School apps, like Google Workspace, Zoom, or Canva"));
   await next(page);
   await at(page, "dataSpend", shot);
-  await page.click(btn("dataSpend", "₱50 to ₱99"));
+  await page.click(btn("dataSpend", "₱80 to ₱119"));
   await at(page, "dataSchool", shot);
   await page.click(btn("dataSchool", "About half"));
   await at(page, "signal", shot);
-  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 6 of 9");
+  assert.strictEqual(await page.locator(inStep("signal", ".kicker")).textContent(), "Getting online, 7 of 10");
   await page.click(btn("signal", "On campus only"));
   await at(page, "onlineCampus", shot);
   await page.click(btn("onlineCampus", "Mobile data"));
   await page.click(btn("onlineCampus", "Campus Wi-Fi"));
   await next(page);
   await at(page, "onlineHome", shot);
+  assert.strictEqual(await page.locator(btn("onlineHome", "Pocket Wi-Fi")).count(), 0, "pocket Wi-Fi is mobile data");
+  await page.click(btn("onlineHome", "Wi-Fi where I stay"));
   await page.click(btn("onlineHome", "Piso Wi-Fi"));
-  await page.click(btn("onlineHome", "Pocket Wi-Fi"));
   await next(page);
   await at(page, "wifiSpend", shot);
-  await page.click(btn("wifiSpend", "Under ₱50"));
+  await page.click(btn("wifiSpend", "₱200 to ₱499"));
   // Hearing from VSU
   await at(page, "firstSuspensions", shot);
   assert.strictEqual(await page.locator(inStep("firstSuspensions", ".vig")).count(), 8, "every channel is offered");
@@ -251,7 +257,7 @@ function rowOf(r) {
       assert.strictEqual(r.transport, "Habal-habal or tricycle");
       assert.strictEqual(r.org, "A member, but I rarely take part");
       assert.strictEqual(r.transferee, "Yes");
-      assert.strictEqual(r.wifiSpend, "Under ₱50");
+      assert.strictEqual(r.wifiSpend, "₱200 to ₱499");
       assert.strictEqual(r.faculty, "Faculty of Engineering");
       assert.strictEqual(r.firstGen, "Yes");
       assert.strictEqual(r.firstSuspensions, "Group chats: class, org, dorm");
@@ -269,14 +275,15 @@ function rowOf(r) {
       assert.strictEqual(r.askFirst, "A group chat");
       assert.deepStrictEqual(r.worksWell, ["Everyone is already there", "Works with my load promo"]);
       assert.strictEqual(rowOf(r).firstScholarships, "Usually too late");
-      assert.strictEqual(r.dataSpend, "₱50 to ₱99");
+      assert.strictEqual(r.dataSpend, "₱80 to ₱119");
+      assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "Better promos on each"]);
       assert.strictEqual(r.dataSchool, "About half");
       assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
       assert.deepStrictEqual(r.load, ["Data for certain apps only", "Calls and texts"]);
       assert.deepStrictEqual(r.loadApps, ["Facebook and Messenger", "TikTok", "School apps, like Google Workspace, Zoom, or Canva"]);
       assert.strictEqual(r.signal, "On campus only");
       assert.deepStrictEqual(r.onlineCampus, ["Mobile data", "Campus Wi-Fi"]);
-      assert.deepStrictEqual(r.onlineHome, ["Piso Wi-Fi", "Pocket Wi-Fi"]);
+      assert.deepStrictEqual(r.onlineHome, ["Wi-Fi where I stay", "Piso Wi-Fi"]);
       assert.ok(!("online" in r), "the old online field is gone");
       assert.strictEqual(r.wantBack, "A fix, or a reason it can't be fixed");
       assert.strictEqual(Object.keys(r.board).length, 15);
@@ -312,11 +319,13 @@ function rowOf(r) {
       assert.strictEqual(row.signal, "On campus only");
       assert.strictEqual(row.transport, "Habal-habal or tricycle");
       assert.strictEqual(row.transferee, "Yes");
-      assert.strictEqual(row.wifiSpend, "Under ₱50");
+      assert.strictEqual(row["wifiSpend (month)"], "₱200 to ₱499");
+      assert.strictEqual(row["dataSpend (week)"], "₱80 to ₱119");
+      assert.strictEqual(row["twoSims: Better promos on each"], true);
       assert.strictEqual(row.firstAnnouncements, "Student council or org pages");
       assert.strictEqual(row["loadApps: School apps, like Google Workspace, Zoom, or Canva"], true);
       assert.strictEqual(row["onCampus: Campus Wi-Fi"], true);
-      assert.strictEqual(row["whereStaying: Pocket Wi-Fi"], true);
+      assert.strictEqual(row["whereStaying: Piso Wi-Fi"], true);
       assert.strictEqual(row["whereStaying: unlisted"], "");
       assert.strictEqual(row.wantBack, "A fix, or a reason it can't be fixed");
       assert.ok(!h_has_pins(), "no pin columns");
@@ -332,11 +341,12 @@ function rowOf(r) {
     const t = await open(browser, {});
     const vals = await t.page.evaluate(() => {
       const get = (step, key) => Array.from(document.querySelectorAll('[data-step="' + step + '"] [data-key="' + key + '"] [data-v]')).map(b => b.dataset.v);
-      return { networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
+      return { twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway"), moments: window.__survey.steps().filter(id => id.indexOf("m-") === 0).map(id => id.slice(2)) };
     });
     assert.deepStrictEqual(vals.concern.slice().sort(), receiver.CONCERN.slice().sort());
     assert.deepStrictEqual(vals.works.slice().sort(), receiver.WORKS.slice().sort());
     assert.deepStrictEqual(vals.networks.slice().sort(), receiver.NETWORKS.slice().sort());
+    assert.deepStrictEqual(vals.twoSims.slice().sort(), receiver.TWO_SIMS.slice().sort());
     assert.deepStrictEqual(vals.oc.slice().sort(), receiver.ONLINE_CAMPUS.slice().sort());
     assert.deepStrictEqual(vals.oh.slice().sort(), receiver.ONLINE_HOME.slice().sort());
     assert.deepStrictEqual(vals.load.slice().sort(), receiver.LOAD.slice().sort());
@@ -347,25 +357,34 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
-  await check("no SIM skips the questions about load and spending, and clears them", async () => {
+  await check("skipping the networks still asks about load, and why two SIMs comes only with two", async () => {
     const t = await open(browser, { mobile: true });
     await t.page.click("#start");
     await at(t.page, "consent");
     await t.page.click(inStep("consent", ".agree"));
     await at(t.page, "home");
+    const steps = () => t.page.evaluate(() => window.__survey.steps());
+    await t.page.evaluate(() => window.__survey.go("networks"));
+    await at(t.page, "networks");
+    assert.ok(!(await steps()).includes("twoSims"), "no networks, no question on two SIMs");
+    await next(t.page);
+    await at(t.page, "load");
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
     await t.page.click(btn("networks", "Globe"));
-    await t.page.click(btn("networks", "I don't use a SIM"));
-    const a = await t.page.evaluate(() => window.__survey.answers.networks);
-    assert.deepStrictEqual(a, ["I don't use a SIM"], "No SIM clears the networks picked before it");
+    assert.ok(!(await steps()).includes("twoSims"), "one network, no question on two SIMs");
+    await t.page.click(btn("networks", "TM"));
+    assert.ok((await steps()).includes("twoSims"), "two networks bring the question");
     await next(t.page);
-    await at(t.page, "onlineCampus");
-    await t.page.click(btn("onlineCampus", "Campus Wi-Fi"));
-    await next(t.page);
-    await at(t.page, "onlineHome");
-    const steps = await t.page.evaluate(() => window.__survey.steps());
-    for (const id of ["load", "loadApps", "dataSpend", "dataSchool", "signal"]) assert.ok(steps.indexOf(id) < 0, id + " is skipped");
+    await at(t.page, "twoSims");
+    await t.page.click(btn("twoSims", "One for data, one for calls and texts"));
+    await t.page.click(btn("twoSims", "No particular reason"));
+    assert.deepStrictEqual(await t.page.evaluate(() => window.__survey.answers.twoSims), ["No particular reason"], "No particular reason stands alone");
+    await t.page.evaluate(() => window.__survey.go("networks"));
+    await at(t.page, "networks");
+    await t.page.click(btn("networks", "TM"));
+    assert.deepStrictEqual(await t.page.evaluate(() => window.__survey.answers.twoSims), [], "dropping to one network clears the reasons");
+    assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
   });
 
@@ -386,11 +405,13 @@ function rowOf(r) {
     await t.page.click(btn("networks", "Globe"));
     assert.deepStrictEqual((await ans()).networks, ["Smart", "DITO"], "a third network is refused");
     await next(t.page);
+    await at(t.page, "twoSims");
+    await next(t.page);
     await at(t.page, "load");
     await t.page.click(btn("load", "Data for any site or app"));
     await next(t.page);
     await at(t.page, "dataSpend");
-    await t.page.click(btn("dataSpend", "Under ₱50"));
+    await t.page.click(btn("dataSpend", "Under ₱40"));
     await at(t.page, "dataSchool");
     await t.page.click(btn("dataSchool", "Almost all"));
     await at(t.page, "signal");
@@ -615,8 +636,8 @@ function rowOf(r) {
       };
       // Nine scenes happened, so the coins step shows nine jars.
       const scenes = (await t.page.evaluate(() => window.__survey.steps())).filter(x => x.startsWith("m-"));
-      await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "load", "loadApps", "dataSpend", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
+      await t.page.evaluate(() => { const a = window.__survey.answers; a.load = ["Data for certain apps only"]; a.networks = ["Smart", "DITO"]; });
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["networks", "twoSims", "load", "loadApps", "dataSpend", "dataSchool", "signal", "onlineCampus", "onlineHome", "wifiSpend", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "scenario", "reachHow", "reachGot", "concern", "askFirst", "coins", "story", "trust", "postedAnonymously", "worksWell", "wouldUse", "postPreference", "wantBack", "keepAway", "send"].indexOf(x) >= 0 || x.startsWith("m-"));
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);

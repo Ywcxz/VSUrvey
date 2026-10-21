@@ -41,10 +41,12 @@ var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to
   "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
-var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO", "I don't use a SIM"];
+var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
+var TWO_SIMS = ["To switch when one has weak signal", "My usual SIM is weak at VSU", "One for data, one for calls and texts",
+  "One for school, one for personal", "Better promos on each", "No particular reason", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
-var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
-var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "Pocket Wi-Fi", "I usually can't"];
+var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't"];
+var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "Piso Wi-Fi", "I usually can't"];
 var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
   "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
@@ -75,12 +77,13 @@ function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
     "residence", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"];
   multiHeaders_(h, "network", NETWORKS);
+  multiHeaders_(h, "twoSims", TWO_SIMS);
   multiHeaders_(h, "load", LOAD);
   multiHeaders_(h, "loadApps", LOAD_APPS);
-  h.push("dataSpend", "dataSchool", "signal");
+  h.push("dataSpend (week)", "dataSchool", "signal");
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
-  h.push("wifiSpend");
+  h.push("wifiSpend (month)");
   h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "channelOrder", "scenario", "reachHow", "reachGot");
   multiHeaders_(h, "concern", CONCERN);
   h.push("askFirst");
@@ -130,6 +133,7 @@ function row_(r, now) {
     r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
     cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen)];
   multiCells_(row, r.networks, NETWORKS, "");
+  multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
   multiCells_(row, r.load, LOAD, "");
   multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
   row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.signal));
@@ -250,4 +254,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
