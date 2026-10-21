@@ -36,6 +36,12 @@ var SHEET_NAME = "Responses v3";
 var VARIANT = "scenes";
 var VERSION_PREFIX = "scenes-v3";
 var MOMENTS = ["a", "b", "c", "d", "e", "f", "g", "i", "j", "k", "l", "m", "n", "o", "p"];  // h (organization handovers) left in scenes-v3
+var FIRSTS = ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements"];  // each ranked up to three
+var OFFICIAL_HOW = ["I get their notifications", "I check them myself", "Someone shares them with me", "They usually don't reach me"];
+var CHECK_POST = ["Checked VSU's official page or website", "Asked a friend or classmate", "Asked in a group chat or group", "Asked an office or a teacher",
+  "Waited for more posts", "I didn't check", "Other"];
+var WHY_QUIET = ["I didn't know where to raise it", "I didn't think it would change anything", "I worried about the consequences",
+  "It would take too much time or effort", "Someone else had already raised it", "Other"];
 var CONCERN = ["Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
   "Only talked about it with friends", "Kept it to myself", "It hasn't happened"];
@@ -88,8 +94,13 @@ function headers_() {
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
   h.push("wifiSpend (month)");
-  h.push("firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "channelOrder", "scenario", "reachHow", "reachGot");
+  FIRSTS.forEach(function (k) { h.push(k + " 1", k + " 2", k + " 3"); });
+  h.push("groupChats");
+  multiHeaders_(h, "officialHow", OFFICIAL_HOW);
+  multiHeaders_(h, "checkPost", CHECK_POST);
+  h.push("scenario", "whichOffice", "visitsTook", "reachHow", "reachGot", "missClass");
   multiHeaders_(h, "concern", CONCERN);
+  multiHeaders_(h, "whyQuiet", WHY_QUIET);
   h.push("askFirst");
   MOMENTS.forEach(function (k) { h.push(k + " often", k + " matters"); });
   h.push("i prefilled");
@@ -146,10 +157,13 @@ function row_(r, now) {
   multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
   row.push(cell_(r.wifiSpend));
-  row.push(cell_(r.firstSuspensions), cell_(r.firstDocuments), cell_(r.firstEvents), cell_(r.firstScholarships), cell_(r.firstAnnouncements),
-    cell_(Array.isArray(r.channelOrder) ? r.channelOrder.join(" ") : "", 80),
-    cell_(r.scenario), cell_(r.reachHow), cell_(r.reachGot));
+  FIRSTS.forEach(function (k) { var v = Array.isArray(r[k]) ? r[k] : []; row.push(cell_(v[0]), cell_(v[1]), cell_(v[2])); });
+  row.push(cell_(r.groupChats));
+  multiCells_(row, r.officialHow, OFFICIAL_HOW, "");
+  multiCells_(row, r.checkPost, CHECK_POST, r.checkPostOther);
+  row.push(cell_(r.scenario), cell_(r.whichOffice), cell_(r.visitsTook), cell_(r.reachHow), cell_(r.reachGot), cell_(r.missClass));
   multiCells_(row, r.concern, CONCERN, "");
+  multiCells_(row, r.whyQuiet, WHY_QUIET, r.whyQuietOther);
   row.push(cell_(r.askFirst));
   MOMENTS.forEach(function (k) { var a = obj_(board[k]); row.push(cell_(a.often), cell_(a.matters)); });
   row.push(obj_(board.i).prefilled === true);  // "Doesn't apply" on housing, picked for a commuter and never changed
@@ -260,4 +274,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, MOMENTS: MOMENTS };

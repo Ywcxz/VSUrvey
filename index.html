@@ -233,6 +233,7 @@ a{color:var(--sea)}
 .vig[aria-pressed="true"]{background:var(--pick);border-color:var(--mango)}
 .vig[aria-pressed="true"]::after{content:"";position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--mango) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2313261D' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/15px no-repeat;animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
 .vig.star[aria-pressed="true"]::after{background:var(--gumamela) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF'%3E%3Cpath d='m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z'/%3E%3C/svg%3E") center/15px no-repeat}
+.vig.star[aria-pressed="true"][data-rank]::after{content:attr(data-rank);background:var(--gumamela);color:#FFFFFF;font:800 14px/24px var(--display);text-align:center}
 .vig[aria-pressed="true"] .art .wake{animation:wake .7s cubic-bezier(.3,1.5,.5,1)}
 @keyframes wake{0%{transform:translateY(0)}35%{transform:translateY(-5px)}100%{transform:none}}
 .vig .art .ping{opacity:0;transition:opacity .25s}
@@ -466,6 +467,7 @@ a{color:var(--sea)}
   .vig .art{flex:none;width:50px;aspect-ratio:1/1;border-radius:10px}
   .vig .lbl{font-size:13px;line-height:1.17;padding:0 12px 0 0}
   .vig[aria-pressed="true"]::after{top:6px;right:6px;width:18px;height:18px;background-size:12px}
+  .vig.star[aria-pressed="true"][data-rank]::after{font-size:11.5px;line-height:18px}
   .none-row{margin-top:8px}
   .none-row .chip{padding:7px 14px;min-height:38px;font-size:14.5px}
   .none-row.outcomes{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px}
@@ -783,6 +785,22 @@ a{color:var(--sea)}
       else b += '<g fill="none" stroke="#1F7A8C" stroke-width="5" stroke-linecap="round"><path d="M38 44a30 30 0 0 1 44 0"/><path d="M46 52a18 18 0 0 1 28 0"/></g><circle cx="60" cy="61" r="4" fill="#1F7A8C"/>';
       return art(b + "</g>");
     },
+    /* How many group chats: bubbles stacked deeper for more; a dashed one for none. */
+    chats: function (n) {
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><g class="wake">', fills = ["#9ED1DB", "#DDEBD4", "#E7DDF2", "#F7FBF8"];
+      function bub(x, y, fill) { return '<path d="M' + x + " " + y + "h40a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6H" + (x + 16) + "l-8 7v-7H" + x + "a6 6 0 0 1-6-6V" + (y + 6) + "a6 6 0 0 1 6-6Z" + '" fill="' + fill + '" stroke="#13261D" stroke-width="1.8"/>'; }
+      if (!n) b += '<path d="M40 26h40a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6H56l-8 7v-7H40a6 6 0 0 1-6-6V32a6 6 0 0 1 6-6Z" fill="none" stroke="#7E8F86" stroke-width="2.2" stroke-dasharray="5 4"/>';
+      else for (var i = 0; i < n; i++) b += bub(30 + (4 - n) * 5 + i * 10, 14 + (4 - n) * 5 + i * 11, fills[(4 - n + i) % 4]);
+      return art(b + "</g>");
+    },
+    /* Visits it took: a door per visit; an hourglass where it still isn't done. */
+    visits: function (n) {
+      var b = '<rect width="120" height="90" fill="#E4EFE8"/><rect y="70" width="120" height="20" fill="#C9DCCD"/><g class="wake">';
+      function door(x) { return '<rect x="' + x + '" y="34" width="14" height="36" rx="2" fill="#A0704F" stroke="#13261D" stroke-width="1.6"/><circle cx="' + (x + 10.5) + '" cy="53" r="1.6" fill="#F2B33D"/>'; }
+      if (!n) b += door(38) + '<g transform="translate(70 32)"><path d="M0 0h18M0 36h18M2 0c0 10 14 10 14 18s-14 8-14 18M16 0c0 10-14 10-14 18s14 8 14 18" fill="none" stroke="#13261D" stroke-width="2.2" stroke-linecap="round"/><path d="M4 33h10l-5-6Z" fill="#F2B33D"/></g>';
+      else for (var i = 0; i < n; i++) b += door(60 - (n * 14 + (n - 1) * 6) / 2 + i * 20);
+      return art(b + "</g>");
+    },
     /* Where mobile data gets a signal: campus on the left, where you stay on the right; a slash where it doesn't. */
     where: function (campus, home) {
       function bars(x, on) { return '<g fill="' + (on ? "#D9483B" : "#B8C4BD") + '">' + [0, 1, 2, 3].map(function (i) { return '<rect x="' + (x + i * 5) + '" y="' + (26 - i * 4) + '" width="3.6" height="' + (6 + i * 4) + '" rx="1"/>'; }).join("") + "</g>" + (on ? "" : '<path d="' + "M" + (x - 2) + " 34 L" + (x + 20) + ' 12" stroke="#D9483B" stroke-width="3" stroke-linecap="round"/>'); }
@@ -952,7 +970,7 @@ a{color:var(--sea)}
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd><dt>Other school</dt><dd data-f="transferee">Skipped</dd></dl></div></div></div></div>';
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -973,7 +991,7 @@ a{color:var(--sea)}
 
   /* One scene from the day: v1 props with its calendar (how often) and backpack (how much). */
   function momentStage(s) {
-    var panelFill = s.ink === "light" ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.28)";
+    var panelFill = BOXES["m-" + s.k].ink === "light" ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.28)";
     return stageSvg('<rect width="360" height="220" rx="22" fill="' + panelFill + '"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>' +
       '<g fill="rgba(255,255,255,.18)"><circle cx="48" cy="44" r="18"/><circle cx="318" cy="36" r="10"/><circle cx="292" cy="62" r="5"/></g>' +
       '<g><g class="hero2">' + s.props + "</g></g>");
@@ -1000,7 +1018,17 @@ a{color:var(--sea)}
         '<circle cx="78" cy="58" r="12" fill="#F2B33D" stroke="#13261D" stroke-width="1.5"/><path d="M72 68l-4 18 10-6 10 6-4-18" fill="#D9483B" stroke="#13261D" stroke-width="1.5" stroke-linejoin="round"/>' +
         '<g transform="translate(-6 76)"><rect width="44" height="32" rx="4" fill="#7A5E44" stroke="#13261D" stroke-width="2"/><path d="M14 0v-6h16v6" fill="none" stroke="#13261D" stroke-width="2"/><path d="M0 12h44" stroke="#13261D" stroke-width="1.5"/></g></g>',
       firstAnnouncements: '<g transform="translate(52 44)"><path d="M10 34v22h14l36 20V14L24 34Z" fill="#7A5BA6" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M70 30a14 14 0 0 1 0 30M80 20a28 28 0 0 1 0 50" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/>' +
-        '<g fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"><g transform="translate(30 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(62 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(94 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g></g></g>'
+        '<g fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"><g transform="translate(30 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(62 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g><g transform="translate(94 84)"><rect width="22" height="6" rx="2"/><path d="M3 6v14M19 6v14" fill="none"/></g></g></g>',
+      firstClasses: '<g transform="translate(58 36)"><rect x="10" y="8" width="54" height="96" rx="3" fill="#A0704F" stroke="#13261D" stroke-width="2"/><circle cx="54" cy="60" r="3.5" fill="#F2B33D"/>' +
+        '<g transform="rotate(-4 37 39)"><rect x="18" y="26" width="38" height="26" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><path d="M26 39h20m-6-6 6 6-6 6" fill="none" stroke="#D9483B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>' +
+        '<g transform="translate(88 22)"><circle r="18" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M0-10V0l7 5" fill="none" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/></g></g>',
+      groupChats: '<g transform="translate(48 40)"><path d="M8 0h60a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H30l-12 10V40H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#9ED1DB" stroke="#13261D" stroke-width="2"/>' +
+        '<path d="M42 28h60a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H64l-12 10V68H42a8 8 0 0 1-8-8V36a8 8 0 0 1 8-8Z" fill="#DDEBD4" stroke="#13261D" stroke-width="2"/>' +
+        '<path d="M18 60h60a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H40l-12 10v-10H18a8 8 0 0 1-8-8V68a8 8 0 0 1 8-8Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><g fill="#7A5BA6"><circle cx="36" cy="80" r="4"/><circle cx="48" cy="80" r="4"/><circle cx="60" cy="80" r="4"/></g></g>',
+      officialHow: '<g transform="translate(54 42)"><rect width="84" height="100" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><path d="M6 0h72a6 6 0 0 1 6 6v14H0V6a6 6 0 0 1 6-6Z" fill="#1E4D3A"/><circle cx="20" cy="40" r="10" fill="#F2B33D" stroke="#13261D" stroke-width="1.5"/>' +
+        '<path d="M36 36h36M36 46h26M14 64h58M14 74h50M14 84h54" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/><g transform="translate(84 2)"><path d="M-10 8V2a10 10 0 0 1 20 0v6l4 6h-28l4-6Z" fill="#F2B33D" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><circle cy="18" r="3" fill="#13261D"/></g></g>',
+      checkPost: '<g transform="translate(52 40)"><rect width="80" height="92" rx="6" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><circle cx="18" cy="18" r="8" fill="#B4527C"/><path d="M32 14h36M32 22h24M12 40h56M12 50h48M12 60h52" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/>' +
+        '<g transform="translate(70 72)"><circle r="18" fill="#FFFFFF" stroke="#13261D" stroke-width="3"/><path d="M13 13l14 14" stroke="#13261D" stroke-width="5" stroke-linecap="round"/><text y="7" text-anchor="middle" font-size="20" font-weight="800" fill="#B4527C" font-family="sans-serif">?</text></g></g>'
     };
     return stageSvg(FRAME +
       Object.keys(T).map(function (k) { return '<g class="topic" data-topic="' + k + '">' + T[k] + "</g>"; }).join("") +
@@ -1091,7 +1119,8 @@ a{color:var(--sea)}
     consent: false, age18: null, startedAt: null,
     residence: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null,
     networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
-    firstSuspensions: null, firstDocuments: null, firstEvents: null, firstScholarships: null, firstAnnouncements: null,
+    firstClasses: [], firstSuspensions: [], firstDocuments: [], firstEvents: [], firstScholarships: [], firstAnnouncements: [], groupChats: null, officialHow: [], checkPost: [], checkPostOther: "",
+    whichOffice: null, visitsTook: null, missClass: null, whyQuiet: [], whyQuietOther: "",
     scenario: null, reachHow: null, reachGot: null, concern: [], askFirst: null,
     board: {}, coins: {},
     story: "", mayQuote: false, trust: null, postedAnonymously: null,
@@ -1109,7 +1138,14 @@ a{color:var(--sea)}
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
     /* Where VSU news is heard first (D-119): official and student-run kept apart; no community page is named (D-044). */
-    channels: [["Official VSU pages or website", "web"], ["Student council or org pages", "page"], ["Unofficial groups, like freedom walls", "group"], ["Group chats: class, org, dorm", "gchat"], ["In person: class or friends", "friends"], ["Email or text message", "email"], ["Campus bulletin boards", "board"], ["Somewhere else", "other"]],
+    channels: [["Official VSU pages or website", "web"], ["Group chats: class, org, dorm", "gchat"], ["In person: class or friends", "friends"], ["Student council or org pages", "page"], ["Unofficial groups, like freedom walls", "group"], ["Email or text message", "email"], ["Campus bulletin boards", "board"], ["Somewhere else", "other"]],
+    groupChats: [["None", 0], ["1 to 5", 1], ["6 to 10", 2], ["11 to 20", 3], ["More than 20", 4]],
+    officialHow: [["I get their notifications", "spark"], ["I check them myself", "eye"], ["Someone shares them with me", "people"], ["They usually don't reach me", "ban"]],
+    checkPost: [["Checked VSU's official page or website", "seal"], ["Asked a friend or classmate", "people"], ["Asked in a group chat or group", "chat"], ["Asked an office or a teacher", "office"], ["Waited for more posts", "snail"], ["I didn't check", "ban"], ["Other", "other"]],
+    office: [["Registrar or records", "folder"], ["Cashier or accounting", "coin"], ["My college or department office", "cap"], ["Student affairs or services", "people"], ["Scholarships or financial aid", "star"], ["Library, clinic, or another service", "office"], ["Not sure", "other"]],
+    visits: [["Just one", 1], ["Two or three", 3], ["Four or more", 5], ["It still isn't done", 0]],
+    missClass: [["Yes, more than once", "stack"], ["Yes, once", "calendar"], ["No", "cap"], ["I haven't had an errand", "other"]],
+    whyQuiet: [["I didn't know where to raise it", "search"], ["I didn't think it would change anything", "ban"], ["I worried about the consequences", "mask"], ["It would take too much time or effort", "snail"], ["Someone else had already raised it", "people"], ["Other", "other"]],
     reachHow: [["Went in person", "walk"], ["Messenger or another chat app", "message"], ["Text or call", "call"], ["Email", "email"], ["Commented or posted on a page", "page"], ["Asked someone to pass it on", "friends"], ["It hasn't happened", "nothappened"]],
     reachGot: [["Yes, the same day", "sameday"], ["Yes, but it took days", "days"], ["Only partly", "partly"], ["No, I got no answer", "none"]],
     concern: [["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["Kept it to myself", "ban"], ["It hasn't happened", "other"]],
@@ -1145,13 +1181,17 @@ a{color:var(--sea)}
   /* "I don't look for these" (events, opportunities) is lack of interest, read apart from "I don't hear about it", a gap in awareness. */
   var LATE = "Usually too late", NEVER = "I don't hear about it", NO_LOOK = "I don't look for these";
   var FIRSTS = [
-    ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear it first?", [LATE, NEVER]],
-    ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear it first?", [LATE, NEVER]],
-    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear it first?", [LATE, NEVER, NO_LOOK]],
-    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear it first?", [LATE, NEVER, NO_LOOK]],
-    ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear it first?", [LATE, NEVER]]
+    ["firstClasses", "When a class is moved or cancelled, or a teacher is absent, where do you usually hear about it?", [LATE, NEVER]],
+    ["firstSuspensions", "When classes are suspended or there's an emergency, where do you usually hear about it?", [LATE, NEVER]],
+    ["firstDocuments", "When there are documents to submit, like for clearance, where do you usually hear about it?", [LATE, NEVER]],
+    ["firstEvents", "When there's an event open to everyone, like a blood drive or free snacks, where do you usually hear about it?", [LATE, NEVER, NO_LOOK]],
+    ["firstScholarships", "When a scholarship, part-time job, or other opportunity opens, where do you usually hear about it?", [LATE, NEVER, NO_LOOK]],
+    ["firstAnnouncements", "When your faculty, department, or org calls a meeting or announces something, where do you usually hear about it?", [LATE, NEVER]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much";
+  var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
+  /* Which office it was, and how many visits it took, follow the new-office question when it happened. */
+  function newOffice() { return A.scenario !== null && A.scenario !== NOT_ME; }
   var EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
   /* Questions the respondent has moved on from, answered or skipped. A follow-up counts as coming until its question is
      answered or skipped, so a part's numbering holds; once skipped, the follow-up drops out. */
@@ -1182,12 +1222,9 @@ a{color:var(--sea)}
   var HAPPENED = ["Once or twice", "Several times", "Often"];
   /* The ten Main Campus faculties named in VSU's announcement of 16 January 2025, by name. */
   var FACULTIES = [["FAFS", "Agriculture and Food Science"], ["FOC", "Computing"], ["FE", "Engineering"], ["FFES", "Forestry and Environmental Science"], ["FHSS", "Humanities and Social Sciences"], ["FME", "Management and Economics"], ["FNMS", "Natural and Mathematical Sciences"], ["FON", "Nursing"], ["FTE", "Teacher Education"], ["FVM", "Veterinary Medicine"]];
-  /* Channel order: shuffled once for each respondent, kept for all five news questions, and recorded, so order effects can be checked. */
-  var CHANNELS = (function (list) {
-    var head = list.slice(0, -1);
-    for (var i = head.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = head[i]; head[i] = head[j]; head[j] = t; }
-    return head.concat(list.slice(-1));
-  })(OPT.channels);
+  /* Channel order: the owner's, the same for everyone and every news question (D-119, revised 21 October 2026). It replaces a
+     shuffle; the first-listed channels may draw extra picks, which the analysis keeps in mind. */
+  var CHANNELS = OPT.channels;
   var NOT_SAID = "Prefer not to say", FAMILY_HOME = "My family's home, and I commute";
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
@@ -1216,20 +1253,32 @@ a{color:var(--sea)}
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
 
   /* ---------- The walk: chapters and steps ---------- */
-  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from VSU", "Reaching VSU", "Students and alumni", "Campus life", "Coins", "Your story", "Network idea", "Send"];
+  var CHAPTERS = ["Start", "Mornings", "Your form", "Getting online", "Hearing from campus", "Reaching out", "Students and alumni", "Campus life", "Coins", "Your story", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
   /* A part numbers its screens in the kicker ("Reaching VSU, 3 of 8"), counted from the screens the respondent will see. */
   function part(ch, name, items) {
     items.forEach(function (it) {
       if (it.k) step({ id: "m-" + it.k, box: "m-" + it.k, ch: ch, part: name, kind: "moment", k: it.k, kicker: name, prompt: byKey[it.k].title, hint: it.hint || null, core: true });
-      else { it.ch = ch; it.part = name; it.kicker = name; step(it); }
+      else { it.ch = ch; it.part = name; it.kicker = LABEL[it.id] || name; step(it); }
     });
   }
-  function kickerOf(s) {
-    var L = list().filter(function (x) { return x.part === s.part; }), i = L.indexOf(s);
-    return s.part + ", " + (i + 1) + " of " + L.length;
-  }
+  /* Each question carries a short label instead of a number, which follow-ups would change (D-125). A scene's title is its
+     label, so its kicker names the part. */
+  var LABEL = {
+    home: "Where you wake up", transport: "Getting to class",
+    year: "Year", faculty: "Faculty", org: "Student orgs", scholarship: "Scholarship", transferee: "Before VSU", firstGen: "First in your family",
+    networks: "Your networks", twoSims: "Two SIMs", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Does it last",
+    reload: "When it runs out", reloadWhy: "Why reload", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
+    onlineCampus: "Online on campus", onlineHome: "Online where you stay", wifiSpend: "Wi\u2011Fi in a month",
+    firstClasses: "Class changes", firstSuspensions: "Suspensions and emergencies", firstDocuments: "Documents to submit", firstEvents: "Events",
+    firstScholarships: "Scholarships and jobs", firstAnnouncements: "Meetings and announcements", groupChats: "Your group chats",
+    officialHow: "VSU's official pages", checkPost: "Checking a post",
+    scenario: "A new office", whichOffice: "Which office", visitsTook: "Visits it took", reachHow: "Reaching a teacher or staff", reachGot: "Did it work",
+    missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it",
+    askFirst: "Asking first", trust: "Trusting an answer", postedAnonymously: "Posting anonymously"
+  };
+  function kickerOf(s) { return s.kicker; }
   function stamps() { return OPT.yesno.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }); }
   function yesNo() { return stamps().slice(0, 2); }
 
@@ -1281,17 +1330,30 @@ a{color:var(--sea)}
       opts: OPT.wifiSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) }
   ]);
   /* The four channel questions run together, on one list, then the scenes on hearing from VSU. */
-  part(4, "Hearing from VSU", FIRSTS.map(function (f) {
-    return { id: f[0], box: "news", kind: "pick", key: f[0], size: "news", extras: f[2], prompt: f[1], core: true };
-  }).concat([{ k: "d", hint: "moment" }, { k: "o" }, { k: "f" }, { k: "g" }, { k: "k" }]));
-  part(5, "Reaching VSU", [
+  /* Up to three channels per question, in the order they usually reach the respondent; the first is where they hear it first.
+     Then two questions on habits, then the scenes, with a follow-up on checking a post after scene o. */
+  part(4, "Hearing from campus", FIRSTS.map(function (f, i) {
+    return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " up to three, in the order you hear it.", spareLede: i > 0, core: true };
+  }).concat([
+    { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many group chats for your classes, orgs, or dorm are you in?", core: true,
+      opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
+    { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
+    { k: "d", hint: "moment" }, { k: "o" },
+    { id: "checkPost", box: "news", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "The last time you couldn't tell, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.checkPost, when: function () { return happened("o"); } },
+    { k: "f" }, { k: "g" }, { k: "k" }
+  ]));
+  part(5, "Reaching out", [
     { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never dealt with, what did you do first?", core: true,
     opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { k: "a" }, { k: "e" },
+    { id: "whichOffice", box: "errand", kind: "chipsOne", key: "whichOffice", size: "bare", prompt: "What kind of office was it?", core: true, opts: OPT.office, when: newOffice },
+    { id: "visitsTook", box: "errand", kind: "tiles", key: "visitsTook", cols: "t4", size: "short", prompt: "How many visits or messages did it take to get it done?", core: true, when: newOffice,
+      opts: OPT.visits.map(function (o) { return { v: o[0], art: function () { return TILE.visits(o[1]); } }; }) },
     { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== NOT_YET; } },
-    { k: "c" },
+    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
+    { id: "missClass", box: "errand", kind: "chipsOne", key: "missClass", size: "bare", prompt: "Since the start of this semester, has an errand at an office made you miss a class?", core: true, opts: OPT.missClass },
+    { k: "a" }, { k: "e" }, { k: "c" },
     { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, "Kept it to myself"], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { id: "whyQuiet", box: "errand", kind: "chipsMulti", key: "whyQuiet", size: "bare", other: "whyQuietOther", otherPh: "Other: why? (optional)", prompt: "Why did you keep it to yourself?", lede: "Pick all that apply.", core: true, opts: OPT.whyQuiet, when: function () { return A.concern.indexOf(KEPT) >= 0; } },
     { k: "p" }
   ]);
   part(6, "Students and alumni", [
@@ -1305,13 +1367,13 @@ a{color:var(--sea)}
   /* The campus map is left out until it is reworked; its drawing and code stay for that. */
   step({ id: "coins", box: "coins", ch: 8, kind: "coins", kicker: "Your say", prompt: "You have ten coins. What should be fixed first?", lede: TAP + " a jar to drop a coin in. Several in one jar is fine.", spareLede: true, hint: "jars" });
   step({ id: "story", box: "story", ch: 9, kind: "story", size: "short", kicker: "Your own scene", prompt: "Tell us about the last time one of those moments happened.", lede: "What happened, and what did you do? English, Filipino, Bisaya, or Waray. Leave out names and details that could identify anyone." });
-  step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 1 of 5", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
-  step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "A network idea, 2 of 5", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "A network idea, 3 of 5", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+  step({ id: "worksWell", box: "net", ch: 10, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
+  step({ id: "wouldUse", box: "net", ch: 10, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "postPreference", box: "net", ch: 10, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "wantBack", box: "net", ch: 10, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "A network idea, 4 of 5", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
+  step({ id: "wantBack", box: "net", ch: 10, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
     opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
-  step({ id: "keepAway", box: "net", ch: 10, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "A network idea, 5 of 5", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "keepAway", box: "net", ch: 10, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
   step({ id: "send", box: "send", ch: 11, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
   step({ id: "final", box: "final", ch: 11, kind: "final", noMenu: true, when: function () { return sent; } });
 
@@ -1332,6 +1394,7 @@ a{color:var(--sea)}
       case "moment": var a = A.board[s.k]; return !!(a && a.often && (HAPPENED.indexOf(a.often) < 0 || a.matters));
       case "vigs": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "chipsMulti": return A[s.key].length > 0;
+      case "pick": return A[s.key].length > 0;
       case "tiles": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "map": return !!A.pins && A.pins.length > 0;
       case "coins": return spent() > 0;
@@ -1462,6 +1525,9 @@ a{color:var(--sea)}
     final: { bg: "#0F1E3A", ink: "light", stage: finalStage }
   };
   MOMENTS.forEach(function (m) { BOXES["m-" + m.k] = { bg: m.bg, ink: m.ink, cls: "mbox", stage: function () { return momentStage(m); } }; });
+  /* Each part keeps one background color (D-125): its scenes and other screens take the part's color. The coins' jars keep each scene's own. */
+  var PART_BG = { 4: BOXES.news, 5: BOXES.errand, 6: BOXES.peers, 7: { bg: "#2C8C99", ink: "light" } };
+  STEPS.forEach(function (s) { var c = PART_BG[s.ch], b = BOXES[s.box]; if (c && b && b !== c) { b.bg = c.bg; b.ink = c.ink; } });
 
   var view = $("#view"), boxEls = {}, panelEls = {};
   Object.keys(BOXES).forEach(function (id) {
@@ -1509,6 +1575,12 @@ a{color:var(--sea)}
       var btns = wrap.hasAttribute("data-v") ? [wrap] : $$("[data-v]", wrap);
       btns.forEach(function (b) { if (b.closest("[data-key]") === wrap) b.setAttribute("aria-pressed", String(isOn(key, b.dataset.v))); });
     });
+    /* Ranked picks show their place: 1 where heard first, then 2 and 3. */
+    if (s.rank) $$('[data-part="pick"] [data-v]', p).forEach(function (b) {
+      var i = A[s.key].indexOf(b.dataset.v);
+      if (i >= 0) { b.dataset.rank = String(i + 1); b.setAttribute("aria-label", b.dataset.v + ", picked " + (i + 1)); }
+      else { delete b.dataset.rank; b.removeAttribute("aria-label"); }
+    });
     $$("[data-other]", p).forEach(function (f) {
       var on = A[s.key].indexOf("Other") >= 0;
       f.hidden = !on;
@@ -1525,6 +1597,7 @@ a{color:var(--sea)}
         a.often = a.often === v ? null : v;
         turnedOn = a.often !== null;
         if (HAPPENED.indexOf(a.often) < 0) a.matters = null;
+        if (k === "o" && HAPPENED.indexOf(a.often) < 0) { A.checkPost.length = 0; A.checkPostOther = ""; }
       } else { a.matters = a.matters === v ? null : v; turnedOn = a.matters !== null; }
       if (!a.often && !a.matters) delete A.board[k];
       syncMoment(k, key.indexOf("often:") === 0 ? "often" : "matters");
@@ -1560,6 +1633,7 @@ a{color:var(--sea)}
       if (key === "load" && A.load.indexOf(APP_DATA) < 0) { A.loadApps.length = 0; A.loadAppsOther = ""; }
       if (key === "onlineHome" && !paysWifi()) A.wifiSpend = null;
       if (key === "networks" && A.networks.length < 2) { A.twoSims.length = 0; A.twoSimsOther = ""; }
+      if (key === "concern" && A.concern.indexOf(KEPT) < 0) { A.whyQuiet.length = 0; A.whyQuietOther = ""; }
       if (key === "networks" || key === "load") {
         if (!buysLoad()) A.dataSpend = null;
         if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; }
@@ -1569,7 +1643,8 @@ a{color:var(--sea)}
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
-      if (key === "reachHow" && A.reachHow === NOT_YET) A.reachGot = null;
+      if (key === "reachHow" && (A.reachHow === null || A.reachHow === NOT_YET)) A.reachGot = null;
+      if (key === "scenario" && !newOffice()) { A.whichOffice = null; A.visitsTook = null; }
       clearPromoChain();
     }
     return turnedOn;
@@ -1642,7 +1717,7 @@ a{color:var(--sea)}
   }
   function fillCard() {
     var card = $("#passcard");
-    ["year", "faculty", "org", "scholarship", "transferee"].forEach(function (k) {
+    ["year", "faculty", "org", "scholarship"].forEach(function (k) {
       var dd = $('[data-f="' + k + '"]', card), t = short(k);
       if (dd.textContent !== t) { dd.textContent = t; }
     });
@@ -2215,7 +2290,7 @@ a{color:var(--sea)}
     var cells = [
       cell("house", "#B7791F", "Mornings", A.residence || "Skipped"),
       cell("cap", "#1F7A8C", "Your form", [short("year"), short("faculty")].join(", ")),
-      cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions || "Skipped"),
+      cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions[0] || "Skipped"),
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped")),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Scenes that happened", hits.length + " of " + MOMENTS.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
@@ -2241,7 +2316,6 @@ a{color:var(--sea)}
   function record() {
     var r = JSON.parse(JSON.stringify(A));
     delete r.pins;
-    r.channelOrder = CHANNELS.map(function (o) { return o[1]; });
     r.variant = "scenes";
     r.survey = SURVEY_ID;
     r.version = SURVEY_VERSION;
