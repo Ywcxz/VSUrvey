@@ -102,7 +102,6 @@ button,a,input,textarea{touch-action:manipulation}
 .agree.nudge-me{box-shadow:0 0 0 4px rgba(242,179,61,.6)}
 .kicker{font:650 13.5px/1.2 var(--display);color:var(--ink-soft);margin:0 0 6px}
 .kicker .fu{display:inline-block;margin:0 7px 0 0;padding:2px 8px;border-radius:999px;background:var(--mango);color:#13261D;font:750 11.5px/1.35 var(--display);vertical-align:1px}
-.because{font-size:13.5px;line-height:1.3;color:var(--ink-soft);margin:0 0 8px;padding:1px 0 1px 10px;border-left:3px solid var(--mango)}
 .prompt{font:700 clamp(21px,5.6vw,27px)/1.12 var(--display);font-variation-settings:"opsz" 48;letter-spacing:-.012em;margin:0 0 6px;max-width:30ch}
 .prompt:focus{outline:none}
 .prompt:focus-visible{outline:3px solid var(--mango);outline-offset:4px;border-radius:6px}
@@ -1320,8 +1319,9 @@ a{color:var(--sea)}
     askFirst: "Asking first", fbPosting: "Posting in unofficial Facebook groups",
     whereFound: "Finding where you stay", lunch: "Lunch on a class day", cantGoOut: "When you can't go out", buySell: "Buying and selling"
   };
-  /* Follow-ups say so, and which answer brought them (D-126, D-129). Only questions that particular answers bring are tagged; one
-     asked after every answer but "it hasn't happened" or a skip is simply the next question (D-130). */
+  /* Follow-ups carry a tag (D-126). Only questions that particular answers bring are tagged; one asked after every answer but
+     "it hasn't happened" or a skip is simply the next question (D-130). Each entry names the step it follows and the answers
+     that bring it, for reference; the screen shows only the tag (21 October 2026). */
   var FU = {
     twoSims: ["networks", function () { return A.networks; }],
     loadApps: ["load", function () { return [APP_DATA]; }],
@@ -1360,12 +1360,7 @@ a{color:var(--sea)}
       else if (v !== null && !fits(id, v)) A[k] = null;
     });
   }
-  function becauseOf(s) {
-    var f = FU[s.id], parent = stepById[f[0]], name = parent.kind === "moment" ? byKey[parent.k].title : LABEL[parent.id];
-    var picks = f[1]().filter(Boolean).map(function (x) { return "\u201C" + x.replace("Wi-Fi", "Wi\u2011Fi") + "\u201D"; });
-    void name;
-    return picks.length ? "Because you picked " + picks.join(" and ") + "." : "";
-  }
+
   function kickerOf(s) { return s.kicker; }
   function stamps() { return OPT.yesno.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }); }
   function yesNo() { return stamps().slice(0, 2); }
@@ -1500,7 +1495,7 @@ a{color:var(--sea)}
 
   /* ---------- Panels ---------- */
   function head(s) {
-    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" + (FU[s.id] ? '<p class="because"></p>' : "") : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
+    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
   function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
@@ -2040,7 +2035,6 @@ a{color:var(--sea)}
   /* ---------- Entering a step ---------- */
   function enter(s) {
     var box = boxEls[s.box];
-    if (FU[s.id]) { var bc = $(".because", panelEls[s.id]); if (bc) { bc.textContent = becauseOf(s); bc.hidden = !bc.textContent; } }
     applyShowIf(s);
     if (s.box === "gate") gateReact();
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }

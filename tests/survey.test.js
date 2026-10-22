@@ -148,7 +148,7 @@ async function walkAll(page, shot) {
   await page.click(btn("untilExpiry", "No, it runs out early"));
   await at(page, "reload", shot);
   assert.strictEqual(await page.locator(inStep("reload", ".kicker")).textContent(), "Follow-upAnother promo");
-  assert.strictEqual(await page.locator(inStep("reload", ".because")).textContent(), "Because you picked \u201CNo, it runs out early\u201D.");
+  assert.strictEqual(await page.locator(inStep("reload", ".because")).count(), 0, "a follow-up shows only its tag");
   await page.click(btn("reload", "Yes, right away"));
   await at(page, "reloadWhy", shot);
   await page.click(btn("reloadWhy", "My open-access data ran out, but my app-only data didn't"));
@@ -237,7 +237,7 @@ async function walkAll(page, shot) {
   await page.click(btn("concern", "Used a suggestion box or feedback form"));
   await next(page);
   await at(page, "concernHeard", shot);
-  assert.strictEqual(await page.locator(inStep("concernHeard", ".because")).textContent(), "Because you picked \u201CWent to the student council or an org\u201D and \u201CUsed a suggestion box or feedback form\u201D.");
+  assert.ok(await page.locator(inStep("concernHeard", ".kicker .fu")).isVisible(), "hearing back is tagged as a follow-up");
   await page.click(btn("concernHeard", "No, I never heard back"));
   for (const k of ["a", "c"]) await scene(page, k, shot);
   // Students and alumni
