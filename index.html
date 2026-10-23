@@ -359,9 +359,6 @@ a{color:var(--sea)}
 @keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
 @keyframes dropB{from{opacity:0;transform:translateY(-80px)}to{opacity:1;transform:none}}
 @keyframes drive{from{transform:translateX(230px)}to{transform:none}}
-.ring-clock{transform-origin:318px 56px;transform-box:view-box}
-.ringing .ring-clock{animation:ring .12s linear 8}
-@keyframes ring{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
 
 /* ---------- Map ---------- */
 .stage .mapwrap{width:100%;height:100%;max-width:620px;display:flex;align-items:center;justify-content:center}
@@ -551,8 +548,8 @@ a{color:var(--sea)}
   var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
   var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
-  var SURVEY_VERSION = "last-time-v1";
-  var VARIANT = "last-time";  // each problem asked about the last time it came up (D-038, as proposed for revision on 22 October 2026)
+  var SURVEY_VERSION = "since-v1";
+  var VARIANT = "since";  // each problem asked about since the respondent started at VSU, all that happened (D-038, as proposed for revision)
   var SURVEY_ID = "student-life-2026";  // VSUrvey is the name for every survey of the series; this is the first
   var SURVEY_LABEL = "Student Life and Services";
   var FORM_URL = "";  // the same survey as a Google Form, once it exists; the first screen then offers it
@@ -690,7 +687,7 @@ a{color:var(--sea)}
       else if (kind === "motor") b += wheel(34, 64, 12) + wheel(88, 64, 12) + '<path d="M34 64 L50 46 H74 L88 64" fill="none" stroke="#13261D" stroke-width="3"/><path d="M46 46 Q60 30 80 42 L76 52 H50Z" fill="#1F7A8C" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M78 40 l8-10 h6" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/><rect x="50" y="38" width="16" height="6" rx="3" fill="#13261D"/>';
       else if (kind === "trike") b += '<rect x="58" y="30" width="44" height="34" rx="6" fill="#5E8C4A" stroke="#13261D" stroke-width="2"/><path d="M54 30 h52" stroke="#13261D" stroke-width="4" stroke-linecap="round"/><rect x="64" y="38" width="14" height="12" rx="2" fill="#9ED1DB"/><rect x="82" y="38" width="14" height="12" rx="2" fill="#9ED1DB"/>' + wheel(30, 66, 10) + wheel(92, 68, 9) + '<path d="M30 66 L42 48 H58" fill="none" stroke="#13261D" stroke-width="3"/><path d="M40 48 l-4-10 h-6" fill="none" stroke="#13261D" stroke-width="3" stroke-linecap="round"/>';
       else if (kind === "jeep") b += '<path d="M14 70 V46 H86 L96 56 H106 V70 Z" fill="#D9483B" stroke="#13261D" stroke-width="2"/><path d="M14 50 H86" stroke="#F2B33D" stroke-width="3"/><g fill="#9ED1DB"><rect x="20" y="54" width="12" height="8"/><rect x="38" y="54" width="12" height="8"/><rect x="56" y="54" width="12" height="8"/><rect x="74" y="54" width="10" height="8"/></g><rect x="10" y="40" width="80" height="6" rx="2" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/>' + wheel(30, 72, 6) + wheel(90, 72, 6);
-      else b += '<path d="M18 66 V52 L32 38 H78 L94 52 H104 V66 Z" fill="#2F6DB5" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M36 42 H54 V52 H28Z M58 42 H76 L86 52 H58Z" fill="#9ED1DB"/><circle cx="44" cy="47" r="4" fill="#8A5A3C"/><circle cx="68" cy="47" r="4" fill="#A0704F"/>' + wheel(36, 68, 8) + wheel(86, 68, 8);
+      else b += '<path d="M18 66 V52 L32 38 H78 L94 52 H104 V66 Z" fill="#2F6DB5" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M36 42 H54 V52 H28Z M58 42 H76 L86 52 H58Z" fill="#9ED1DB"/><circle cx="44" cy="47" r="4" fill="#8A5A3C"/>' + (kind === "car" ? "" : '<circle cx="68" cy="47" r="4" fill="#A0704F"/>') + wheel(36, 68, 8) + wheel(86, 68, 8);
       return art(b + "</g>");
     },
     inactive: function () { return art('<rect width="120" height="90" fill="#E4EFE8"/><g class="wake"><circle cx="60" cy="45" r="22" fill="#DCE5DF" stroke="#7E8F86" stroke-width="2" stroke-dasharray="5 4"/><circle cx="60" cy="45" r="14" fill="#F7FBF8"/><path d="M53 45.5l5 5 9-10" fill="none" stroke="#9AA9A0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="88" y="30" font-size="12" font-weight="800" fill="#7E8F86" font-family="sans-serif">z</text><text x="96" y="22" font-size="9" font-weight="800" fill="#7E8F86" font-family="sans-serif">z</text></g>'); },
@@ -888,7 +885,6 @@ a{color:var(--sea)}
   ];
 
   /* Drawings carried over from scenes-v1. */
-  var HOME_V1 = "<svg class=\"stage\" viewBox=\"0 0 360 200\" aria-hidden=\"true\">\n      <rect width=\"360\" height=\"200\" rx=\"22\" fill=\"rgba(255,255,255,.24)\"/>\n      <path d=\"M0 168H360V178a22 22 0 0 1-22 22H22A22 22 0 0 1 0 178Z\" fill=\"rgba(0,0,0,.12)\"/>\n      <path d=\"M40 168h280\" stroke=\"rgba(19,38,29,.25)\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/>\n      <g class=\"v v-dorm\" id=\"v-dorm\"><rect x=\"138\" y=\"44\" width=\"84\" height=\"124\" rx=\"3\" fill=\"#F7FBF8\"/><rect x=\"138\" y=\"44\" width=\"84\" height=\"12\" fill=\"#1F7A8C\"/>\n        <g fill=\"#9ED1DB\"><rect x=\"150\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"172\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"66\" width=\"16\" height=\"14\"/><rect x=\"150\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"172\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"90\" width=\"16\" height=\"14\"/><rect x=\"150\" y=\"114\" width=\"16\" height=\"14\"/><rect x=\"194\" y=\"114\" width=\"16\" height=\"14\"/></g>\n        <rect x=\"170\" y=\"138\" width=\"20\" height=\"30\" fill=\"#13261D\"/></g>\n      <g class=\"v v-house\" id=\"v-house\"><path d=\"M128 98 L180 60 L232 98 Z\" fill=\"#D9483B\"/><rect x=\"136\" y=\"98\" width=\"88\" height=\"70\" fill=\"#F7FBF8\"/>\n        <rect x=\"146\" y=\"108\" width=\"22\" height=\"18\" fill=\"#9ED1DB\"/><rect x=\"192\" y=\"108\" width=\"22\" height=\"18\" fill=\"#9ED1DB\"/><rect x=\"170\" y=\"134\" width=\"20\" height=\"34\" fill=\"#7A5E44\"/>\n        <rect x=\"150\" y=\"80\" width=\"60\" height=\"14\" rx=\"3\" fill=\"#F2B33D\"/><text x=\"180\" y=\"91\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#13261D\" font-family=\"sans-serif\">Bedspace</text>\n        <path d=\"M232 112 H286\" stroke=\"#4A5E53\" stroke-width=\"1.2\"/><rect x=\"240\" y=\"112\" width=\"12\" height=\"16\" fill=\"#1F7A8C\"/><rect x=\"258\" y=\"112\" width=\"10\" height=\"12\" fill=\"#D9483B\"/><rect x=\"272\" y=\"112\" width=\"10\" height=\"14\" fill=\"#F7FBF8\"/></g>\n      <g class=\"v v-jeep\" id=\"v-jeep\"><path d=\"M70 168 V140 L92 124 L114 140 V168 Z\" fill=\"#F7FBF8\"/><rect x=\"86\" y=\"148\" width=\"12\" height=\"20\" fill=\"#7A5E44\"/>\n        <g class=\"jeep\"><path d=\"M156 162 V136 H236 L250 148 H262 V162 Z\" fill=\"#D9483B\"/><path d=\"M156 136 H236\" stroke=\"#F2B33D\" stroke-width=\"4\"/><g fill=\"#9ED1DB\"><rect x=\"164\" y=\"142\" width=\"16\" height=\"10\"/><rect x=\"186\" y=\"142\" width=\"16\" height=\"10\"/><rect x=\"208\" y=\"142\" width=\"16\" height=\"10\"/></g><circle cx=\"176\" cy=\"164\" r=\"8\" fill=\"#13261D\"/><circle cx=\"240\" cy=\"164\" r=\"8\" fill=\"#13261D\"/><circle cx=\"176\" cy=\"164\" r=\"3\" fill=\"#C9C2B3\"/><circle cx=\"240\" cy=\"164\" r=\"3\" fill=\"#C9C2B3\"/></g></g>\n      <g class=\"v v-other\" id=\"v-other\"><rect x=\"176\" y=\"80\" width=\"8\" height=\"88\" fill=\"#7A5E44\"/><rect x=\"146\" y=\"62\" width=\"68\" height=\"40\" rx=\"8\" fill=\"#F7FBF8\"/><text x=\"180\" y=\"91\" text-anchor=\"middle\" font-size=\"26\" font-weight=\"800\" fill=\"#1F7A8C\" font-family=\"sans-serif\">?</text></g>\n    </svg>";
   var MAP_V1 = "<svg id=\"map\" viewBox=\"0 0 320 250\" role=\"img\" aria-label=\"Sketch map: Mt. Pangasugan, upper campus, lower campus with the dorms and the VSU market, the highway, and the sea\">\n          <rect class=\"m-land\" width=\"320\" height=\"250\"/>\n          <path class=\"m-hill\" d=\"M0 0H320V24C270 32 230 16 180 22C130 28 90 12 40 20C24 23 10 22 0 20Z\"/>\n          <text class=\"m-lbl\" x=\"214\" y=\"14\">Mt. Pangasugan</text>\n          <rect class=\"m-zone\" x=\"16\" y=\"32\" width=\"288\" height=\"82\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"52\">Upper campus</text>\n          <path class=\"m-road\" d=\"M160 114 C148 124 174 134 160 146\"/>\n          <rect class=\"m-zone\" x=\"16\" y=\"146\" width=\"288\" height=\"68\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"166\">Lower campus</text>\n          <g class=\"m-poi\" transform=\"translate(84 180)\"><path d=\"M-9 8V-4L0-10 9-4V8Z\"/><path d=\"M-3 8V2h6v6\"/></g>\n          <text class=\"m-lbl\" x=\"84\" y=\"204\" text-anchor=\"middle\">Dorms</text>\n          <g class=\"m-poi\" transform=\"translate(224 180)\"><path d=\"M-11-4H11L8-10H-8Z\"/><path d=\"M-9-4V8M9-4V8M-11 8H11\"/></g>\n          <text class=\"m-lbl\" x=\"224\" y=\"204\" text-anchor=\"middle\">VSU market</text>\n          <rect class=\"m-roadfill\" x=\"0\" y=\"220\" width=\"320\" height=\"16\"/>\n          <path class=\"m-dash\" d=\"M0 228H320\" stroke-dasharray=\"8 7\"/>\n          <text class=\"m-lbl\" x=\"314\" y=\"216\" text-anchor=\"end\">Highway</text>\n          <rect class=\"m-sea\" x=\"0\" y=\"236\" width=\"320\" height=\"14\"/>\n          <text class=\"m-lbl\" x=\"8\" y=\"247\">Sea</text>\n          <g id=\"map-pins\"></g>\n        </svg>";
 
   /* ---------- Stages: one drawing per place on the walk ---------- */
@@ -924,13 +920,6 @@ a{color:var(--sea)}
   }
   function gateStage() { return gateSvg("gate-say", "Are you a student?"); }
 
-  /* Home: the morning, and where you wake up. */
-  function homeStage() {
-    var sun = '<g><circle cx="58" cy="54" r="22" fill="#FFF3C4" opacity=".9"/><circle cx="58" cy="54" r="14" fill="#FFFFFF" opacity=".9"/></g>';
-    return HOME_V1.replace('<svg class="stage"', '<svg class="scene" preserveAspectRatio="xMidYMid meet"').replace('fill="rgba(0,0,0,.12)"/>', 'fill="rgba(0,0,0,.12)"/>' + sun).replace("</svg>",
-      '<g><g class="ring-clock"><circle cx="318" cy="56" r="17" fill="#F7FBF8" stroke="#13261D" stroke-width="2.5"/><path d="M318 46v10l7 4" stroke="#13261D" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="305" cy="40" r="6" fill="#D9483B" stroke="#13261D" stroke-width="2"/><circle cx="331" cy="40" r="6" fill="#D9483B" stroke="#13261D" stroke-width="2"/><path d="M306 74l-4 6M330 74l4 6" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/></g></g></svg>');
-  }
-
   /* Your form: you stand at the counter; the staff types in your answers, prints your form, and hands it over. */
   function passStage() {
     var bars = "", keys = "";
@@ -958,7 +947,7 @@ a{color:var(--sea)}
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div></div>';
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Lives</dt><dd data-f="residence">Skipped</dd><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Scholar</dt><dd data-f="scholarship">Skipped</dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -1114,15 +1103,14 @@ a{color:var(--sea)}
   /* ---------- What is recorded ---------- */
   var A = {
     consent: false, age18: null, startedAt: null,
-    residence: null, barangay: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null, familyVSU: null,
+    residence: null, dormPart: null, barangay: null, year: null, faculty: null, org: null, scholarship: null, familyVSU: null,
     networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstClasses: [], firstSuspensions: [], firstDocuments: [], firstEvents: [], firstScholarships: [], firstAnnouncements: [], groupChats: null, officialHow: [], checkPost: [], checkPostOther: "",
-    classLast: null, classCost: [], officialLast: null, officialCost: [], missedLate: [], missedCost: [],
-    whichOffice: null, visitsTook: null, visitsCost: [], missClass: null, whyQuiet: [], whyQuietOther: "",
-    scenario: null, reachHow: null, reachGot: null, reachCost: [], concern: [], askFirst: null, answerRight: null, answerCost: [],
-    oldAnswer: null, oldCost: [], guideLast: null, guideCost: [], seniorLast: null, seniorCost: [],
+    classNews: [], officialTell: [], missedLate: [],
+    scenario: [], whichOffice: [], visitsTook: [], reachWhy: [], reachHard: [], missClass: null, concern: [], whyQuiet: [], whyQuietOther: "", concernHeard: [],
+    askFirst: [], answerRight: [], oldAnswer: [], guideSteps: [], seniorFind: [],
     coins: {},
-    concernHeard: null, heardCost: [], fbPosting: [], whereFound: null, housingSince: null, housingCost: [], cantGoOut: [], buySell: [], scamSince: null, scamCost: [], whoJoin: [], whoRuns: null, hostedPay: null,
+    fbPosting: [], getAround: [], commute: [], whereFound: null, housingSince: null, cantGoOut: [], buySell: [], scamSince: null, whoJoin: [], whoRuns: null, hostedPay: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
   };
@@ -1131,11 +1119,15 @@ a{color:var(--sea)}
 
   /* ---------- Choices ---------- */
   var OPT = {
+    dormPart: [["Lower campus", "pin"], ["Upper campus", "pin"]],
     residence: [["An on-campus dorm", "dorm"], ["A boarding house or apartment near campus", "bhouse"], ["My family's home, and I commute", "commute"], ["A relative's or friend's house", "relative"], ["Somewhere else", "elsewhere"]],
     /* Baybay City's barangays along the highway, in the owner's order, with neighbors grouped so that fewer groups fall below
        the floor of 10 respondents (D-110); Utod is the local name for Guadalupe (owner, 23 October 2026). */
     barangay: [["Pangasugan", "pin"], ["Guadalupe (Utod)", "pin"], ["Marcos or San Agustin", "pin"], ["Patag or Gabas", "pin"], ["Bunga, or farther north", "pin"], ["Kilim, or farther south", "pin"], ["Somewhere else", "other"]],
-    transport: [["Walk", "walk"], ["Bicycle", "bike"], ["My own motorcycle or car", "motor"], ["Habal-habal or tricycle", "trike"], ["Jeepney or multicab", "jeep"], ["Someone gives me a ride", "ride"]],
+    /* Getting around: what the respondent has or rides along in, and, for those who live off campus, how they get to campus
+       (owner, 23 October 2026). */
+    getAround: [["A bicycle", "bike"], ["A motorcycle", "motor"], ["A car", "car"], ["I ride along with someone", "ride"]],
+    commute: [["Habal-habal or tricycle", "trike"], ["Jeepney or multicab", "jeep"], ["My own bicycle, motorcycle, or car", "motor"], ["A ride with someone", "ride"], ["Walk", "walk"]],
     year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5], ["Graduate student", "Graduate student", 0]],
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
@@ -1153,8 +1145,9 @@ a{color:var(--sea)}
     cantGoOut: [["Ask a friend or classmate to buy it", "people"], ["Use a pasabuy or delivery", "jeep"], ["Wait until I can go", "calendar"], ["Go without", "ban"], ["It doesn't happen to me", "other"]],
     buySell: [["Facebook groups or Marketplace", "group"], ["Group chats", "chat"], ["In person on campus", "walk"], ["I don't buy or sell with people on campus", "ban"]],
     whyQuiet: [["I didn't know where to raise it", "search"], ["I didn't think it would change anything", "ban"], ["I worried about the consequences", "mask"], ["It would take too much time or effort", "snail"], ["Someone else had already raised it", "people"], ["Other", "other"]],
-    reachHow: [["Went in person", "walk"], ["Messenger or another chat app", "message"], ["Text or call", "call"], ["Email", "email"], ["Commented or posted on a page", "page"], ["Asked someone to pass it on", "friends"], ["It hasn't happened", "nothappened"]],
-    reachGot: [["Yes, the same day", "sameday"], ["Yes, but it took days", "days"], ["Only partly", "partly"], ["No, I got no answer", "none"]],
+    /* Reaching a teacher or staff member: why they needed to, and what made it hard (owner, 23 October 2026). */
+    reachWhy: [["A grade or a requirement", "folder"], ["A deadline or a schedule", "calendar"], ["A signature or a document", "pen"], ["A question about a lesson", "bubble"], ["An absence or a late submission", "snail"], ["Advice, like on a thesis or OJT", "guide"], ["Something else", "tag"], ["It hasn't happened", "other"]],
+    reachHard: [["They didn't reply, or replied days later", "snail"], ["I didn't know how to contact them", "search"], ["They weren't in their office when I went", "door"], ["I could only reach them through someone else, like a class rep", "people"], ["I hesitated to ask", "mask"], ["It hasn't been hard", "spark"]],
     concern: [["Kept it to myself", "ban"], ["Told the office directly", "office"], ["Told a teacher or adviser", "cap"], ["Went to the student council or an org", "flag"], ["Used a suggestion box or feedback form", "mail"], ["Raised it at a forum or dialogue", "megaphone"], ["Posted about it online", "bubble"], ["Only talked about it with friends", "chat"], ["It hasn't happened", "other"]],
     askFirst: [["A group chat", "gchat"], ["An unofficial student group or freedom wall", "group"], ["A classmate or senior, in person", "friends"], ["A teacher or adviser", "teacher"], ["Searched online", "search"], ["I didn't look or ask anyone", "noask"], ["I haven't had a question like this", "nothappened"]],
     works: [["Everyone is already there", "people"], ["News spreads fast", "spark"], ["Works with my load promo", "signal"], ["Easy to ask and get answers", "bubble"], ["I can post without my name", "mask"], ["Easy to find the right people", "search"], ["Nothing much", "ban"], ["Other", "other"]],
@@ -1182,20 +1175,19 @@ a{color:var(--sea)}
     pull: [["Official answers from offices", "office"], ["Easier to reach faculty and staff", "door"], ["Notices and deadlines in one place", "board"], ["Scholarships and opportunities in one place", "star"], ["Events in one place", "flag"], ["Questions about my subjects", "guide"], ["My class schedule and rooms in one place", "calendar"], ["A marketplace only for VSU people", "tag"], ["No ads or endless feeds", "ban"], ["Works on little mobile data", "signal"], ["Other", "other"]],
     whoJoin: [["Faculty", "cap"], ["Office staff", "office"], ["Student orgs and councils", "flag"], ["Alumni", "star"], ["Incoming students", "guide"], ["Only students", "people"]],
     whoRuns: [["VSU", "seal"], ["Students, with VSU's support", "people"], ["A student council or org", "flag"], ["An outside company", "tag"], ["None of these", "ban"], ["Not sure", "other"]],
-    familyVSU: [["Yes, a parent or guardian", "house"], ["Yes, a brother or sister", "people"], ["Yes, another relative", "group"], ["No", "ban"], ["Not sure", "other"]],
+    familyVSU: [["Yes, a parent or guardian", "house"], ["Yes, a brother or sister", "people"], ["Yes, another relative", "group"], ["No, I'm the first in my family to study at VSU", "star"], ["Not sure", "other"]],
     hostedPay: [["Use it only if it's free", "coin"], ["Pay a small fee to use it on campus", "tag"], ["Keep using my own mobile data instead", "signal"], ["I wouldn't use it", "ban"], ["Not sure", "other"]],
-    /* The last time each situation came up (D-038, as proposed for revision): the answers that count as the problem are named in PROBLEM. */
-    classLast: [["Before I left for class", "spark"], ["On the way, or when I got to the room", "walk"], ["Only after the class time", "calendar"], ["It hasn't happened this semester", "other"]],
-    officialLast: [["Yes, right away", "seal"], ["Not at first, so I checked", "search"], ["I couldn't tell", "ban"], ["I haven't seen one this semester", "other"]],
+    /* Each situation since the respondent started at VSU, all that happened (D-038, as proposed for revision): the answers that count
+       as the problem are named in PROBLEM. */
+    classNews: [["Before I left for class", "spark"], ["On the way, or when I got to the room", "walk"], ["Only after the class time", "calendar"], ["It hasn't happened", "other"]],
+    officialTell: [["Yes, right away", "seal"], ["Not at first, so I checked", "search"], ["I couldn't tell", "ban"], ["I haven't seen one", "other"]],
     missedLate: [["An event I wanted to join", "flag"], ["A scholarship or financial aid", "star"], ["A part-time job or student assistant post", "case"], ["An OJT host", "office"], ["None of these", "ban"]],
-    answerRight: [["Yes", "spark"], ["No", "ban"], ["I couldn't tell", "search"], ["I didn't get an answer", "other"]],
-    oldAnswer: [["Yes, quickly", "spark"], ["Yes, but it took a while", "snail"], ["No, so I asked again", "chat"], ["No, and I gave up", "ban"], ["I haven't looked for one this semester", "other"]],
-    guideLast: [["From an official guide that was up to date", "guide"], ["From an official guide that turned out to be out of date", "folder"], ["I couldn't find a guide, so I asked someone", "people"], ["I couldn't find a guide, so I figured it out", "search"], ["I haven't gone through one", "other"]],
-    seniorLast: [["Yes, someone I already knew", "people"], ["Yes, after asking around", "walk"], ["No, I couldn't find one", "ban"], ["It hasn't happened", "other"]],
+    answerRight: [["They were right", "spark"], ["Some were wrong", "ban"], ["I couldn't tell", "search"], ["I didn't get an answer", "other"]],
+    oldAnswer: [["Yes, quickly", "spark"], ["Yes, but it took a while", "snail"], ["No, so I asked again", "chat"], ["No, and I gave up", "ban"], ["I haven't looked for one", "other"]],
+    guideSteps: [["From an official guide that was up to date", "guide"], ["From an official guide that turned out to be out of date", "folder"], ["I couldn't find a guide, so I asked someone", "people"], ["I couldn't find a guide, so I figured it out", "search"], ["I haven't gone through one", "other"]],
+    seniorFind: [["Yes, someone I already knew", "people"], ["Yes, after asking around", "walk"], ["No, I couldn't find one", "ban"], ["It hasn't happened", "other"]],
     scamSince: [["Yes, scammed", "ban"], ["Nearly", "eye"], ["No", "spark"]],
     housingSince: [["Yes, more than once", "stack"], ["Yes, once", "house"], ["No", "spark"]],
-    /* One list of costs for every problem, so the costs compare across problems. */
-    cost: [["Nothing much", "check"], ["Time: an extra trip, a wait, or asking around", "snail"], ["Something I missed: a class, a deadline, or a chance", "calendar"], ["Money", "coin"], ["Not sure", "other"]],
     away: [["Feeling watched by the university", "eye"], ["Fear of consequences for criticism", "megaphone"], ["Too many apps already", "stack"], ["My friends wouldn't be on it", "people"], ["Hard or slow to use", "snail"], ["Uses too much mobile data", "signal"], ["Other", "other"]]
   };
   /* Where each kind of VSU news is heard first (D-119): the same channels for all four, so the answers compare. */
@@ -1214,15 +1206,22 @@ a{color:var(--sea)}
      may be long: every question can be skipped, and the first screen says how long it takes (owner, 23 October 2026). */
   var SURVEY_MIN = "20\u201325";  // a typical path is about 21 minutes; a slow reader takes about 25
   var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
+  /* Each problem is asked about since the respondent started at VSU, and they pick all that have happened (owner, 23 October 2026). */
+  var ALL_HAPPENED = "Pick all that have happened.", ALL_APPLY = "Pick all that apply.";
   var ONLY_READ = "No, I only read", NOT_IN = "No, I'm not in any", NOT_TO_ME = "It doesn't happen to me", NO_TRADE = "I don't buy or sell with people on campus";
   /* A concern raised with someone who could act on it, or posted online, brings "Did you learn what happened to it?" (D-126). */
   var NOT_RAISED = [KEPT, "Only talked about it with friends", "It hasn't happened"];
   function raised(x) { return NOT_RAISED.indexOf(x) < 0; }
   function raisedIt() { return A.concern.some(raised); }
-  /* Which office it was, and how many visits it took, follow the new-office question when it happened. */
   /* Finding where you stay is asked of dorm residents, renters, and "somewhere else", not of those with family or relatives. */
   function rents() { return ["An on-campus dorm", "A boarding house or apartment near campus", "Somewhere else"].indexOf(A.residence) >= 0; }
-  function newOffice() { return A.scenario !== null && A.scenario !== NOT_ME; }
+  /* Those who live off campus are asked their barangay and how they get to campus; dorm residents, which part of campus. */
+  function offCampus() { return A.residence !== null && A.residence !== DORM; }
+  /* Which offices, and how many tries, follow a new office; what made it hard follows a reason to reach someone. */
+  function newOffice() { return A.scenario.length > 0 && A.scenario.indexOf(NOT_ME) < 0; }
+  function reached() { return A.reachWhy.length > 0 && A.reachWhy.indexOf(NOT_YET) < 0; }
+  function askedPeers() { return A.askFirst.some(function (x) { return PEERS.indexOf(x) >= 0; }); }
+  var OWN = ["A bicycle", "A motorcycle", "A car"], RIDE_ALONG = "I ride along with someone";
   var EARLY = "No, it runs out early", RELOAD_NOW = "Yes, right away";
   /* Which data ran out: one of the three, never two (D-130). */
   var RAN_OUT = ["My open-access data ran out, but my app-only data didn't", "My app-only data ran out, but my open-access data didn't", "Both ran out"];
@@ -1261,8 +1260,8 @@ a{color:var(--sea)}
   var AREAS = [{ n: "Upper campus", x: 160, y: 76 }, { n: "Lower campus", x: 154, y: 158 }, { n: "The dorms", x: 84, y: 182 }, { n: "The VSU market", x: 224, y: 182 }, { n: "The highway", x: 160, y: 228 }, { n: "The shore", x: 160, y: 243 }, { n: "The foot of the mountain", x: 120, y: 16 }];
 
   /* The scenes' drawings: v1's 13, less organization handovers (h), plus finding an old answer (P-10) and telling official from not
-     (P-06). The scenes no longer ask how often and how much; their drawings stay with the questions that ask about the last time
-     (D-038, as proposed for revision on 22 October 2026), and all of them open the survey. Letters stay. */
+     (P-06). The scenes no longer ask how often and how much; their drawings stay with the questions that ask what has happened
+     since the respondent started at VSU (D-038, as proposed for revision), and all of them open the survey. Letters stay. */
   var MOMENTS = (function () {
     var by = {};
     V1_MOMENTS.forEach(function (m) { by[m.k] = m; });
@@ -1291,34 +1290,35 @@ a{color:var(--sea)}
   }
   /* Each question carries a short label instead of a number, which follow-ups would change (D-125). */
   var LABEL = {
-    home: "Where you wake up", barangay: "Where you stay", transport: "Getting to class", familyVSU: "Family at VSU",
-    year: "Year", faculty: "Faculty", org: "Student orgs", scholarship: "Scholarship", transferee: "Before VSU", firstGen: "First in your family",
+    home: "Where you live", dormPart: "Where on campus", barangay: "Where you stay", familyVSU: "Family at VSU",
+    year: "Year", faculty: "Faculty", org: "Student orgs", scholarship: "Scholarship",
     networks: "Your networks", twoSims: "Two networks", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Data allocation",
     reload: "Another promo", reloadWhy: "Why another promo", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
     onlineCampus: "Online on campus", onlineHome: "Online where you stay", wifiSpend: "Wi‑Fi in a month", hostedPay: "Hosted on campus",
     firstClasses: "Class changes", firstSuspensions: "Suspensions and emergencies", firstDocuments: "Documents to submit", firstEvents: "Events",
     firstScholarships: "Scholarships and jobs", firstAnnouncements: "Org announcements", groupChats: "Your group chats",
-    officialHow: "VSU's official pages", classLast: "A class change", officialLast: "Official or not", checkPost: "Checking a post", missedLate: "Heard too late",
-    scenario: "A new office", whichOffice: "Which office", visitsTook: "Tries it took", reachHow: "Reaching a teacher or staff", reachGot: "Did it work",
+    officialHow: "VSU's official pages", classNews: "A class change", officialTell: "Official or not", checkPost: "Checking a post", missedLate: "Heard too late",
+    scenario: "A new office", whichOffice: "Which office", visitsTook: "Tries it took", reachWhy: "Reaching a teacher or staff", reachHard: "What made it hard",
     missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it", concernHeard: "Hearing back",
-    askFirst: "Asking first", answerRight: "Was it right?", oldAnswer: "Finding an old answer", guideLast: "How-to guides", seniorLast: "Advice from seniors",
+    askFirst: "Asking first", answerRight: "Was it right?", oldAnswer: "Finding an old answer", guideSteps: "How-to guides", seniorFind: "Advice from seniors",
     fbPosting: "Posting in unofficial Facebook groups",
-    whereFound: "Finding where you stay", housingSince: "Finding a place", cantGoOut: "When you can't go out", buySell: "Buying and selling", scamSince: "Scams"
+    getAround: "Getting around", commute: "Getting to campus", whereFound: "Finding where you stay", housingSince: "Finding a place", cantGoOut: "When you can't go out", buySell: "Buying and selling", scamSince: "Scams"
   };
-  /* The answers that count as the problem, fixed before any answer is read: each problem is read from the last time its situation
-     came up, or, for rarer ones, since the respondent started at VSU (D-038, as proposed for revision on 22 October 2026). */
+  /* The answers that count as the problem, fixed before any answer is read. Each problem is asked about since the respondent
+     started at VSU, with all that have happened picked, and a respondent counts if they pick any of these (D-038, as proposed for
+     revision; owner, 23 October 2026). */
   var PEERS = ["A group chat", "An unofficial student group or freedom wall", "A classmate or senior, in person"];
   var PROBLEM = {
-    classLast: ["On the way, or when I got to the room", "Only after the class time"],
-    officialLast: ["Not at first, so I checked", "I couldn't tell"],
+    classNews: ["On the way, or when I got to the room", "Only after the class time"],
+    officialTell: ["Not at first, so I checked", "I couldn't tell"],
     missedLate: ["An event I wanted to join", "A scholarship or financial aid", "A part-time job or student assistant post", "An OJT host"],
     visitsTook: ["Four or more", "It still isn't done"],
-    reachGot: ["Only partly", "No, I got no answer"],
+    reachHard: ["They didn't reply, or replied days later", "I didn't know how to contact them", "They weren't in their office when I went", "I could only reach them through someone else, like a class rep"],
     concernHeard: ["No, I never heard back"],
-    answerRight: ["No", "I couldn't tell"],
+    answerRight: ["Some were wrong", "I couldn't tell"],
     oldAnswer: ["No, so I asked again", "No, and I gave up"],
-    guideLast: ["From an official guide that turned out to be out of date", "I couldn't find a guide, so I asked someone", "I couldn't find a guide, so I figured it out"],
-    seniorLast: ["No, I couldn't find one"],
+    guideSteps: ["From an official guide that turned out to be out of date", "I couldn't find a guide, so I asked someone", "I couldn't find a guide, so I figured it out"],
+    seniorFind: ["No, I couldn't find one"],
     scamSince: ["Yes, scammed", "Nearly"],
     housingSince: ["Yes, more than once", "Yes, once"]
   };
@@ -1326,18 +1326,13 @@ a{color:var(--sea)}
     var v = A[id], p = PROBLEM[id];
     return Array.isArray(v) ? v.some(function (x) { return p.indexOf(x) >= 0; }) : p.indexOf(v) >= 0;
   }
-  /* What it cost: asked only after an answer that names the problem, with one list of costs for every problem, so they compare. */
-  function costStep(id, of, box, prompt) {
-    return { id: id, box: box, kind: "chipsMulti", key: id, exclusive: [NOTHING_MUCH, NOT_SURE], size: "bare", kicker: "What it cost", prompt: prompt, lede: "Pick all that apply.", core: true, opts: OPT.cost, costOf: of,
-      when: function () { return isProblem(of); } };
-  }
   /* Follow-ups carry a tag (D-126). Only questions that particular answers bring are tagged; one asked after every answer but
      "it hasn't happened" or a skip is simply the next question (D-130). Each entry names the step it follows; the screen shows
-     only the tag. What-it-cost questions are added below. */
+     only the tag. */
   var FU = {
     twoSims: ["networks"], loadApps: ["load"], reload: ["untilExpiry"], reloadWhy: ["reload"], wifiSpend: ["onlineHome"],
-    checkPost: ["officialLast"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
-    whereFound: ["home"], housingSince: ["home"], barangay: ["home"]
+    checkPost: ["officialTell"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
+    whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"]
   };
   /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
      around only for those who rent, and which data ran out only for those whose load includes app-only data (D-129, D-130). */
@@ -1348,19 +1343,10 @@ a{color:var(--sea)}
       "A sign or tarpaulin outside": function () { return A.residence !== DORM; },
       "Walking around and asking": function () { return A.residence !== DORM; }
     },
-    /* A VSU dorm's students walk or bike to class, since only bicycles may be kept at the dorms; the others don't walk, and are
-       asked which barangay they stay in (owner, 23 October 2026). */
-    transport: {
-      "Walk": function () { return A.residence === null || A.residence === DORM; },
-      "My own motorcycle or car": function () { return A.residence !== DORM; },
-      "Habal-habal or tricycle": function () { return A.residence !== DORM; },
-      "Jeepney or multicab": function () { return A.residence !== DORM; },
-      "Someone gives me a ride": function () { return A.residence !== DORM; }
-    },
-    /* The first in their family to go to college can still have a relative who studied at VSU, not a parent or a sibling. */
-    familyVSU: {
-      "Yes, a parent or guardian": function () { return A.firstGen !== "Yes"; },
-      "Yes, a brother or sister": function () { return A.firstGen !== "Yes"; }
+    /* Getting to campus by one's own vehicle, or riding along, only for those who said so, or skipped the question. */
+    commute: {
+      "My own bicycle, motorcycle, or car": function () { return !A.getAround.length || A.getAround.some(function (x) { return OWN.indexOf(x) >= 0; }); },
+      "A ride with someone": function () { return !A.getAround.length || A.getAround.indexOf(RIDE_ALONG) >= 0; }
     },
     reloadWhy: {
       "My open-access data ran out, but my app-only data didn't": function () { return A.load.indexOf(APP_DATA) >= 0; },
@@ -1388,23 +1374,22 @@ a{color:var(--sea)}
 
   step({ id: "intro", box: "intro", ch: 0, kind: "intro" });
   step({ id: "consent", box: "gate", ch: 0, kind: "consent", lock: true, autoMs: 1300, size: "short", hint: "consent" });
-  /* Your form, like every other part, can be skipped question by question. It opens with where the respondent wakes up, which
-     barangay they stay in if not a VSU dorm, and how they get to class (owner, 23 October 2026). */
+  /* Your form, at the reception desk, like every other part, can be skipped question by question. It opens with where the
+     respondent lives, then, as a follow-up, which part of campus their dorm is in or which barangay they stay in, and ends with
+     family at VSU (owner, 23 October 2026). How they get around is asked in Daily life. */
   part(1, "Your form", [
-    { id: "home", box: "home", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you wake up during the semester?", hint: "tiles", core: true,
+    { id: "home", box: "pass", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you currently reside?", say: "Where do you live?", hint: "tiles", core: true,
       opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
-    { id: "barangay", box: "home", kind: "chipsOne", key: "barangay", size: "short", prompt: "Which barangay is that in?", lede: "Neighboring barangays are grouped together.", core: true, opts: OPT.barangay,
-      when: function () { return A.residence !== null && A.residence !== DORM; } },
-    { id: "transport", box: "home", kind: "tiles", key: "transport", cols: "t3", size: "short", prompt: "How do you mostly get to your classes?", core: true,
-      opts: OPT.transport.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) },
-    { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What year are you in?", say: "Morning! Your year?", core: true,
+    { id: "dormPart", box: "pass", kind: "chipsOne", key: "dormPart", size: "short", prompt: "Which part of campus is your dorm in?", say: "Which part?", core: true, opts: OPT.dormPart,
+      when: function () { return A.residence === DORM; } },
+    { id: "barangay", box: "pass", kind: "chipsOne", key: "barangay", size: "short", prompt: "Which barangay is that in?", lede: "Neighboring barangays are grouped together.", say: "Which barangay?", core: true, opts: OPT.barangay,
+      when: offCampus },
+    { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What year are you in?", say: "Your year?", core: true,
       opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
     { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
     { id: "org", box: "pass", kind: "tiles", key: "org", cols: "t3", size: "short", prompt: "How involved are you in student orgs, including your course or department org?", say: "Any student orgs?", core: true,
       opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
     { id: "scholarship", box: "pass", kind: "tiles", key: "scholarship", cols: "t3", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: yesNo() },
-    { id: "transferee", box: "pass", kind: "tiles", key: "transferee", cols: "t3", prompt: "Did you study at another college or university before VSU?", say: "Studied elsewhere?", core: true, opts: yesNo() },
-    { id: "firstGen", box: "pass", kind: "tiles", key: "firstGen", cols: "t3", prompt: "Are you the first in your family to go to college?", say: "First in your family?", core: true, opts: yesNo() },
     { id: "familyVSU", box: "pass", kind: "chipsOne", key: "familyVSU", prompt: "Has anyone in your family, or a relative, studied at VSU?", lede: "If more than one has, pick the first answer that fits.", say: "Last one!", core: true, opts: OPT.familyVSU, autoMs: 2900, beforeNext: handOver }
   ]);
   part(2, "Getting online", [
@@ -1434,58 +1419,53 @@ a{color:var(--sea)}
     { id: "wifiSpend", box: "data", kind: "tiles", key: "wifiSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In a month, about how much do you pay for Wi‑Fi where you stay?", lede: "Count piso Wi‑Fi and your share of any bill you split.", core: true, when: paysWifi,
       opts: OPT.wifiSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) }
   ]);
-  /* Hearing from campus: where six kinds of news reach them first, two habits, then the last time a class changed, the last post
-     they couldn't place, and anything missed for hearing too late. */
+  /* Hearing from campus: where six kinds of news reach them first, two habits, then class changes, posts they couldn't place, and
+     anything missed for hearing too late. */
   function ranked(f) { return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " where you hear it first. You can add a 2nd and 3rd.", core: true }; }
+  /* Each problem is asked about since the respondent started at VSU, picking all that have happened, so one recent time doesn't
+     stand for all of them (owner, 23 October 2026). A problem's drawing stays with its question. */
   part(3, "Hearing from campus", FIRSTS.map(ranked).concat([
     { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many active group chats for classes, orgs, or friends are you in?", lede: "Count only the ones that still get messages.", core: true,
       opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
     { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
-    { id: "classLast", box: "m-d", kind: "chipsOne", key: "classLast", size: "bare", prompt: "The last time a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", core: true, opts: OPT.classLast, hint: "moment" },
-    costStep("classCost", "classLast", "m-d", "What did finding out late cost you?"),
-    { id: "officialLast", box: "m-o", kind: "chipsOne", key: "officialLast", size: "bare", prompt: "The last time you saw a post about a class suspension or another VSU matter, could you tell whether it was official?", core: true, opts: OPT.officialLast },
-    { id: "checkPost", box: "m-o", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "What did you do to check it?", lede: "Pick all that apply.", core: true, opts: OPT.checkPost, when: function () { return isProblem("officialLast"); } },
-    costStep("officialCost", "officialLast", "m-o", "What did not being sure cost you?"),
-    { id: "missedLate", box: "m-g", kind: "chipsMulti", key: "missedLate", exclusive: NONE_OF_THESE, size: "bare", prompt: "Since you started at VSU, have you missed any of these because you heard about it too late?", lede: "Pick all that apply.", core: true, opts: OPT.missedLate },
-    costStep("missedCost", "missedLate", "m-g", "What did missing it cost you?")
+    { id: "classNews", box: "m-d", kind: "chipsMulti", key: "classNews", exclusive: NOT_YET, size: "bare", prompt: "Since you started at VSU, when a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", lede: ALL_HAPPENED, core: true, opts: OPT.classNews, hint: "moment" },
+    { id: "officialTell", box: "m-o", kind: "chipsMulti", key: "officialTell", exclusive: "I haven't seen one", size: "bare", prompt: "Since you started at VSU, when you saw a post about a class suspension or another VSU matter, could you tell whether it was official?", lede: ALL_HAPPENED, core: true, opts: OPT.officialTell },
+    { id: "checkPost", box: "m-o", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "When you couldn't tell, what did you do to check?", lede: ALL_APPLY, core: true, opts: OPT.checkPost, when: function () { return isProblem("officialTell"); } },
+    { id: "missedLate", box: "m-g", kind: "chipsMulti", key: "missedLate", exclusive: NONE_OF_THESE, size: "bare", prompt: "Since you started at VSU, have you missed any of these because you heard about it too late?", lede: "Pick all that apply.", core: true, opts: OPT.missedLate }
   ]));
   part(4, "Reaching out", [
-    { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never been to, what did you do first?", core: true,
-    opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "whichOffice", box: "errand", kind: "chipsOne", key: "whichOffice", size: "bare", prompt: "What kind of office was it?", core: true, opts: OPT.office, when: newOffice },
-    { id: "visitsTook", box: "errand", kind: "tiles", key: "visitsTook", cols: "t4", size: "short", prompt: "How many tries did it take to get it done?", lede: "Visits, messages, and calls all count.", core: true, when: newOffice,
+    { id: "scenario", box: "errand", kind: "vigs", multi: true, exclusive: NOT_ME, key: "scenario", cols: "v3", size: "tight", prompt: "Since you started at VSU, when you needed something from an office you'd never been to, what did you do first?", lede: ALL_APPLY, core: true,
+      opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "whichOffice", box: "errand", kind: "chipsMulti", key: "whichOffice", exclusive: NOT_SURE, size: "bare", prompt: "What kinds of offices were they?", lede: ALL_APPLY, core: true, opts: OPT.office, when: newOffice },
+    { id: "visitsTook", box: "errand", kind: "tiles", multi: true, key: "visitsTook", cols: "t4", size: "short", prompt: "How many tries did those errands take?", lede: ALL_HAPPENED + " Visits, messages, and calls all count.", core: true, when: newOffice,
       opts: OPT.visits.map(function (o) { return { v: o[0], art: function () { return TILE.visits(o[1]); } }; }) },
-    costStep("visitsCost", "visitsTook", "errand", "What did the errand cost you?"),
-    { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
-    costStep("reachCost", "reachGot", "errand", "What did not getting what you needed cost you?"),
+    { id: "reachWhy", box: "errand", kind: "chipsMulti", key: "reachWhy", exclusive: NOT_YET, size: "bare", prompt: "Since you started at VSU, why have you needed to reach a teacher or staff member outside class?", lede: ALL_APPLY, core: true, opts: OPT.reachWhy },
+    { id: "reachHard", box: "errand", kind: "chipsMulti", key: "reachHard", exclusive: "It hasn't been hard", size: "bare", prompt: "What has made it hard to reach them?", lede: ALL_APPLY, core: true, opts: OPT.reachHard, when: reached },
     { id: "missClass", box: "errand", kind: "chipsOne", key: "missClass", size: "bare", prompt: "Since you started at VSU, has an errand at an office made you miss a class?", core: true, opts: OPT.missClass },
-    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, KEPT], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: NOT_YET, size: "bare", prompt: "Since you started at VSU, when you had a concern about a campus service, what did you do?", lede: ALL_APPLY, core: true, opts: OPT.concern },
     { id: "whyQuiet", box: "errand", kind: "chipsMulti", key: "whyQuiet", size: "bare", other: "whyQuietOther", otherPh: "Other: why? (optional)", prompt: "Why did you keep it to yourself?", lede: "Pick all that apply.", core: true, opts: OPT.whyQuiet, when: function () { return A.concern.indexOf(KEPT) >= 0; } },
-    { id: "concernHeard", box: "errand", kind: "chipsOne", key: "concernHeard", size: "bare", prompt: "Did you learn what happened to your concern?", core: true, opts: OPT.heard, when: raisedIt },
-    costStep("heardCost", "concernHeard", "errand", "What did never hearing back cost you?")
+    { id: "concernHeard", box: "errand", kind: "chipsMulti", key: "concernHeard", size: "bare", prompt: "Did you learn what happened to the concerns you raised?", lede: ALL_HAPPENED, core: true, opts: OPT.heard, when: raisedIt }
   ]);
   part(5, "Students and alumni", [
-    { id: "askFirst", box: "peers", kind: "vigs", key: "askFirst", size: "tight", prompt: "The last time you had a question about a subject or a school process, where did you look or ask first?", core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "answerRight", box: "m-b", kind: "chipsOne", key: "answerRight", size: "bare", prompt: "Did the answer turn out to be right?", core: true, opts: OPT.answerRight, when: function () { return PEERS.indexOf(A.askFirst) >= 0; } },
-    costStep("answerCost", "answerRight", "m-b", "What did the unclear or wrong answer cost you?"),
-    { id: "oldAnswer", box: "m-n", kind: "chipsOne", key: "oldAnswer", size: "bare", prompt: "The last time you looked for an answer that someone had already given in a group chat or a post, did you find it?", core: true, opts: OPT.oldAnswer },
-    costStep("oldCost", "oldAnswer", "m-n", "What did not finding it cost you?"),
-    { id: "guideLast", box: "m-e", kind: "chipsOne", key: "guideLast", size: "bare", prompt: "The last time you went through a process like enrollment or clearance, how did you know the steps?", core: true, opts: OPT.guideLast },
-    costStep("guideCost", "guideLast", "m-e", "What did not having a current guide cost you?"),
-    { id: "seniorLast", box: "m-l", kind: "chipsOne", key: "seniorLast", size: "bare", prompt: "The last time you wanted advice from a senior or a graduate of your program, did you find someone to ask?", core: true, opts: OPT.seniorLast },
-    costStep("seniorCost", "seniorLast", "m-l", "What did not finding someone to ask cost you?"),
+    { id: "askFirst", box: "peers", kind: "vigs", multi: true, exclusive: "I haven't had a question like this", key: "askFirst", size: "tight", prompt: "Since you started at VSU, when you had a question about a subject or a school process, where did you look or ask first?", lede: ALL_APPLY, core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "answerRight", box: "m-b", kind: "chipsMulti", key: "answerRight", size: "bare", prompt: "When you asked other students, did their answers turn out to be right?", lede: ALL_HAPPENED, core: true, opts: OPT.answerRight, when: askedPeers },
+    { id: "oldAnswer", box: "m-n", kind: "chipsMulti", key: "oldAnswer", exclusive: "I haven't looked for one", size: "bare", prompt: "Since you started at VSU, when you looked for an answer that someone had already given in a group chat or a post, did you find it?", lede: ALL_HAPPENED, core: true, opts: OPT.oldAnswer },
+    { id: "guideSteps", box: "m-e", kind: "chipsMulti", key: "guideSteps", exclusive: "I haven't gone through one", size: "bare", prompt: "Since you started at VSU, when you went through a process like enrollment or clearance, how did you know the steps?", lede: ALL_HAPPENED, core: true, opts: OPT.guideSteps },
+    { id: "seniorFind", box: "m-l", kind: "chipsMulti", key: "seniorFind", exclusive: NOT_YET, size: "bare", prompt: "Since you started at VSU, when you wanted advice from a senior or a graduate of your program, did you find someone to ask?", lede: ALL_HAPPENED, core: true, opts: OPT.seniorFind },
     { id: "fbPosting", box: "anon", kind: "chipsMulti", key: "fbPosting", exclusive: [ONLY_READ, NOT_IN], size: "bare", prompt: "Have you posted a question or concern about VSU in an unofficial Facebook group?", lede: "Pick all that apply.", core: true, opts: OPT.fbPosting }
   ]);
-  /* Daily life: where they found the place they stay, food when they can't go out, and buying and selling, each with its problem. */
+  /* Daily life: getting around (owner, 23 October 2026), where they found the place they stay, food when they can't go out, and
+     buying and selling, each with its problem. */
   part(6, "Daily life", [
+    { id: "getAround", box: "daily", kind: "tiles", multi: true, exclusive: NONE_OF_THESE, extras: [NONE_OF_THESE], key: "getAround", cols: "t4", size: "short", prompt: "Do you have your own bicycle, motorcycle, or car, or do you ride along with someone?", lede: ALL_APPLY, core: true,
+      opts: OPT.getAround.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) },
+    { id: "commute", box: "daily", kind: "tiles", multi: true, key: "commute", cols: "t3", size: "short", prompt: "How do you get to campus?", lede: ALL_APPLY, core: true, when: offCampus,
+      opts: OPT.commute.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) },
     { id: "whereFound", box: "daily", kind: "chipsOne", key: "whereFound", size: "bare", prompt: "How did you find the place where you stay now?", core: true, opts: OPT.whereFound, when: rents },
     { id: "housingSince", box: "m-i", kind: "chipsOne", key: "housingSince", size: "bare", prompt: "Since you started at VSU, have you had trouble finding a place to stay or a boardmate?", core: true, opts: OPT.housingSince, when: rents },
-    costStep("housingCost", "housingSince", "m-i", "What did the trouble finding a place cost you?"),
     { id: "cantGoOut", box: "daily", kind: "chipsMulti", key: "cantGoOut", exclusive: NOT_TO_ME, size: "bare", prompt: "When you need food or supplies but can't go out, what do you usually do?", lede: "Pick all that apply.", core: true, opts: OPT.cantGoOut },
     { id: "buySell", box: "daily", kind: "chipsMulti", key: "buySell", exclusive: NO_TRADE, size: "bare", prompt: "Where do you buy or sell things with other people on campus?", lede: "Pick all that apply.", core: true, opts: OPT.buySell },
-    { id: "scamSince", box: "m-j", kind: "chipsOne", key: "scamSince", size: "bare", prompt: "Since you started at VSU, have you been scammed, or nearly scammed, buying or selling with people on campus?", core: true, opts: OPT.scamSince, when: function () { return A.buySell.indexOf(NO_TRADE) < 0; } },
-    costStep("scamCost", "scamSince", "m-j", "What did it cost you?")
+    { id: "scamSince", box: "m-j", kind: "chipsOne", key: "scamSince", size: "bare", prompt: "Since you started at VSU, have you been scammed, or nearly scammed, buying or selling with people on campus?", core: true, opts: OPT.scamSince, when: function () { return A.buySell.indexOf(NO_TRADE) < 0; } }
   ]);
   /* The coins come after the questions, which give the jars their context, and before the network idea (owner, 23 October 2026). */
   step({ id: "coins", box: "coins", ch: 7, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus concerns should get more attention?", lede: TAP + " a jar to drop a coin in, up to 10 in one jar.", spareLede: true, hint: "jars" });
@@ -1501,7 +1481,6 @@ a{color:var(--sea)}
   step({ id: "keepAway", box: "net", ch: 8, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
   step({ id: "send", box: "send", ch: 9, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
   step({ id: "final", box: "final", ch: 9, kind: "final", noMenu: true, when: function () { return sent; } });
-  STEPS.forEach(function (s) { if (s.costOf) FU[s.id] = [s.costOf]; });
 
   var stepById = {};
   STEPS.forEach(function (s) { stepById[s.id] = s; });
@@ -1544,7 +1523,7 @@ a{color:var(--sea)}
   var RENDER = {
     intro: function () {
       return '<div class="letter">' +
-        "<p>This survey asks about student life and VSU's services, including what happened the last time you ran into some campus problems. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
+        "<p>This survey asks about student life and VSU's services, including how things have gone for you since you started at VSU. It is for Project CAMPUS, an independent proposal by a VSU alumnus, and it is not an official VSU survey.</p>" +
         "<p>In line with the Data Privacy Act of 2012 (Republic Act No. 10173), your answers carry no name, are used only for this study, and are kept confidential. Please don't name anyone in them.</p>" +
         '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
         '<div class="how">' + icon("tap") + "<span>" + (calm() ? TAP + " an answer, then Next. Use the arrows to go back or skip." : TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
@@ -1619,7 +1598,6 @@ a{color:var(--sea)}
   var BOXES = {
     intro: { bg: "#1E4D3A", ink: "light", cls: "intro", stage: introStage, speaks: true },
     gate: { bg: "#1F7A8C", ink: "light", stage: gateStage },
-    home: { bg: "#F2B33D", ink: "dark", stage: homeStage },
     pass: { bg: "#9ED1DB", ink: "dark", stage: function () { return passStage() + PASS_CARD; } },
     news: { bg: "#7A5BA6", ink: "light", stage: newsStage },
     data: { bg: "#2F6DB5", ink: "light", stage: dataStage },
@@ -1633,7 +1611,7 @@ a{color:var(--sea)}
     send: { bg: "#13261D", ink: "light", cls: "nostage" },
     final: { bg: "#0F1E3A", ink: "light", stage: finalStage }
   };
-  /* A scene's drawing goes with the question that asks about the last time; drawings no question uses aren't built. */
+  /* A scene's drawing goes with the question about its situation; drawings no question uses aren't built. */
   MOMENTS.forEach(function (m) {
     if (STEPS.some(function (s) { return s.box === "m-" + m.k; })) BOXES["m-" + m.k] = { bg: m.bg, ink: m.ink, cls: "mbox", stage: function () { return momentStage(m); } };
   });
@@ -1728,7 +1706,7 @@ a{color:var(--sea)}
       if (key === "onlineHome" && !paysWifi()) A.wifiSpend = null;
       if (key === "networks" && A.networks.length < 2) { A.twoSims.length = 0; A.twoSimsOther = ""; }
       if (key === "concern" && A.concern.indexOf(KEPT) < 0) { A.whyQuiet.length = 0; A.whyQuietOther = ""; }
-      if (key === "concern" && !raisedIt()) A.concernHeard = null;
+      if (key === "concern" && !raisedIt()) A.concernHeard.length = 0;
       if (key === "networks" || key === "load") {
         if (!buysLoad()) A.dataSpend = null;
         if (!usesData()) { A.dataSchool = null; A.signal = null; A.validity = null; }
@@ -1739,8 +1717,6 @@ a{color:var(--sea)}
       var val = key === "trust" ? Number(v) : v;
       A[key] = A[key] === val ? null : val;
       turnedOn = A[key] !== null;
-      if (key === "reachHow" && (A.reachHow === null || A.reachHow === NOT_YET)) A.reachGot = null;
-      if (key === "scenario" && !newOffice()) { A.whichOffice = null; A.visitsTook = null; }
       if (key === "residence" && !rents()) A.whereFound = null;
       pruneFits();
       clearPromoChain();
@@ -1748,15 +1724,17 @@ a{color:var(--sea)}
     pruneFollowUps();
     return turnedOn;
   }
-  /* A follow-up whose answer no longer brings it is taken back: checking a post, whether an answer was right, scams, housing,
-     and every what-it-cost question. */
+  /* A follow-up whose answer no longer brings it is taken back: where on campus or which barangay, getting to campus, checking a
+     post, which office and its tries, what made reaching someone hard, whether an answer was right, scams, and housing. */
   function pruneFollowUps() {
-    if (!isProblem("officialLast")) { A.checkPost.length = 0; A.checkPostOther = ""; }
-    if (PEERS.indexOf(A.askFirst) < 0) A.answerRight = null;
-    if (A.residence === null || A.residence === DORM) A.barangay = null;
+    if (A.residence !== DORM) A.dormPart = null;
+    if (!offCampus()) { A.barangay = null; A.commute.length = 0; }
+    if (!isProblem("officialTell")) { A.checkPost.length = 0; A.checkPostOther = ""; }
+    if (!newOffice()) { A.whichOffice.length = 0; A.visitsTook.length = 0; }
+    if (!reached()) A.reachHard.length = 0;
+    if (!askedPeers()) A.answerRight.length = 0;
     if (A.buySell.indexOf(NO_TRADE) >= 0) A.scamSince = null;
     if (!rents()) A.housingSince = null;
-    STEPS.forEach(function (s) { if (s.costOf && !isProblem(s.costOf)) A[s.key].length = 0; });
   }
   view.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-v]");
@@ -1783,8 +1761,7 @@ a{color:var(--sea)}
   /* ---------- Each place answers back ---------- */
   function react(s, key) {
     var box = boxEls[s.box];
-    if (s.box === "home") homeReact();
-    else if (s.box === "pass") passReact(key);
+    if (s.box === "pass") passReact(key);
     else if (s.box === "data") dataReact();
     else if (s.box === "anon") modes($(".scene", box), postMode());
     else if (s.box === "net") netReact();
@@ -1803,25 +1780,22 @@ a{color:var(--sea)}
     if (A.consent) replay(svg, "waving");
   }
 
-  /* Home: the place you wake up in appears. */
-  var HOME_V = { "An on-campus dorm": "v-dorm", "A boarding house or apartment near campus": "v-house", "My family's home, and I commute": "v-jeep", "A relative's or friend's house": "v-house", "Somewhere else": "v-other" };
-  function homeReact() { $$(".v", boxEls.home).forEach(function (g) { g.classList.toggle("on", HOME_V[A.residence] === g.id); }); }
-
   /* Your form: the monitor fills, the form is printed and handed to you. */
-  var PASS_KEYS = ["year", "faculty", "org", "scholarship", "transferee", "firstGen"];
+  var PASS_KEYS = ["residence", "year", "faculty", "org", "scholarship", "familyVSU"];
   function short(key) {
     var v = A[key];
     if (v === null) return "Skipped";
     if (v === NOT_SAID) return "Not said";
     if (key === "faculty") { var f = FACULTIES.filter(function (x) { return "Faculty of " + x[1] === v; })[0]; return f ? f[0] : v; }
     if (key === "year") return v === "Graduate student" ? "Graduate" : v === "5th or higher" ? "5th+" : v + " year";
+    if (key === "residence") return v === DORM ? (A.dormPart ? A.dormPart + " dorm" : "Campus dorm") : { "A boarding house or apartment near campus": "Boarding house", "My family's home, and I commute": "Family home", "A relative's or friend's house": "Relative's or friend's" }[v] || "Elsewhere";
     if (key === "org") return { "An officer or leader": "Officer", "An active member": "Active member", "A member, but I rarely take part": "Member", "Not a member of any": "None" }[v] || v;
     if (v === "Prefer not to say") return "Not said";
     return v;
   }
   function fillCard() {
     var card = $("#passcard");
-    ["year", "faculty", "org", "scholarship"].forEach(function (k) {
+    ["residence", "year", "faculty", "org", "scholarship"].forEach(function (k) {
       var dd = $('[data-f="' + k + '"]', card), t = short(k);
       if (dd.textContent !== t) { dd.textContent = t; }
     });
@@ -2044,7 +2018,6 @@ a{color:var(--sea)}
     var box = boxEls[s.box];
     applyShowIf(s);
     if (s.box === "gate") gateReact();
-    if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
       var svg = $(".scene", box), card = $("#passwrap");
       if (s.id === "familyVSU" && printed) say(box, "pass-say", "Here's your form!");
@@ -2400,11 +2373,11 @@ a{color:var(--sea)}
     var hits = asked.filter(isProblem);
     var top = Object.keys(A.coins).sort(function (a, b) { return A.coins[b] - A.coins[a]; })[0];
     var cells = [
-      cell("house", "#B7791F", "Where you wake up", A.residence || "Skipped"),
+      cell("house", "#B7791F", "Where you live", A.residence ? short("residence") : "Skipped"),
       cell("cap", "#1F7A8C", "Your form", [short("year"), short("faculty")].join(", ")),
       cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions[0] || "Skipped"),
-      cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
-      cell("calendar", "#D9483B", "Last times that went badly", hits.length + " of " + asked.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
+      cell("office", "#E4705A", "First move at a new office", A.scenario.join(", ") || "Skipped"),
+      cell("calendar", "#D9483B", "Problems you've run into", hits.length + " of " + asked.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
       cell("coin", "#C98A16", "Most attention", top ? jarById[top][1] : "No coins spent"),
       cell("bubble", "#2C8C99", "Posting in unofficial groups", A.fbPosting.join(", ") || "Skipped"),
       cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped")),
@@ -2496,7 +2469,6 @@ a{color:var(--sea)}
   window.__survey.go = function (id) { go(id, 1, true); };
   window.__survey.steps = function () { return list().map(function (s) { return s.id; }); };
   window.__survey.current = function () { return curId; };
-  window.__survey.costSteps = function () { return STEPS.filter(function (s) { return s.costOf; }).map(function (s) { return s.id; }); };
   window.__survey.live = LIVE;
 })();
 </script>

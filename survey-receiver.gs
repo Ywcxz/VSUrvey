@@ -1,5 +1,5 @@
 /**
- * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (last-time-v1)
+ * VSUrvey (formerly Istorya sa VSU): survey response receiver and volunteer form (since-v1)
  * Project CAMPUS, decisions D-037, D-039, D-110, and D-111
  *
  * Receives JSON records from the survey page and appends one row for each to a
@@ -10,14 +10,14 @@
  * First-time setup
  * 1. Create a Google Sheet in your own account and keep it private.
  * 2. Extensions > Apps Script. Paste this file and save.
- * 3. Run setup() once and approve the permissions. It adds the "Responses last-time" tab and its header row.
+ * 3. Run setup() once and approve the permissions. It adds the "Responses since" tab and its header row.
  * 4. Run createVolunteerForm() once. The execution log shows the form's link.
  * 5. Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.
  * 6. Put the web app URL in the page's ENDPOINT, and the form link in VOLUNTEER_URL.
  *
  * Updating from an earlier version
  * 1. Replace the old code with this file and save.
- * 2. Run setup(). It adds the "Responses last-time" tab; earlier tabs are left as they are.
+ * 2. Run setup(). It adds the "Responses since" tab; earlier tabs are left as they are.
  * 3. Run updateVolunteerForm() once. It edits the existing form in place, so its link stays the same.
  * 4. Deploy > Manage deployments > edit the web app > Version: New version > Deploy. The web app URL stays the same.
  *
@@ -25,20 +25,35 @@
  * so it treats "no network error" as sent.
  *
  * Privacy: Apps Script gives this script no IP address or other identifier
- * of the sender, and the script stores none. The record ID is a random number
- * the page makes for one sitting; it says nothing about the respondent. Free-text answers may still
+ * of the sender, and the script stores none. Free-text answers may still
  * contain names, so check them before quoting anyone. Rows marked test = TRUE
  * come from test runs; delete them.
  *
  * When a question or an option changes on the page, change the lists below.
  */
 
-var SHEET_NAME = "Responses last-time";
-var VARIANT = "last-time";
-var VERSION_PREFIX = "last-time-v1";
-/* What it cost, asked after an answer that names a problem: one list for every problem. */
-var COST = ["Nothing much", "Time: an extra trip, a wait, or asking around", "Something I missed: a class, a deadline, or a chance", "Money", "Not sure"];
-var COSTS = ["classCost", "officialCost", "missedCost", "visitsCost", "reachCost", "heardCost", "answerCost", "oldCost", "guideCost", "seniorCost", "housingCost", "scamCost"];
+var SHEET_NAME = "Responses since";
+var VARIANT = "since";
+var VERSION_PREFIX = "since-v1";
+/* Each problem is asked about since the respondent started at VSU, with all that have happened picked. */
+var CLASS_NEWS = ["Before I left for class", "On the way, or when I got to the room", "Only after the class time", "It hasn't happened"];
+var OFFICIAL_TELL = ["Yes, right away", "Not at first, so I checked", "I couldn't tell", "I haven't seen one"];
+var SCENARIO = ["Asked in a student Facebook group", "Messaged a friend or a senior", "Walked over and asked around", "Checked the official website or page", "Something else", "It hasn't happened to me"];
+var OFFICE = ["Registrar or records", "Cashier or accounting", "My college or department office", "Student affairs or services", "Scholarships or financial aid", "Library, clinic, or another service", "Not sure"];
+var VISITS = ["Just one", "Two or three", "Four or more", "It still isn't done"];
+var REACH_WHY = ["A grade or a requirement", "A deadline or a schedule", "A signature or a document", "A question about a lesson",
+  "An absence or a late submission", "Advice, like on a thesis or OJT", "Something else", "It hasn't happened"];
+var REACH_HARD = ["They didn't reply, or replied days later", "I didn't know how to contact them", "They weren't in their office when I went",
+  "I could only reach them through someone else, like a class rep", "I hesitated to ask", "It hasn't been hard"];
+var ASK_FIRST = ["A group chat", "An unofficial student group or freedom wall", "A classmate or senior, in person", "A teacher or adviser",
+  "Searched online", "I didn't look or ask anyone", "I haven't had a question like this"];
+var ANSWER_RIGHT = ["They were right", "Some were wrong", "I couldn't tell", "I didn't get an answer"];
+var OLD_ANSWER = ["Yes, quickly", "Yes, but it took a while", "No, so I asked again", "No, and I gave up", "I haven't looked for one"];
+var GUIDE_STEPS = ["From an official guide that was up to date", "From an official guide that turned out to be out of date",
+  "I couldn't find a guide, so I asked someone", "I couldn't find a guide, so I figured it out", "I haven't gone through one"];
+var SENIOR_FIND = ["Yes, someone I already knew", "Yes, after asking around", "No, I couldn't find one", "It hasn't happened"];
+var GET_AROUND = ["A bicycle", "A motorcycle", "A car", "I ride along with someone", "None of these"];
+var COMMUTE = ["Habal-habal or tricycle", "Jeepney or multicab", "My own bicycle, motorcycle, or car", "A ride with someone", "Walk"];
 var MISSED_LATE = ["An event I wanted to join", "A scholarship or financial aid", "A part-time job or student assistant post", "An OJT host", "None of these"];
 var FIRSTS = ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements"];  // each ranked up to three
 var OFFICIAL_HOW = ["I get their notifications", "I check them myself", "Someone shares them with me", "They usually don't reach me"];
@@ -93,7 +108,7 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
 
 function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
-    "residence", "barangay", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen", "familyVSU"];
+    "residence", "dormPart", "barangay", "year", "faculty", "org", "scholarship", "familyVSU"];
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "twoSims", TWO_SIMS);
   multiHeaders_(h, "load", LOAD);
@@ -107,19 +122,31 @@ function headers_() {
   FIRSTS.forEach(function (k) { h.push(k + " 1", k + " 2", k + " 3"); });
   h.push("groupChats");
   multiHeaders_(h, "officialHow", OFFICIAL_HOW);
-  h.push("classLast", "officialLast");
+  multiHeaders_(h, "classNews", CLASS_NEWS);
+  multiHeaders_(h, "officialTell", OFFICIAL_TELL);
   multiHeaders_(h, "checkPost", CHECK_POST);
   multiHeaders_(h, "missedLate", MISSED_LATE);
-  h.push("scenario", "whichOffice", "visitsTook", "reachHow", "reachGot", "missClass");
+  multiHeaders_(h, "scenario", SCENARIO);
+  multiHeaders_(h, "whichOffice", OFFICE);
+  multiHeaders_(h, "visitsTook", VISITS);
+  multiHeaders_(h, "reachWhy", REACH_WHY);
+  multiHeaders_(h, "reachHard", REACH_HARD);
+  h.push("missClass");
   multiHeaders_(h, "concern", CONCERN);
   multiHeaders_(h, "whyQuiet", WHY_QUIET);
-  h.push("concernHeard", "askFirst", "answerRight", "oldAnswer", "guideLast", "seniorLast");
+  multiHeaders_(h, "concernHeard", HEARD);
+  multiHeaders_(h, "askFirst", ASK_FIRST);
+  multiHeaders_(h, "answerRight", ANSWER_RIGHT);
+  multiHeaders_(h, "oldAnswer", OLD_ANSWER);
+  multiHeaders_(h, "guideSteps", GUIDE_STEPS);
+  multiHeaders_(h, "seniorFind", SENIOR_FIND);
   multiHeaders_(h, "fbPosting", FB_POSTING);
+  multiHeaders_(h, "getAround", GET_AROUND);
+  multiHeaders_(h, "commute", COMMUTE);
   h.push("whereFound", "housingSince");
   multiHeaders_(h, "cantGoOut", CANT_GO_OUT);
   multiHeaders_(h, "buySell", BUY_SELL);
   h.push("scamSince");
-  COSTS.forEach(function (k) { multiHeaders_(h, k, COST); });
   JARS.forEach(function (k) { h.push("coins: " + k); });
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
@@ -161,8 +188,8 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 function row_(r, now) {
   var coins = obj_(r.coins);
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.barangay), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
-    cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen), cell_(r.familyVSU)];
+    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.dormPart), cell_(r.barangay), cell_(r.year), cell_(r.faculty, 100),
+    cell_(r.org), cell_(r.scholarship), cell_(r.familyVSU)];
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
   multiCells_(row, r.load, LOAD, "");
@@ -176,19 +203,31 @@ function row_(r, now) {
   FIRSTS.forEach(function (k) { var v = Array.isArray(r[k]) ? r[k] : []; row.push(cell_(v[0]), cell_(v[1]), cell_(v[2])); });
   row.push(cell_(r.groupChats));
   multiCells_(row, r.officialHow, OFFICIAL_HOW, "");
-  row.push(cell_(r.classLast), cell_(r.officialLast));
+  multiCells_(row, r.classNews, CLASS_NEWS, "");
+  multiCells_(row, r.officialTell, OFFICIAL_TELL, "");
   multiCells_(row, r.checkPost, CHECK_POST, r.checkPostOther);
   multiCells_(row, r.missedLate, MISSED_LATE, "");
-  row.push(cell_(r.scenario), cell_(r.whichOffice), cell_(r.visitsTook), cell_(r.reachHow), cell_(r.reachGot), cell_(r.missClass));
+  multiCells_(row, r.scenario, SCENARIO, "");
+  multiCells_(row, r.whichOffice, OFFICE, "");
+  multiCells_(row, r.visitsTook, VISITS, "");
+  multiCells_(row, r.reachWhy, REACH_WHY, "");
+  multiCells_(row, r.reachHard, REACH_HARD, "");
+  row.push(cell_(r.missClass));
   multiCells_(row, r.concern, CONCERN, "");
   multiCells_(row, r.whyQuiet, WHY_QUIET, r.whyQuietOther);
-  row.push(cell_(r.concernHeard), cell_(r.askFirst), cell_(r.answerRight), cell_(r.oldAnswer), cell_(r.guideLast), cell_(r.seniorLast));
+  multiCells_(row, r.concernHeard, HEARD, "");
+  multiCells_(row, r.askFirst, ASK_FIRST, "");
+  multiCells_(row, r.answerRight, ANSWER_RIGHT, "");
+  multiCells_(row, r.oldAnswer, OLD_ANSWER, "");
+  multiCells_(row, r.guideSteps, GUIDE_STEPS, "");
+  multiCells_(row, r.seniorFind, SENIOR_FIND, "");
   multiCells_(row, r.fbPosting, FB_POSTING, "");
+  multiCells_(row, r.getAround, GET_AROUND, "");
+  multiCells_(row, r.commute, COMMUTE, "");
   row.push(cell_(r.whereFound), cell_(r.housingSince));
   multiCells_(row, r.cantGoOut, CANT_GO_OUT, "");
   multiCells_(row, r.buySell, BUY_SELL, "");
   row.push(cell_(r.scamSince));
-  COSTS.forEach(function (k) { multiCells_(row, r[k], COST, ""); });
   JARS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });  // at most 10 in a jar
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
@@ -296,4 +335,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, COST: COST, COSTS: COSTS, MISSED_LATE: MISSED_LATE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
