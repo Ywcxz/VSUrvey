@@ -1,0 +1,17 @@
+# VSUrvey: notes for Claude
+
+This repository is the Project CAMPUS student survey (D-037), kept apart from the master document so respondents don't read the proposal before answering (D-039). Its decisions are rows in the master document's register, `content/13-decisions.md` in [project-campus](https://github.com/Ywcxz/project-campus), and its protocol is in Chapter 8 there. A decision counts only once it is a row in that register.
+
+## Never
+
+- Commit survey responses, contact details, or interview notes (D-086).
+- Set `OPEN` to `true`. The owner opens the survey once VSU's permission to run it is in hand (D-083).
+
+## Before you push
+
+```bash
+cd tests && npm install && npm test
+```
+
+- Work on a branch and open a pull request; the owner merges.
+- Name your branch `claude/` plus a short topic, such as `claude/coins-wording`. ChatGPT's branches start with `chatgpt/`, so each pull request shows who made it (D-131).
