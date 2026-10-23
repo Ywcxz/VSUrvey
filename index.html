@@ -450,14 +450,6 @@ a{color:var(--sea)}
 .mode.on{opacity:1}
 
 /* ---------- Send ---------- */
-.strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px;scroll-snap-type:x mandatory;scrollbar-width:thin}
-.cell{flex:none;width:150px;scroll-snap-align:start;background:#FFFFFF;color:#13261D;border:2.5px solid #13261D;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
-.cell .ci{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff}
-.cell .ci svg{width:18px;height:18px}
-.cell dt{font-size:12px;color:#4A5E53}
-.cell dd{margin:0;font:700 14.5px/1.2 var(--display)}
-.dotrow{display:flex;flex-wrap:wrap;gap:2px}
-.dotrow i{width:7px;height:7px;border-radius:50%;background:#F2B33D}
 .skipped{font-size:14px;color:var(--ink-soft);margin:12px 0 0}
 .skipped .linkbtn{font-size:14px}
 .payload{white-space:pre-wrap;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;max-height:34vh;overflow:auto;background:var(--tile);color:var(--tile-ink);padding:10px 12px;border-radius:12px;margin:12px 0 0}
@@ -563,7 +555,9 @@ a{color:var(--sea)}
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbwIJSs4WGaK4mMbcqgrjOkXLecEtqzOkS2zaivv7rfCqAXFmwhmb0RsWXlfPpLrvuY1MA/exec";  // Apps Script web app (survey-receiver.gs)
   var PRODUCTION_HOSTS = ["project-campus-vsurvey.vercel.app", "istorya-sa-vsu.vercel.app"];  // answers are sent only from these addresses; previews send nothing
   var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
-  var STORY_URL = "";  // where "See what CAMPUS proposes" leads, once it is live
+  /* Where "See what CAMPUS proposes" leads after sending: the CAMPUS site for now, then the documentary site and the network's
+     mock-ups once they are live (owner, 23 October 2026). */
+  var STORY_URL = "https://project-campus-gilt.vercel.app/";
   var CONTACT_PHONE = "09491171548";  // the researcher's number on the consent screen (D-110)
   var SURVEY_VERSION = "since-v1";
   var VARIANT = "since";  // each problem asked about since the respondent started at VSU, all that happened (D-038, as proposed for revision)
@@ -1228,7 +1222,7 @@ a{color:var(--sea)}
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much", NONE_OF_THESE = "None of these";
   /* How long the survey takes, as estimated from each screen's words and taps; timed run-throughs replace it (D-128). The survey
      may be long: every question can be skipped, and the first screen says how long it takes (owner, 23 October 2026). */
-  var SURVEY_MIN = "20\u201325";  // a typical path is about 21 minutes; a slow reader takes about 25
+  var SURVEY_MIN = "20\u201325";  // a typical path is about 23 minutes (re-estimated 23 October 2026); 15 to 28 across paths and readers
   var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
   /* Each problem is asked about since the respondent started at VSU, and they pick all that have happened (owner, 23 October 2026). */
   var ALL_HAPPENED = "Pick all that have happened.", ALL_APPLY = "Pick all that apply.";
@@ -1554,7 +1548,8 @@ a{color:var(--sea)}
   step({ id: "whoRuns", box: "net", ch: 8, kind: "chipsOne", key: "whoRuns", size: "bare", kicker: "Who should run it", prompt: "Who would you trust most to run it?", core: true, opts: OPT.whoRuns });
   step({ id: "hostedPay", box: "net", ch: 8, kind: "chipsOne", key: "hostedPay", size: "bare", kicker: "Hosted on campus", prompt: "Suppose VSU's own network ran on campus, so you could use it there without mobile data. Which would you go for?", core: true, opts: OPT.hostedPay });
   step({ id: "keepAway", box: "net", ch: 8, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
-  step({ id: "send", box: "send", ch: 9, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
+  /* Send goes straight to the comment; the summary of answers in panels is gone (owner, 23 October 2026). */
+  step({ id: "send", box: "send", ch: 9, kind: "send", kicker: "Last step", prompt: "Anything we missed?" });
   step({ id: "final", box: "final", ch: 9, kind: "final", noMenu: true, when: function () { return sent; } });
 
   var stepById = {};
@@ -1655,10 +1650,8 @@ a{color:var(--sea)}
     },
     chipsOne: function (s) { return head(s) + '<div class="answers">' + chipGrid(s) + "</div>"; },
     send: function (s) {
-      return head(s) + '<p class="lede">Built from your answers. Check them, add a note if you like, then send.</p>' +
-        '<div class="strip noswipe" id="strip"></div>' +
-        '<p class="q" id="q-comment">Anything we missed? (optional)</p>' +
-        '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="q-comment" placeholder="A campus problem we didn\'t ask about, or anything else for the researcher."></textarea>' +
+      return head(s) + '<p class="lede">Optional. A campus problem we didn\'t ask about, or anything else for the researcher. Then send.</p>' +
+        '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="h-send" placeholder="Write it here."></textarea>' +
         '<p class="note">Leave out names and anything that could identify anyone. For a reply, text Leo at <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a>.</p>" +
         '<p class="skipped" id="skipped"></p>' +
         '<div class="sendrow"><button type="button" class="btn" id="send">Send my answers</button></div><p class="note" id="send-note" aria-live="polite"></p>';
@@ -2501,25 +2494,7 @@ a{color:var(--sea)}
   });
 
   /* ---------- Review and send ---------- */
-  function cell(ic, hue, label, value, extra) {
-    return '<dl class="cell"><span class="ci" style="background:' + hue + '">' + icon(ic) + "</span><dt>" + esc(label) + "</dt><dd>" + esc(value) + "</dd>" + (extra || "") + "</dl>";
-  }
   function buildSend() {
-    var asked = Object.keys(PROBLEM).filter(function (id) { return list().indexOf(stepById[id]) >= 0 && A[id] !== null && !(Array.isArray(A[id]) && !A[id].length); });
-    var hits = asked.filter(isProblem);
-    var top = Object.keys(A.coins).sort(function (a, b) { return A.coins[b] - A.coins[a]; })[0];
-    var cells = [
-      cell("house", "#B7791F", "Where you live", A.residence ? short("residence") : "Skipped"),
-      cell("cap", "#1F7A8C", "Your form", [short("year"), short("faculty")].join(", ")),
-      cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions[0] || "Skipped"),
-      cell("office", "#E4705A", "First move at a new office", A.scenario.join(" \u2022 ") || "Skipped"),
-      cell("calendar", "#D9483B", "Problems you've run into", hits.length + " of " + asked.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
-      cell("coin", "#C98A16", "Most attention", top ? jarById[top][1] : "No coins spent"),
-      cell("bubble", "#2C8C99", "Posting in unofficial groups", A.fbPosting.join(" \u2022 ") || "Skipped"),
-      cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!hasSim() ? "No mobile data" : "Skipped")),
-      cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
-    ];
-    $("#strip").innerHTML = cells.join("");
     $("#comment").value = A.comment;
     var gaps = {};
     list().forEach(function (s) { if (s.core && !done(s)) gaps[s.ch] = (gaps[s.ch] || []).concat(s); });

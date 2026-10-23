@@ -344,9 +344,12 @@ async function walkAll(page, shot, dorm) {
   await one(page, "hostedPay", "Pay a small fee to use it on campus", shot);
   await many(page, "keepAway", ["Uses too much mobile data"], shot);
   await at(page, "send", shot);
+  assert.strictEqual(await page.locator(inStep("send", "h2")).textContent(), "Anything we missed?", "Send goes straight to the comment");
+  assert.strictEqual(await page.locator("#strip").count(), 0, "no summary panels");
   await page.fill("#comment", "Will the results be shared with students?");
   await sendIt(page);
   await at(page, "final", shot);
+  assert.strictEqual(await page.locator("#story-link").getAttribute("href"), "https://project-campus-gilt.vercel.app/", "the thank-you link leads to what CAMPUS proposes");
 }
 
 function h_has_pins() { return receiver.headers_().some(k => /^pin\d/.test(k)); }
