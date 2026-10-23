@@ -52,8 +52,15 @@ var OLD_ANSWER = ["Yes, quickly", "Yes, but it took a while", "No, so I asked ag
 var GUIDE_STEPS = ["From an official guide that was up to date", "From an official guide that turned out to be out of date",
   "I couldn't find a guide, so I asked someone", "I couldn't find a guide, so I figured it out", "I haven't gone through one"];
 var SENIOR_FIND = ["Yes, someone I already knew", "Yes, after asking around", "No, I couldn't find one", "It hasn't happened"];
+var ORG_KINDS = ["A course or department org", "Academic or professional", "Sports", "Arts and culture", "Religious", "An interest club or hobby group",
+  "A fraternity or sorority", "Political or advocacy", "Volunteer or community service", "Other"];
+var ORG_RUN = ["Getting members to take part", "Reaching members with announcements", "Approvals and paperwork from offices",
+  "Finding a venue or a schedule that works", "Funding", "Passing things on to the next officers", "Other"];
+var ORG_KEEP = ["My friends are in it", "It helps my studies or career", "I believe in what it does", "Its events and activities", "It's expected, like in my course org", "Other"];
 var ORG_WHY = ["It's hard to connect with the members", "I don't feel like taking part", "I don't have the time",
-  "I don't hear about their activities in time", "There's no easy way to find orgs or join in", "Fees or other costs", "Other"];
+  "I don't hear about its activities in time", "Its activities don't interest me", "Fees or other costs", "Other"];
+var ORG_NONE = ["I don't have the time", "I haven't found one that interests me", "There's no easy way to find orgs or join in",
+  "I don't know anyone in them", "Fees or other costs", "I'm not interested in orgs", "Other"];
 var SUPPORT = ["My parents or guardians send me money", "A relative supports me", "A scholarship or financial aid", "I work while studying", "My own savings"];
 var GET_AROUND = ["A bicycle", "A motorcycle", "A car", "I ride along with someone", "None of these"];
 var COMMUTE = ["Habal-habal or tricycle", "Jeepney or multicab", "My own bicycle, motorcycle, or car", "A ride with someone", "Walk"];
@@ -81,7 +88,7 @@ var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak sign
 var RELOAD_WHY = ["My open-access data ran out, but my app-only data didn't", "My app-only data ran out, but my open-access data didn't",
   "Both ran out", "Schoolwork couldn't wait", "To stay in touch with family or friends", "Other"];
 var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
-var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't", "I usually don't go online during class hours"];
+var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't", "I usually don't go online while on campus"];
 var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];
 var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
   "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
@@ -111,8 +118,12 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
 
 function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
-    "residence", "dormPart", "barangay", "year", "faculty", "org", "familyVSU"];
+    "year", "faculty", "department", "residence", "dormPart", "barangay", "org", "familyVSU"];
+  multiHeaders_(h, "orgKinds", ORG_KINDS);
+  multiHeaders_(h, "orgRun", ORG_RUN);
+  multiHeaders_(h, "orgKeep", ORG_KEEP);
   multiHeaders_(h, "orgWhy", ORG_WHY);
+  multiHeaders_(h, "orgNone", ORG_NONE);
   multiHeaders_(h, "support", SUPPORT);
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "twoSims", TWO_SIMS);
@@ -193,9 +204,13 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 function row_(r, now) {
   var coins = obj_(r.coins);
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.dormPart), cell_(r.barangay), cell_(r.year), cell_(r.faculty, 100),
-    cell_(r.org), cell_(r.familyVSU)];
+    r.consent === true, r.age18 === true, cell_(r.year), cell_(r.faculty, 100), cell_(r.department, 100),
+    cell_(r.residence), cell_(r.dormPart), cell_(r.barangay), cell_(r.org), cell_(r.familyVSU)];
+  multiCells_(row, r.orgKinds, ORG_KINDS, r.orgKindsOther);
+  multiCells_(row, r.orgRun, ORG_RUN, r.orgRunOther);
+  multiCells_(row, r.orgKeep, ORG_KEEP, r.orgKeepOther);
   multiCells_(row, r.orgWhy, ORG_WHY, r.orgWhyOther);
+  multiCells_(row, r.orgNone, ORG_NONE, r.orgNoneOther);
   multiCells_(row, r.support, SUPPORT, "");
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
@@ -342,4 +357,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_WHY: ORG_WHY, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };

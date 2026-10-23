@@ -711,7 +711,7 @@ a{color:var(--sea)}
       else {
         var w = Math.max(5, Math.min(91, Math.round(96 * p)));
         body += '<clipPath id="shc' + Math.round(p * 100) + '"><rect x="12" y="30" width="96" height="26" rx="13"/></clipPath><g clip-path="url(#shc' + Math.round(p * 100) + ')"><rect x="12" y="30" width="96" height="26" fill="#F2B33D"/><rect x="12" y="30" width="' + w + '" height="26" fill="#1F7A8C"/></g><rect x="12" y="30" width="96" height="26" rx="13" fill="none" stroke="#13261D" stroke-width="2"/>' +
-          '<text x="12" y="72" font-size="11" font-weight="700" fill="#1F7A8C" font-family="sans-serif">school</text><text x="108" y="72" text-anchor="end" font-size="11" font-weight="700" fill="#9A6A0E" font-family="sans-serif">other</text>';
+          '<text x="12" y="72" font-size="11" font-weight="700" fill="#1F7A8C" font-family="sans-serif">acads</text><text x="108" y="72" text-anchor="end" font-size="11" font-weight="700" fill="#9A6A0E" font-family="sans-serif">other</text>';
       }
       return art(body + "</g>");
     },
@@ -948,7 +948,7 @@ a{color:var(--sea)}
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Lives</dt><dd data-f="residence">Skipped</dd><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Faculty</dt><dd data-f="faculty">Skipped</dd><dt>Orgs</dt><dd data-f="org">Skipped</dd><dt>Support</dt><dd data-f="support">Skipped</dd></dl></div></div></div></div>';
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Dept.</dt><dd data-f="department">Skipped</dd><dt>Resides</dt><dd data-f="residence">Skipped</dd><dt>Scholar</dt><dd data-f="scholar">Skipped</dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -1104,7 +1104,7 @@ a{color:var(--sea)}
   /* ---------- What is recorded ---------- */
   var A = {
     consent: false, age18: null, startedAt: null,
-    residence: null, dormPart: null, barangay: null, year: null, faculty: null, org: null, orgWhy: [], orgWhyOther: "", support: [], familyVSU: null,
+    residence: null, dormPart: null, barangay: null, year: null, faculty: null, department: null, org: null, orgKinds: [], orgKindsOther: "", orgRun: [], orgRunOther: "", orgKeep: [], orgKeepOther: "", orgWhy: [], orgWhyOther: "", orgNone: [], orgNoneOther: "", support: [], familyVSU: null,
     networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstClasses: [], firstSuspensions: [], firstDocuments: [], firstEvents: [], firstScholarships: [], firstAnnouncements: [], groupChats: null, officialHow: [], checkPost: [], checkPostOther: "",
     classNews: [], officialTell: [], missedLate: [],
@@ -1132,8 +1132,12 @@ a{color:var(--sea)}
     year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5], ["Graduate student", "Graduate student", 0]],
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
-    /* What holds back those who rarely take part in orgs, or aren't in any (owner, 23 October 2026). */
-    orgWhy: [["It's hard to connect with the members", "people"], ["I don't feel like taking part", "ban"], ["I don't have the time", "snail"], ["I don't hear about their activities in time", "megaphone"], ["There's no easy way to find orgs or join in", "search"], ["Fees or other costs", "coin"], ["Other", "other"]],
+    /* Orgs: the kinds a member is in, then one follow-up for each level of involvement (owner, 23 October 2026). */
+    orgKinds: [["A course or department org", "cap"], ["Academic or professional", "case"], ["Sports", "flag"], ["Arts and culture", "spark"], ["Religious", "heart"], ["An interest club or hobby group", "star"], ["A fraternity or sorority", "people"], ["Political or advocacy", "megaphone"], ["Volunteer or community service", "group"], ["Other", "other"]],
+    orgRun: [["Getting members to take part", "people"], ["Reaching members with announcements", "megaphone"], ["Approvals and paperwork from offices", "folder"], ["Finding a venue or a schedule that works", "calendar"], ["Funding", "coin"], ["Passing things on to the next officers", "stack"], ["Other", "other"]],
+    orgKeep: [["My friends are in it", "people"], ["It helps my studies or career", "cap"], ["I believe in what it does", "heart"], ["Its events and activities", "flag"], ["It's expected, like in my course org", "check"], ["Other", "other"]],
+    orgWhy: [["It's hard to connect with the members", "people"], ["I don't feel like taking part", "ban"], ["I don't have the time", "snail"], ["I don't hear about its activities in time", "megaphone"], ["Its activities don't interest me", "eye"], ["Fees or other costs", "coin"], ["Other", "other"]],
+    orgNone: [["I don't have the time", "snail"], ["I haven't found one that interests me", "search"], ["There's no easy way to find orgs or join in", "guide"], ["I don't know anyone in them", "people"], ["Fees or other costs", "coin"], ["I'm not interested in orgs", "ban"], ["Other", "other"]],
     /* How the respondent gets by financially, all that apply; it replaces whether they have a scholarship (owner, 23 October 2026). */
     support: [["My parents or guardians send me money", "house"], ["A relative supports me", "group"], ["A scholarship or financial aid", "star"], ["I work while studying", "case"], ["My own savings", "coin"]],
     /* Where VSU news is heard first (D-119): official and student-run kept apart; no community page is named (D-044). */
@@ -1171,7 +1175,7 @@ a{color:var(--sea)}
     reloadWhy: [["My open-access data ran out, but my app-only data didn't", "globe"], ["My app-only data ran out, but my open-access data didn't", "chat"], ["Both ran out", "ban"], ["Schoolwork couldn't wait", "cap"], ["To stay in touch with family or friends", "people"], ["Other", "other"]],
     twoSims: [["To switch when one has weak signal", "signal"], ["My main SIM has weak signal on campus or where I stay", "pin"], ["One for data, one for calls and texts", "chat"], ["One for school, one for personal", "cap"], ["I pick each network's promo by need, like exam week", "tag"], ["No particular reason", "other"], ["Other", "other"]],
     signal: [["On campus and where I stay", 1, 1], ["On campus only", 1, 0], ["Where I stay only", 0, 1], ["Neither, or hardly ever", 0, 0]],
-    onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["I usually can't", "none"], ["I usually don't go online during class hours", "offline"]],
+    onlineCampus: [["Mobile data", "data"], ["Campus Wi-Fi", "wifi"], ["I usually can't", "none"], ["I usually don't go online while on campus", "offline"]],
     onlineHome: [["Mobile data", "data"], ["Wi-Fi where I stay", "homewifi"], ["I usually can't", "none"]],
     scenario: [["Asked in a student Facebook group", "askgroup"], ["Messaged a friend or a senior", "message"], ["Walked over and asked around", "walk"], ["Checked the official website or page", "web"], ["Something else", "elsewhere"], ["It hasn't happened to me", "nothappened"]],
     why: ["Hard to find", "Closed, or no one there", "Not the right place", "Long wait", "Something else"],
@@ -1245,7 +1249,7 @@ a{color:var(--sea)}
     if (!runsEarly() || A.untilExpiry !== EARLY) A.reload = null;
     if (!reloadsNow() || A.reload !== RELOAD_NOW) { A.reloadWhy.length = 0; A.reloadWhyOther = ""; }
   }
-  var NO_REASON = "No particular reason", NOT_SURE = "Not sure", NO_LOAD = "I don't use load", SOMEONE_PAYS = "Someone else pays for it", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't", OFF_IN_CLASS = "I usually don't go online during class hours";
+  var NO_REASON = "No particular reason", NOT_SURE = "Not sure", NO_LOAD = "I don't use load", SOMEONE_PAYS = "Someone else pays for it", APP_DATA = "Data for certain apps only", CALLS = "Calls and texts", NO_NET = "I usually can't", OFF_IN_CLASS = "I usually don't go online while on campus";
   /* No load used skips what load costs and covers, as no SIM does; calls and texts alone skip what data is used for.
      Load someone else buys counts as load used, so their data access is still asked about. */
   /* Skipping the networks means no mobile data, which skips every question on load and data up to getting online (owner, 23 October 2026). */
@@ -1256,7 +1260,24 @@ a{color:var(--sea)}
   function paysWifi() { return A.onlineHome.indexOf("Wi-Fi where I stay") >= 0; }
   function usesData() { return buysLoad() && !(A.load.length > 0 && A.load.every(function (x) { return x === CALLS; })); }
   /* Those who rarely take part in orgs, or aren't in any, are asked what holds them back. */
-  function quietInOrgs() { return A.org === "A member, but I rarely take part" || A.org === "Not a member of any"; }
+  var ORG_OFFICER = "An officer or leader", ORG_ACTIVE = "An active member", ORG_RARELY = "A member, but I rarely take part", ORG_NONE = "Not a member of any";
+  function inOrgs() { return A.org !== null && A.org !== ORG_NONE; }
+  /* Each faculty's Main Campus departments and institutes, as VSU's Faculties page lists them (opened 23 October 2026), for the
+     department question; Nursing and Veterinary Medicine list none that students belong to, so they skip it. The page differs
+     from VSU's reorganization article on Meteorology, Teacher Education, and Management and Economics (E-057). */
+  var DEPARTMENTS = {
+    "Agriculture and Food Science": ["Agricultural Education and Extension", "Agronomy", "Animal Science", "Development Communication", "Food Science and Technology", "Horticulture", "Pest Management", "Plant Breeding and Genetics", "Soil Science"],
+    "Computing": ["Computer Science and Technology"],
+    "Engineering": ["Agricultural and Biosystems Engineering", "Civil Engineering", "Geodetic Engineering", "Mechanical Engineering", "Meteorology"],
+    "Forestry and Environmental Science": ["Forest Science", "Institute of Tropical Ecology and Environmental Science"],
+    "Humanities and Social Sciences": ["Arts, Languages and Literature", "Philosophy and Social Sciences"],
+    "Management and Economics": ["Business and Management", "Hospitality Management", "Tourism Management", "Economics"],
+    "Natural and Mathematical Sciences": ["Biological Sciences", "Biotechnology", "Mathematics", "Physics", "Pure and Applied Chemistry", "Statistics"],
+    "Teacher Education": ["Teacher Education", "Institute of Human Kinetics"]
+  };
+  function departmentOf(v) { return Object.keys(DEPARTMENTS).filter(function (f) { return DEPARTMENTS[f].indexOf(v) >= 0; })[0]; }
+  function facultyName() { return A.faculty ? A.faculty.replace(/^Faculty of /, "") : null; }
+  function hasDepartments() { return !!DEPARTMENTS[facultyName()]; }
   /* The ten Main Campus faculties named in VSU's announcement of 16 January 2025, by name. */
   var FACULTIES = [["FAFS", "Agriculture and Food Science"], ["FOC", "Computing"], ["FE", "Engineering"], ["FFES", "Forestry and Environmental Science"], ["FHSS", "Humanities and Social Sciences"], ["FME", "Management and Economics"], ["FNMS", "Natural and Mathematical Sciences"], ["FON", "Nursing"], ["FTE", "Teacher Education"], ["FVM", "Veterinary Medicine"]];
   /* Channel order: the owner's, the same for everyone and every news question (D-119, revised 21 October 2026). It replaces a
@@ -1297,9 +1318,9 @@ a{color:var(--sea)}
   /* Each question carries a short label instead of a number, which follow-ups would change (D-125). */
   var LABEL = {
     home: "Where you live", dormPart: "Where on campus", barangay: "Where you stay", familyVSU: "Family at VSU",
-    year: "Year", faculty: "Faculty", org: "Student orgs", orgWhy: "Being more active", support: "Getting by",
+    year: "Year", faculty: "Faculty", department: "Department", org: "Student orgs", orgKinds: "Kinds of orgs", orgRun: "Running your org", orgKeep: "Staying active", orgWhy: "Taking more part", orgNone: "Not in an org", support: "Getting by",
     networks: "Your networks", twoSims: "Two networks", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Data allocation",
-    reload: "Another promo", reloadWhy: "Why another promo", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
+    reload: "Another promo", reloadWhy: "Why another promo", dataSpend: "Load in a week", dataSchool: "Data for acads", signal: "Usable data",
     onlineCampus: "Online on campus", onlineHome: "Online where you stay", wifiSpend: "Wi‑Fi in a month", hostedPay: "Hosted on campus",
     firstClasses: "Class changes", firstSuspensions: "Suspensions and emergencies", firstDocuments: "Documents to submit", firstEvents: "Events",
     firstScholarships: "Scholarships and jobs", firstAnnouncements: "Org announcements", groupChats: "Your group chats",
@@ -1338,7 +1359,7 @@ a{color:var(--sea)}
   var FU = {
     twoSims: ["networks"], loadApps: ["load"], reload: ["untilExpiry"], reloadWhy: ["reload"], wifiSpend: ["onlineHome"],
     checkPost: ["officialTell"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
-    whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"], orgWhy: ["org"]
+    whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"], department: ["faculty"], orgKinds: ["org"], orgRun: ["org"], orgKeep: ["org"], orgWhy: ["org"], orgNone: ["org"]
   };
   /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
      around only for those who rent, and which data ran out only for those whose load includes app-only data (D-129, D-130). */
@@ -1360,6 +1381,9 @@ a{color:var(--sea)}
       "Both ran out": function () { return A.load.indexOf(APP_DATA) >= 0; }
     }
   };
+  /* A faculty's own departments only. */
+  SHOW_IF.department = {};
+  Object.keys(DEPARTMENTS).forEach(function (f) { DEPARTMENTS[f].forEach(function (d) { SHOW_IF.department[d] = function () { return facultyName() === f; }; }); });
   function fits(id, v) { var f = SHOW_IF[id] && SHOW_IF[id][v]; return !f || f(); }
   function applyShowIf(s) {
     if (!SHOW_IF[s.id]) return;
@@ -1384,18 +1408,24 @@ a{color:var(--sea)}
      respondent lives, then, as a follow-up, which part of campus their dorm is in or which barangay they stay in, and ends with
      family at VSU (owner, 23 October 2026). How they get around is asked in Daily life. */
   part(1, "Your form", [
-    { id: "home", box: "pass", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you currently reside?", say: "Where do you live?", hint: "tiles", core: true,
+    { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What's your year level?", say: "Morning! Your year level?", hint: "tiles", core: true,
+      opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
+    { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
+    { id: "department", box: "pass", kind: "chipsOne", key: "department", size: "short", prompt: "Which department?", lede: "The department or institute of your degree program.", say: "Which department?", core: true,
+      opts: Object.keys(DEPARTMENTS).reduce(function (all, f) { return all.concat(DEPARTMENTS[f]); }, []).map(function (d) { return [d, /^Institute/.test(d) ? "office" : "cap"]; }).concat([[NOT_SURE, "other"]]), when: hasDepartments },
+    { id: "home", box: "pass", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you currently reside?", say: "Where do you live?", core: true,
       opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
     { id: "dormPart", box: "pass", kind: "chipsOne", key: "dormPart", size: "short", prompt: "Which part of campus is your dorm in?", say: "Which part?", core: true, opts: OPT.dormPart,
       when: function () { return A.residence === DORM; } },
     { id: "barangay", box: "pass", kind: "chipsOne", key: "barangay", size: "short", prompt: "Which barangay is that in?", lede: "Neighboring barangays are grouped together.", say: "Which barangay?", core: true, opts: OPT.barangay,
       when: offCampus },
-    { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What year are you in?", say: "Your year?", core: true,
-      opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
-    { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
-    { id: "org", box: "pass", kind: "tiles", key: "org", cols: "t3", size: "short", prompt: "How involved are you in student orgs, including your course or department org?", say: "Any student orgs?", core: true,
+    { id: "org", box: "pass", kind: "tiles", key: "org", cols: "t3", size: "short", prompt: "How involved are you in student orgs you chose to join?", lede: "Any kind: course or department, academic or professional, sports, arts, religious, interest clubs, fraternities and sororities, political, and more. Don't count the USSC, since every student is part of it.", say: "Any student orgs?", core: true,
       opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
-    { id: "orgWhy", box: "pass", kind: "chipsMulti", key: "orgWhy", other: "orgWhyOther", otherPh: "Other: what holds you back? (optional)", prompt: "What holds you back from being more active in orgs?", lede: ALL_APPLY, say: "What holds you back?", core: true, opts: OPT.orgWhy, when: quietInOrgs },
+    { id: "orgKinds", box: "pass", kind: "chipsMulti", key: "orgKinds", other: "orgKindsOther", otherPh: "Other: what kind? (optional)", prompt: "What kinds of orgs are you in?", lede: ALL_APPLY, say: "What kinds?", core: true, opts: OPT.orgKinds, when: inOrgs },
+    { id: "orgRun", box: "pass", kind: "chipsMulti", key: "orgRun", other: "orgRunOther", otherPh: "Other: what's hard? (optional)", prompt: "What's hardest about running your org?", lede: ALL_APPLY, say: "What's hardest?", core: true, opts: OPT.orgRun, when: function () { return A.org === ORG_OFFICER; } },
+    { id: "orgKeep", box: "pass", kind: "chipsMulti", key: "orgKeep", other: "orgKeepOther", otherPh: "Other: what keeps you active? (optional)", prompt: "What keeps you active in your org?", lede: ALL_APPLY, say: "What keeps you active?", core: true, opts: OPT.orgKeep, when: function () { return A.org === ORG_ACTIVE; } },
+    { id: "orgWhy", box: "pass", kind: "chipsMulti", key: "orgWhy", other: "orgWhyOther", otherPh: "Other: what holds you back? (optional)", prompt: "What holds you back from taking more part?", lede: ALL_APPLY, say: "What holds you back?", core: true, opts: OPT.orgWhy, when: function () { return A.org === ORG_RARELY; } },
+    { id: "orgNone", box: "pass", kind: "chipsMulti", key: "orgNone", other: "orgNoneOther", otherPh: "Other: why not? (optional)", prompt: "Why aren't you in any org?", lede: ALL_APPLY, say: "Why not?", core: true, opts: OPT.orgNone, when: function () { return A.org === ORG_NONE; } },
     { id: "support", box: "pass", kind: "chipsMulti", key: "support", prompt: "How do you get by financially right now?", lede: ALL_APPLY, say: "How do you get by?", core: true, opts: OPT.support },
     { id: "familyVSU", box: "pass", kind: "chipsOne", key: "familyVSU", prompt: "Has anyone in your family, or a relative, studied at VSU?", lede: "If more than one has, pick the first answer that fits.", say: "Last one!", core: true, opts: OPT.familyVSU, autoMs: 2900, beforeNext: handOver }
   ]);
@@ -1415,11 +1445,11 @@ a{color:var(--sea)}
     { id: "reloadWhy", box: "data", kind: "chipsMulti", key: "reloadWhy", size: "bare", other: "reloadWhyOther", otherPh: "Other: why? (optional)", prompt: "Why do you buy another promo right away?", lede: "Pick all that apply. Open-access data works on any site or app; app-only data, only on certain apps.", oneOf: RAN_OUT, core: true, opts: OPT.reloadWhy, when: reloadsNow },
     { id: "dataSpend", box: "data", kind: "tiles", key: "dataSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In one week of classes, about how much do you spend on load?", lede: "Your phone's load only. For a monthly promo or plan, count about a quarter.", core: true, when: buysLoad,
       opts: OPT.loadSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
-    { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to schoolwork?", lede: "Schoolwork means classes, class group chats, research, and submissions.", core: true, when: usesData,
+    { id: "dataSchool", box: "data", kind: "tiles", key: "dataSchool", cols: "t3", size: "short", prompt: "Of that week's data, about how much goes to acads?", lede: "Acads: classes and class group chats, research, downloading materials and submitting work, finding your way around campus, VSU's online services, and anything else for school. Social media, entertainment, games, and the rest don't count.", core: true, when: usesData,
       opts: OPT.school.map(function (o) { return { v: o[0], art: function () { return TILE.share(o[1]); } }; }) },
     { id: "signal", box: "data", kind: "tiles", key: "signal", size: "short", prompt: "Where can you use mobile data well enough to browse or use school apps?", core: true, when: usesData,
       opts: OPT.signal.map(function (o) { return { v: o[0], art: function () { return TILE.where(o[1], o[2]); } }; }) },
-    { id: "onlineCampus", box: "data", kind: "tiles", multi: true, exclusive: [NO_NET, OFF_IN_CLASS], key: "onlineCampus", cols: "t4", size: "short", prompt: "On campus, during class hours, how do you get online?", lede: "Pick all that apply. Dorm Wi‑Fi counts as campus Wi‑Fi.", core: true,
+    { id: "onlineCampus", box: "data", kind: "tiles", multi: true, exclusive: [NO_NET, OFF_IN_CLASS], key: "onlineCampus", cols: "t4", size: "short", prompt: "On campus, how do you get online?", lede: "Pick all that apply. Dorm Wi‑Fi counts as campus Wi‑Fi.", core: true,
       opts: OPT.onlineCampus.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi‑Fi"), art: function () { return TILE.net(o[1]); } }; }) },
     { id: "onlineHome", box: "data", kind: "tiles", multi: true, exclusive: NO_NET, key: "onlineHome", cols: "t3", size: "short", prompt: "Where you stay, how do you get online?", lede: "Pick all that apply. Piso Wi‑Fi nearby counts as Wi‑Fi.", core: true,
       opts: OPT.onlineHome.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi‑Fi"), art: function () { return TILE.net(o[1]); } }; }) },
@@ -1737,7 +1767,9 @@ a{color:var(--sea)}
      post, which office and its tries, what made reaching someone hard, whether an answer was right, scams, and housing. */
   function pruneFollowUps() {
     if (A.residence !== DORM) A.dormPart = null;
-    if (!quietInOrgs()) { A.orgWhy.length = 0; A.orgWhyOther = ""; }
+    if (!inOrgs()) { A.orgKinds.length = 0; A.orgKindsOther = ""; }
+    [["orgRun", ORG_OFFICER], ["orgKeep", ORG_ACTIVE], ["orgWhy", ORG_RARELY], ["orgNone", ORG_NONE]].forEach(function (p) { if (A.org !== p[1]) { A[p[0]].length = 0; A[p[0] + "Other"] = ""; } });
+    if (!hasDepartments() || (A.department !== NOT_SURE && departmentOf(A.department) !== facultyName())) A.department = null;
     if (!offCampus()) { A.barangay = null; A.commute.length = 0; }
     if (!isProblem("officialTell")) { A.checkPost.length = 0; A.checkPostOther = ""; }
     if (!newOffice()) { A.whichOffice.length = 0; A.visitsTook.length = 0; }
@@ -1791,15 +1823,18 @@ a{color:var(--sea)}
   }
 
   /* Your form: the monitor fills, the form is printed and handed to you. */
-  var PASS_KEYS = ["residence", "year", "faculty", "org", "support", "familyVSU"];
+  /* The monitor's lines, one for each main question of Your form, in the order asked. */
+  var PASS_KEYS = ["year", "faculty", "residence", "org", "support", "familyVSU"];
   function filled(k) { return Array.isArray(A[k]) ? A[k].length > 0 : A[k] !== null; }
   function short(key) {
     var v = A[key];
-    if (v === null) return "Skipped";
+    if (v === null && key !== "department") return "Skipped";
     if (v === NOT_SAID) return "Not said";
     if (key === "faculty") { var f = FACULTIES.filter(function (x) { return "Faculty of " + x[1] === v; })[0]; return f ? f[0] : v; }
     if (key === "year") return v === "Graduate student" ? "Graduate" : v === "5th or higher" ? "5th+" : v + " year";
-    if (key === "support") { if (!v.length) return "Skipped"; var f0 = { "My parents or guardians send me money": "Parents", "A relative supports me": "Relative", "A scholarship or financial aid": "Scholarship", "I work while studying": "Working", "My own savings": "Savings" }[v[0]] || v[0]; return v.length > 1 ? f0 + " +" + (v.length - 1) : f0; }
+    /* The form's department line names the department, or else the faculty; its scholar line reads Yes or None from Getting by. */
+    if (key === "department") { if (v && v !== NOT_SURE) return v.replace(/^Institute of /, ""); return A.faculty ? short("faculty") : "Skipped"; }
+    if (key === "scholar") return !A.support.length ? "Skipped" : A.support.indexOf("A scholarship or financial aid") >= 0 ? "Yes" : "None";
     if (key === "residence") return v === DORM ? (A.dormPart ? A.dormPart + " dorm" : "Campus dorm") : { "A boarding house or apartment near campus": "Boarding house", "My family's home, and I commute": "Family home", "A relative's or friend's house": "Relative's or friend's" }[v] || "Elsewhere";
     if (key === "org") return { "An officer or leader": "Officer", "An active member": "Active member", "A member, but I rarely take part": "Member", "Not a member of any": "None" }[v] || v;
     if (v === "Prefer not to say") return "Not said";
@@ -1807,7 +1842,7 @@ a{color:var(--sea)}
   }
   function fillCard() {
     var card = $("#passcard");
-    ["residence", "year", "faculty", "org", "support"].forEach(function (k) {
+    ["year", "department", "residence", "scholar"].forEach(function (k) {
       var dd = $('[data-f="' + k + '"]', card), t = short(k);
       if (dd.textContent !== t) { dd.textContent = t; }
     });
