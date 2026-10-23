@@ -90,7 +90,6 @@ async function many(page, id, vs, shot) { await at(page, id, shot); for (const v
 
 /* The answers a screen offers this respondent, in order. */
 const offered = (page, id) => page.locator(inStep(id, "[data-v]")).evaluateAll(bs => bs.filter(b => b.offsetParent !== null).map(b => b.dataset.v));
-const SINCE = "Since you started at VSU, ";
 
 /* The whole walk with made-up answers, in one go. In a VSU dorm the respondent is asked which part of campus; otherwise, which
    barangay, and how they get to campus. */
@@ -109,7 +108,7 @@ async function walkAll(page, shot, dorm) {
     await page.click(btn("home", "An on-campus dorm"));
     await at(page, "dormPart", shot);
     assert.strictEqual(await page.locator(inStep("dormPart", ".kicker")).textContent(), "Follow-upWhere on campus");
-    assert.deepStrictEqual(await offered(page, "dormPart"), ["Lower campus", "Upper campus"]);
+    assert.deepStrictEqual(await offered(page, "dormPart"), ["Upper campus", "Lower campus"], "upper campus first");
     assert.ok(!(await page.evaluate(() => window.__survey.steps())).includes("barangay"), "no barangay for a VSU dorm");
     await page.click(btn("dormPart", "Upper campus"));
   } else {
@@ -122,18 +121,25 @@ async function walkAll(page, shot, dorm) {
   await one(page, "year", "2nd", shot);
   await one(page, "faculty", "Faculty of Engineering", shot);
   await one(page, "org", "A member, but I rarely take part", shot);
-  await one(page, "scholarship", "No", shot);
+  await at(page, "orgWhy", shot);
+  assert.strictEqual(await page.locator(inStep("orgWhy", ".kicker")).textContent(), "Follow-upBeing more active");
+  await many(page, "orgWhy", ["It's hard to connect with the members", "There's no easy way to find orgs or join in"], shot);
+  await at(page, "support", shot);
+  assert.strictEqual(await page.locator(inStep("support", "h2")).textContent(), "How do you get by financially right now?");
+  await many(page, "support", dorm ? ["A scholarship or financial aid"] : ["My parents or guardians send me money", "I work while studying"], shot);
   await at(page, "familyVSU", shot);
   const L = await page.evaluate(() => window.__survey.steps());
-  for (const k of ["transport", "transferee", "firstGen"]) assert.ok(!L.includes(k), k + " is gone from Your form");
+  for (const k of ["transport", "transferee", "firstGen", "scholarship"]) assert.ok(!L.includes(k), k + " is gone from Your form");
   assert.strictEqual(await page.locator(inStep("familyVSU", ".kicker")).textContent(), "Family at VSU", "asked of everyone, so not tagged as a follow-up");
   assert.deepStrictEqual(await offered(page, "familyVSU"), ["Yes, a parent or guardian", "Yes, a brother or sister", "Yes, another relative", "No, I'm the first in my family to study at VSU", "Not sure"]);
   await page.click(btn("familyVSU", dorm ? "Yes, a brother or sister" : "No, I'm the first in my family to study at VSU"));
   assert.strictEqual(await page.locator('#passcard [data-f="residence"]').textContent(), dorm ? "Upper campus dorm" : "Relative's or friend's", "where you live is on the form");
+  assert.strictEqual(await page.locator('#passcard [data-f="support"]').textContent(), dorm ? "Scholarship" : "Parents +1", "and how you get by");
   if (SHOTS && shot) { await page.waitForTimeout(1700); await page.screenshot({ path: path.join(SHOTS, shot + "-familyVSU-printed.png") }); }
   // Getting online
   await at(page, "networks", shot);
   assert.strictEqual(await page.locator(btn("networks", "I don't use a SIM")).count(), 0, "no SIM means skipping the question");
+  assert.strictEqual(await page.locator(inStep("networks", ".lede")).textContent(), "Pick up to two. Skip this if you don't use mobile data.");
   await page.click(btn("networks", "Smart"));
   await page.click(btn("networks", "DITO"));
   await next(page);
@@ -160,6 +166,8 @@ async function walkAll(page, shot, dorm) {
   await one(page, "dataSpend", "₱99 or ₱100", shot);
   await one(page, "dataSchool", "About half", shot);
   await one(page, "signal", "On campus only", shot);
+  await at(page, "onlineCampus", shot);
+  assert.ok((await page.locator(inStep("onlineCampus", ".lede")).textContent()).includes("Dorm Wi‑Fi counts as campus Wi‑Fi"));
   await many(page, "onlineCampus", ["Mobile data", "Campus Wi-Fi"], shot);
   await at(page, "onlineHome", shot);
   assert.strictEqual(await page.locator(btn("onlineHome", "Pocket Wi-Fi")).count(), 0, "pocket Wi-Fi is mobile data");
@@ -191,7 +199,8 @@ async function walkAll(page, shot, dorm) {
   await many(page, "officialHow", ["Someone shares them with me"], shot);
   await at(page, "classNews", shot);
   assert.strictEqual(await page.locator(inStep("classNews", ".statement")).count(), 0, "no scene statements");
-  assert.ok((await page.locator(inStep("classNews", "h2")).textContent()).startsWith(SINCE), "asked since starting at VSU, not the last time");
+  assert.strictEqual(await page.locator(inStep("classNews", "h2")).textContent(), "When a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", "not only the last time, and no period in the question");
+  assert.ok(!(await page.evaluate(() => document.body.textContent)).includes("Since you started at VSU,"), "the period is named once, on the first screen");
   assert.strictEqual(await page.locator(inStep("classNews", ".lede")).textContent(), "Pick all that have happened.");
   await many(page, "classNews", ["Before I left for class", "Only after the class time"], shot);
   await many(page, "officialTell", ["Yes, right away", "I couldn't tell"], shot);
@@ -208,7 +217,7 @@ async function walkAll(page, shot, dorm) {
   assert.strictEqual(await page.locator(inStep("visitsTook", "h2")).textContent(), "How many tries did those errands take?");
   await many(page, "visitsTook", ["Just one", "Four or more"], shot);
   await at(page, "reachWhy", shot);
-  assert.strictEqual(await page.locator(inStep("reachWhy", "h2")).textContent(), SINCE + "why have you needed to reach a teacher or staff member outside class?", "why, not how");
+  assert.strictEqual(await page.locator(inStep("reachWhy", "h2")).textContent(), "Why have you needed to reach a teacher or staff member outside class?", "why, not how");
   await many(page, "reachWhy", ["A signature or a document", "A question about a lesson"], shot);
   await at(page, "reachHard", shot);
   assert.strictEqual(await page.locator(inStep("reachHard", ".kicker")).textContent(), "What made it hard", "asked after every reason, so not tagged as a follow-up");
@@ -336,6 +345,9 @@ function rowOf(r) {
       assert.strictEqual(r.dormPart, dorm ? "Upper campus" : null);
       assert.strictEqual(r.barangay, dorm ? null : "Guadalupe (Utod)");
       assert.strictEqual(r.org, "A member, but I rarely take part");
+      assert.deepStrictEqual(r.orgWhy, ["It's hard to connect with the members", "There's no easy way to find orgs or join in"]);
+      assert.deepStrictEqual(r.support, dorm ? ["A scholarship or financial aid"] : ["My parents or guardians send me money", "I work while studying"]);
+      assert.ok(!("scholarship" in r), "the scholarship question is now how you get by");
       assert.strictEqual(r.faculty, "Faculty of Engineering");
       assert.strictEqual(r.familyVSU, dorm ? "Yes, a brother or sister" : "No, I'm the first in my family to study at VSU");
       assert.deepStrictEqual(r.coins, { online: 4, news: 2 });
@@ -401,6 +413,9 @@ function rowOf(r) {
       for (const k of ["rid", "stage", "more", "transport", "transferee", "firstGen"]) assert.ok(!(k in row), "no " + k + " column");
       assert.ok(!Object.keys(row).some(k => /Cost: /.test(k)), "no what-it-cost columns");
       assert.strictEqual(row.dormPart, dorm ? "Upper campus" : "");
+      assert.strictEqual(row["orgWhy: There's no easy way to find orgs or join in"], true);
+      assert.strictEqual(row["support: I work while studying"], !dorm);
+      assert.strictEqual(row["support: A scholarship or financial aid"], dorm);
       assert.strictEqual(row.barangay, dorm ? "" : "Guadalupe (Utod)");
       assert.strictEqual(row.familyVSU, dorm ? "Yes, a brother or sister" : "No, I'm the first in my family to study at VSU");
       assert.strictEqual(row["coins: online"], 4);
@@ -464,12 +479,12 @@ function rowOf(r) {
     const t = await open(browser, {});
     const vals = await t.page.evaluate(() => {
       const get = (step, key) => Array.from(document.querySelectorAll('[data-step="' + step + '"] [data-key="' + key + '"] [data-v]')).map(b => b.dataset.v);
-      return { missed: get("missedLate", "missedLate"), classNews: get("classNews", "classNews"), officialTell: get("officialTell", "officialTell"), scenario: get("scenario", "scenario"), office: get("whichOffice", "whichOffice"), visits: get("visitsTook", "visitsTook"), reachWhy: get("reachWhy", "reachWhy"), reachHard: get("reachHard", "reachHard"), askFirst: get("askFirst", "askFirst"), answerRight: get("answerRight", "answerRight"), oldAnswer: get("oldAnswer", "oldAnswer"), guideSteps: get("guideSteps", "guideSteps"), seniorFind: get("seniorFind", "seniorFind"), getAround: get("getAround", "getAround"), commute: get("commute", "commute"), join: get("whoJoin", "whoJoin"), heard: get("concernHeard", "concernHeard"), fb: get("fbPosting", "fbPosting"), cant: get("cantGoOut", "cantGoOut"), buy: get("buySell", "buySell"), officialHow: get("officialHow", "officialHow"), checkPost: get("checkPost", "checkPost"), whyQuiet: get("whyQuiet", "whyQuiet"), reloadWhy: get("reloadWhy", "reloadWhy"), twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway") };
+      return { missed: get("missedLate", "missedLate"), classNews: get("classNews", "classNews"), officialTell: get("officialTell", "officialTell"), scenario: get("scenario", "scenario"), office: get("whichOffice", "whichOffice"), visits: get("visitsTook", "visitsTook"), reachWhy: get("reachWhy", "reachWhy"), reachHard: get("reachHard", "reachHard"), askFirst: get("askFirst", "askFirst"), answerRight: get("answerRight", "answerRight"), oldAnswer: get("oldAnswer", "oldAnswer"), guideSteps: get("guideSteps", "guideSteps"), seniorFind: get("seniorFind", "seniorFind"), getAround: get("getAround", "getAround"), commute: get("commute", "commute"), orgWhy: get("orgWhy", "orgWhy"), support: get("support", "support"), join: get("whoJoin", "whoJoin"), heard: get("concernHeard", "concernHeard"), fb: get("fbPosting", "fbPosting"), cant: get("cantGoOut", "cantGoOut"), buy: get("buySell", "buySell"), officialHow: get("officialHow", "officialHow"), checkPost: get("checkPost", "checkPost"), whyQuiet: get("whyQuiet", "whyQuiet"), reloadWhy: get("reloadWhy", "reloadWhy"), twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), load: get("load", "load"), apps: get("loadApps", "loadApps"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway") };
     });
     assert.deepStrictEqual(vals.concern.slice().sort(), receiver.CONCERN.slice().sort());
     assert.deepStrictEqual(vals.heard.slice().sort(), receiver.HEARD.slice().sort());
     for (const [k, list] of [["classNews", "CLASS_NEWS"], ["officialTell", "OFFICIAL_TELL"], ["scenario", "SCENARIO"], ["office", "OFFICE"], ["visits", "VISITS"], ["reachWhy", "REACH_WHY"], ["reachHard", "REACH_HARD"],
-      ["askFirst", "ASK_FIRST"], ["answerRight", "ANSWER_RIGHT"], ["oldAnswer", "OLD_ANSWER"], ["guideSteps", "GUIDE_STEPS"], ["seniorFind", "SENIOR_FIND"], ["getAround", "GET_AROUND"], ["commute", "COMMUTE"]])
+      ["askFirst", "ASK_FIRST"], ["answerRight", "ANSWER_RIGHT"], ["oldAnswer", "OLD_ANSWER"], ["guideSteps", "GUIDE_STEPS"], ["seniorFind", "SENIOR_FIND"], ["getAround", "GET_AROUND"], ["commute", "COMMUTE"], ["orgWhy", "ORG_WHY"], ["support", "SUPPORT"]])
       assert.deepStrictEqual(vals[k].slice().sort(), receiver[list].slice().sort(), k + " matches the receiver's " + list);
     assert.deepStrictEqual(vals.join.slice().sort(), receiver.WHO_JOIN.slice().sort());
     assert.deepStrictEqual(vals.fb.slice().sort(), receiver.FB_POSTING.slice().sort());
@@ -492,7 +507,7 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
-  await check("skipping the networks still asks about load, and why two SIMs comes only with two", async () => {
+  await check("skipping the networks skips every question on load and data, and why two SIMs comes only with two", async () => {
     const t = await open(browser, { mobile: true });
     await t.page.click("#start");
     await at(t.page, "consent");
@@ -502,8 +517,29 @@ function rowOf(r) {
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
     assert.ok(!(await steps()).includes("twoSims"), "no networks, no question on two SIMs");
+    let L = await steps();
+    for (const id of ["load", "loadApps", "validity", "untilExpiry", "reload", "reloadWhy", "dataSpend", "dataSchool", "signal"]) assert.ok(!L.includes(id), id + " is skipped with no mobile data");
     await next(t.page);
-    await at(t.page, "load");
+    await at(t.page, "onlineCampus");
+    await t.page.click(btn("onlineCampus", "Campus Wi-Fi"));
+    await t.page.click(btn("onlineCampus", "I usually don't go online during class hours"));
+    assert.deepStrictEqual(await t.page.evaluate(() => window.__survey.answers.onlineCampus), ["I usually don't go online during class hours"], "not going online in class hours stands alone");
+    assert.strictEqual(await t.page.locator(inStep("onlineCampus", '[data-v="Campus Wi-Fi"]')).count(), 1);
+    // Wi-Fi spending follows only Wi-Fi where they stay
+    await t.page.evaluate(() => window.__survey.go("onlineHome"));
+    await at(t.page, "onlineHome");
+    assert.ok(!(await steps()).includes("wifiSpend"), "no Wi-Fi spending before Wi-Fi where they stay is picked");
+    await t.page.click(btn("onlineHome", "Wi-Fi where I stay"));
+    assert.ok((await steps()).includes("wifiSpend"));
+    await next(t.page);
+    await at(t.page, "wifiSpend");
+    await t.page.click(btn("wifiSpend", "₱200 to ₱499"));
+    await t.page.evaluate(() => window.__survey.go("onlineHome"));
+    await at(t.page, "onlineHome");
+    await t.page.click(btn("onlineHome", "Wi-Fi where I stay"));
+    assert.strictEqual(await t.page.evaluate(() => window.__survey.answers.wifiSpend), null, "taking back Wi-Fi where they stay takes back what it costs");
+    assert.ok(!(await steps()).includes("wifiSpend"));
+    await t.page.evaluate(() => { window.__survey.answers.load.push("Data for any site or app"); });
     await t.page.evaluate(() => window.__survey.go("networks"));
     await at(t.page, "networks");
     await t.page.click(btn("networks", "Globe"));
@@ -519,6 +555,8 @@ function rowOf(r) {
     await at(t.page, "networks");
     await t.page.click(btn("networks", "TM"));
     assert.deepStrictEqual(await t.page.evaluate(() => window.__survey.answers.twoSims), [], "dropping to one network clears the reasons");
+    await t.page.click(btn("networks", "Globe"));
+    assert.deepStrictEqual(await t.page.evaluate(() => window.__survey.answers.load), [], "no network takes back the load");
     assert.deepStrictEqual(t.errors, []);
     await t.ctx.close();
   });
@@ -612,7 +650,8 @@ function rowOf(r) {
     for (const k of ["groupChats", "missClass", "wifiSpend", "whereFound", "housingSince", "scamSince", "whoRuns", "hostedPay"]) assert.strictEqual(r[k], null, k);
     for (const k of ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "officialHow", "classNews", "officialTell", "checkPost", "missedLate",
       "scenario", "whichOffice", "visitsTook", "reachWhy", "reachHard", "whyQuiet", "concernHeard", "askFirst", "answerRight", "oldAnswer", "guideSteps", "seniorFind", "fbPosting", "getAround", "commute", "cantGoOut", "buySell", "whoJoin"]) assert.deepStrictEqual(r[k], [], k);
-    for (const k of ["year", "faculty", "org", "scholarship", "familyVSU", "dormPart"]) assert.strictEqual(r[k], null, k + " can be skipped");
+    for (const k of ["year", "faculty", "org", "familyVSU", "dormPart"]) assert.strictEqual(r[k], null, k + " can be skipped");
+    assert.deepStrictEqual([r.support, r.orgWhy], [[], []]);
     assert.deepStrictEqual(r.concern, []);
     assert.deepStrictEqual(r.worksWell, []);
     assert.strictEqual(receiver.refusal_(r), "");
@@ -735,7 +774,8 @@ function rowOf(r) {
       await t.page.click(inStep("consent", ".agree"));
       await next(t.page);  // with reduced motion nothing moves on by itself
       await at(t.page, "home");
-      for (const [id, home] of [["home"], ["dormPart", "An on-campus dorm"], ["barangay", "A boarding house or apartment near campus"], ["year"], ["faculty"], ["org"], ["scholarship"], ["familyVSU"]]) {
+      for (const [id, home, org] of [["home"], ["dormPart", "An on-campus dorm"], ["barangay", "A boarding house or apartment near campus"], ["year"], ["faculty"], ["org"], ["orgWhy", null, "Not a member of any"], ["support"], ["familyVSU"]]) {
+        if (org) await t.page.evaluate(x => { window.__survey.answers.org = x; }, org);
         if (home) await t.page.evaluate(x => { window.__survey.answers.residence = x; }, home);
         await t.page.evaluate(x => window.__survey.go(x), id);
         await at(t.page, id);
@@ -773,7 +813,7 @@ function rowOf(r) {
         a.residence = "A boarding house or apartment near campus"; a.scenario = ["Walked over and asked around"]; a.reachWhy = ["A grade or a requirement"]; a.concern = ["Kept it to myself", "Told the office directly"];
         a.firstClasses = ["Unofficial groups, like freedom walls", "Group chats: class, org, friends", "Campus bulletin boards"];
         a.officialTell = ["I couldn't tell"]; a.missedLate = ["An OJT host"]; a.askFirst = ["An unofficial student group or freedom wall"]; });
-      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["intro", "consent", "home", "dormPart", "barangay", "year", "faculty", "org", "scholarship", "familyVSU", "final"].indexOf(x) < 0);
+      const ids = (await t.page.evaluate(() => window.__survey.steps())).filter(x => ["intro", "consent", "home", "dormPart", "barangay", "year", "faculty", "org", "orgWhy", "support", "familyVSU", "final"].indexOf(x) < 0);
       for (const k of ["checkPost", "whichOffice", "visitsTook", "reachHard", "whyQuiet", "concernHeard", "answerRight", "commute", "whereFound", "housingSince", "scamSince", "hostedPay"]) assert.ok(ids.includes(k), "every follow-up is checked: " + k);
       for (const id of ids) {
         await t.page.evaluate(x => window.__survey.go(x), id);
@@ -1087,9 +1127,11 @@ function rowOf(r) {
     await next(t.page);
     await at(t.page, "org");
     assert.ok(/\bskip\b/.test(await bar(2)), "a skip is typed in as a short grey line");
-    await t.page.evaluate(() => window.__survey.go("scholarship"));
-    await at(t.page, "scholarship");
-    await t.page.click(btn("scholarship", "No"));
+    await t.page.evaluate(() => window.__survey.go("support"));
+    await at(t.page, "support");
+    await t.page.click(btn("support", "A relative supports me"));
+    assert.ok(/\bon\b/.test(await bar(4)), "a pick-all answer fills its line");
+    await next(t.page);
     await at(t.page, "familyVSU");
     assert.ok(!(await t.page.evaluate(() => document.getElementById("passwrap").classList.contains("handing"))), "the form waits for the last question");
     await t.page.click(btn("familyVSU", "No, I'm the first in my family to study at VSU"));
@@ -1109,7 +1151,7 @@ function rowOf(r) {
     await at(t.page, "home");
     const steps = () => t.page.evaluate(() => window.__survey.steps());
     const ans = () => t.page.evaluate(() => window.__survey.answers);
-    await t.page.evaluate(() => { window.__survey.answers.load.push("Data for any site or app"); window.__survey.go("validity"); });
+    await t.page.evaluate(() => { window.__survey.answers.networks.push("Smart"); window.__survey.answers.load.push("Data for any site or app"); window.__survey.go("validity"); });
     await at(t.page, "validity");
     assert.strictEqual(await t.page.locator(btn("validity", "Regular load, no promo")).count(), 0);
     await t.page.click(btn("validity", "15 days"));
@@ -1158,7 +1200,7 @@ function rowOf(r) {
     assert.ok(receiver.refusal_(Object.assign({}, ok, { version: "scenes-v3", variant: "scenes" })), "a scenes record is refused");
     assert.ok(receiver.refusal_(Object.assign({}, ok, { version: "last-time-v1", variant: "last-time" })), "a last-time record is refused");
     const h = receiver.headers_();
-    assert.deepStrictEqual(h.slice(h.indexOf("residence"), h.indexOf("residence") + 8), ["residence", "dormPart", "barangay", "year", "faculty", "org", "scholarship", "familyVSU"], "Your form's columns, in order");
+    assert.deepStrictEqual(h.slice(h.indexOf("residence"), h.indexOf("residence") + 7), ["residence", "dormPart", "barangay", "year", "faculty", "org", "familyVSU"], "Your form's columns, in order");
     for (const k of ["rid", "stage", "more", "transport", "transferee", "firstGen"]) assert.ok(h.indexOf(k) < 0, "no " + k + " column");
     assert.strictEqual(receiver.cell_("=HYPERLINK(1)"), "'=HYPERLINK(1)");
   });
