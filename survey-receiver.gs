@@ -36,7 +36,7 @@ var SHEET_NAME = "Responses since";
 var VARIANT = "since";
 var VERSION_PREFIX = "since-v1";
 /* Each problem is asked about since the respondent started at VSU, with all that have happened picked. */
-var CLASS_NEWS = ["Before I left for class", "On the way, or when I got to the room", "Only after the class time", "It hasn't happened"];
+var CLASS_NEWS = ["Before the class time", "On the way, or when I got to the room", "Only after the class time", "It hasn't happened"];
 var OFFICIAL_TELL = ["Yes, right away", "Not at first, so I checked", "I couldn't tell", "I haven't seen one"];
 var SCENARIO = ["Asked in a student Facebook group", "Messaged a friend or a senior", "Walked over and asked around", "Checked the official website or page", "Something else", "It hasn't happened to me"];
 var OFFICE = ["Registrar or records", "Cashier or accounting", "My college or department office", "Student affairs or services", "Scholarships or financial aid", "Library, clinic, or another service", "Not sure"];
@@ -62,9 +62,9 @@ var ORG_WHY = ["It's hard to connect with the members", "I don't feel like takin
 var ORG_NONE = ["I don't have the time", "I haven't found one that interests me", "There's no easy way to find orgs or join in",
   "I don't know anyone in them", "Fees or other costs", "I'm not interested in orgs", "Other"];
 var SUPPORT = ["My parents or guardians send me money", "A relative supports me", "A scholarship or financial aid", "I work while studying", "My own savings"];
-var GET_AROUND = ["A bicycle", "A motorcycle", "A car", "I ride along with someone", "None of these"];
-var COMMUTE = ["Habal-habal or tricycle", "Jeepney or multicab", "My own bicycle, motorcycle, or car", "A ride with someone", "Walk"];
-var MISSED_LATE = ["An event I wanted to join", "A scholarship or financial aid", "A part-time job or student assistant post", "An OJT host", "None of these"];
+var GET_AROUND = ["A bicycle", "A motorcycle", "A car", "I ride along with family, a relative, or a friend", "None of these"];
+var COMMUTE = ["Habal-habal", "Multicab", "Bus or van", "My own bicycle, motorcycle, or car", "A ride with family, a relative, or a friend", "Walk"];
+var MISSED_LATE = ["A deadline or requirement, like for enrollment or clearance", "An event I wanted to join", "An org meeting or activity", "A seminar, training, or competition", "A scholarship or financial aid", "A part-time job or student assistant post", "An OJT host", "None of these"];
 var FIRSTS = ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements"];  // each ranked up to three
 var OFFICIAL_HOW = ["I get their notifications", "I check them myself", "Someone shares them with me", "They usually don't reach me"];
 var CHECK_POST = ["Checked VSU's official page or website", "Asked a friend or classmate", "Asked in a group chat or group", "Asked an office or a teacher",
@@ -76,7 +76,7 @@ var HEARD = ["Yes, and it was fixed", "Yes, but it wasn't fixed", "It's still be
 var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
 var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
 var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "I don't buy or sell with people on campus"];
-var WHO_JOIN = ["Faculty", "Office staff", "Student orgs and councils", "Alumni", "Incoming students", "Only students"];
+var WHO_JOIN = ["Faculty", "Office staff", "Student orgs and councils", "Alumni", "Incoming students", "Parents, relatives, or friends", "Only students"];
 var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
   "Only talked about it with friends", "It hasn't happened"];
@@ -95,7 +95,7 @@ var DATA_USE = ["Facebook and Messenger", "TikTok", "Instagram", "X (Twitter)", 
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
   "Notices and deadlines in one place", "Scholarships and opportunities in one place",
   "Events in one place", "Questions about my subjects", "My class schedule and rooms in one place",
-  "A marketplace only for VSU people", "No ads or endless feeds", "Works on little mobile data", "Other"];
+  "A verified marketplace", "No ads or endless feeds", "Works on little mobile data", "Other"];
 var AWAY = ["Feeling watched by the university", "Fear of consequences for criticism",
   "Too many apps already", "My friends wouldn't be on it", "Hard or slow to use",
   "Uses too much mobile data", "Other"];
@@ -164,6 +164,7 @@ function headers_() {
   multiHeaders_(h, "buySell", BUY_SELL);
   h.push("scamSince");
   JARS.forEach(function (k) { h.push("coins: " + k); });
+  h.push("jarOrder");
   multiHeaders_(h, "worksWell", WORKS);
   multiHeaders_(h, "wouldUse", WOULD_USE);
   multiHeaders_(h, "whoJoin", WHO_JOIN);
@@ -251,6 +252,7 @@ function row_(r, now) {
   multiCells_(row, r.buySell, BUY_SELL, "");
   row.push(cell_(r.scamSince));
   JARS.forEach(function (k) { row.push(num_(coins[k], 1, 10)); });  // at most 10 in a jar
+  row.push(cell_(r.jarOrder, 300));  // the order the jars were shown in, random for each respondent
   multiCells_(row, r.worksWell, WORKS, r.worksWellOther);
   multiCells_(row, r.wouldUse, WOULD_USE, r.wouldUseOther);
   multiCells_(row, r.whoJoin, WHO_JOIN, "");
