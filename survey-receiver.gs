@@ -83,15 +83,15 @@ var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher 
 var WORKS = ["Everyone is already there", "News spreads fast", "Works with my load promo",
   "Easy to ask and get answers", "I can post without my name", "Easy to find the right people", "Nothing much", "Other"];
 var NETWORKS = ["Smart", "TNT", "Globe", "TM", "GOMO", "DITO"];
-var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak signal on campus or where I stay", "One for data, one for calls and texts",
+var TWO_SIMS = ["To switch when one has weak signal", "My main SIM has weak signal on campus or where I reside", "One for data, one for calls and texts",
   "One for school, one for personal", "I pick each network's promo by need, like exam week", "No particular reason", "Other"];
 var RELOAD_WHY = ["My open-access data ran out, but my app-only data didn't", "My app-only data ran out, but my open-access data didn't",
   "Both ran out", "Schoolwork couldn't wait", "To stay in touch with family or friends", "Other"];
-var LOAD = ["Data for any site or app", "Data for certain apps only", "Calls and texts", "A postpaid plan", "I don't use load"];
 var ONLINE_CAMPUS = ["Mobile data", "Campus Wi-Fi", "I usually can't", "I usually don't go online while on campus"];
-var ONLINE_HOME = ["Mobile data", "Wi-Fi where I stay", "I usually can't"];
-var LOAD_APPS = ["Facebook and Messenger", "TikTok", "YouTube", "Instagram", "X (Twitter)", "WhatsApp or Viber",
-  "Netflix or other streaming", "Games", "School apps, like Google Workspace, Zoom, or Canva", "Other"];
+var ONLINE_HOME = ["Mobile data", "Wi-Fi where I reside", "I usually can't"];
+/* What students use mobile data for, grouped on the page by the kind of promo package each usually comes in. */
+var DATA_USE = ["Facebook and Messenger", "TikTok", "Instagram", "X (Twitter)", "WhatsApp, Viber, or Telegram", "YouTube", "Netflix or other streaming",
+  "Mobile games", "Google Classroom", "Google Docs, Drive, or Meet", "Zoom", "Canva", "AI apps, like ChatGPT or Gemini", "Browsing websites and searching", "Other"];
 var WOULD_USE = ["Official answers from offices", "Easier to reach faculty and staff",
   "Notices and deadlines in one place", "Scholarships and opportunities in one place",
   "Events in one place", "Questions about my subjects", "My class schedule and rooms in one place",
@@ -118,7 +118,7 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
 
 function headers_() {
   var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
-    "year", "faculty", "department", "residence", "dormPart", "barangay", "org", "familyVSU"];
+    "year", "faculty", "program", "residence", "dormPart", "barangay", "org", "familyVSU"];
   multiHeaders_(h, "orgKinds", ORG_KINDS);
   multiHeaders_(h, "orgRun", ORG_RUN);
   multiHeaders_(h, "orgKeep", ORG_KEEP);
@@ -127,11 +127,11 @@ function headers_() {
   multiHeaders_(h, "support", SUPPORT);
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "twoSims", TWO_SIMS);
-  multiHeaders_(h, "load", LOAD);
-  multiHeaders_(h, "loadApps", LOAD_APPS);
-  h.push("validity", "untilExpiry", "reload");
+  h.push("dataSpend (week)");
+  multiHeaders_(h, "dataUse", DATA_USE);
+  h.push("untilExpiry", "reload");
   multiHeaders_(h, "reloadWhy", RELOAD_WHY);
-  h.push("dataSpend (week)", "dataSchool", "signal");
+  h.push("dataSchool", "signal");
   multiHeaders_(h, "onCampus", ONLINE_CAMPUS);
   multiHeaders_(h, "whereStaying", ONLINE_HOME);
   h.push("wifiSpend (month)", "hostedPay");
@@ -204,7 +204,7 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 function row_(r, now) {
   var coins = obj_(r.coins);
   var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.year), cell_(r.faculty, 100), cell_(r.department, 100),
+    r.consent === true, r.age18 === true, cell_(r.year), cell_(r.faculty, 100), cell_(r.program, 100),
     cell_(r.residence), cell_(r.dormPart), cell_(r.barangay), cell_(r.org), cell_(r.familyVSU)];
   multiCells_(row, r.orgKinds, ORG_KINDS, r.orgKindsOther);
   multiCells_(row, r.orgRun, ORG_RUN, r.orgRunOther);
@@ -214,11 +214,11 @@ function row_(r, now) {
   multiCells_(row, r.support, SUPPORT, "");
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
-  multiCells_(row, r.load, LOAD, "");
-  multiCells_(row, r.loadApps, LOAD_APPS, r.loadAppsOther);
-  row.push(cell_(r.validity), cell_(r.untilExpiry), cell_(r.reload));
+  row.push(cell_(r.dataSpend));
+  multiCells_(row, r.dataUse, DATA_USE, r.dataUseOther);
+  row.push(cell_(r.untilExpiry), cell_(r.reload));
   multiCells_(row, r.reloadWhy, RELOAD_WHY, r.reloadWhyOther);
-  row.push(cell_(r.dataSpend), cell_(r.dataSchool), cell_(r.signal));
+  row.push(cell_(r.dataSchool), cell_(r.signal));
   multiCells_(row, r.onlineCampus, ONLINE_CAMPUS, "");
   multiCells_(row, r.onlineHome, ONLINE_HOME, "");
   row.push(cell_(r.wifiSpend), cell_(r.hostedPay));
@@ -357,4 +357,4 @@ function updateVolunteerForm() {
   Logger.log("Updated the volunteer form. Its link is unchanged: " + form.getPublishedUrl());
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, LOAD: LOAD, LOAD_APPS: LOAD_APPS, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, DATA_USE: DATA_USE, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
