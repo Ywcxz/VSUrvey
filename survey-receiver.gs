@@ -3,11 +3,8 @@
  * Project CAMPUS, decisions D-037, D-039, D-110, and D-111
  *
  * Receives JSON records from the survey page and appends one row for each to a
- * private Google Sheet. A respondent who goes on to the optional part sends their
- * core answers first (stage "core") and everything at the end (stage "final"),
- * under the same random record ID (rid); the analysis keeps the latest record for
- * each rid, so a final record replaces its core. It also builds and updates the
- * separate interview-volunteer form, so contact details never touch the
+ * private Google Sheet, one record for each respondent who sends. It also builds
+ * and updates the separate interview-volunteer form, so contact details never touch the
  * survey data.
  *
  * First-time setup
@@ -39,7 +36,6 @@
 var SHEET_NAME = "Responses last-time";
 var VARIANT = "last-time";
 var VERSION_PREFIX = "last-time-v1";
-var STAGES = ["core", "final"];
 /* What it cost, asked after an answer that names a problem: one list for every problem. */
 var COST = ["Nothing much", "Time: an extra trip, a wait, or asking around", "Something I missed: a class, a deadline, or a chance", "Money", "Not sure"];
 var COSTS = ["classCost", "officialCost", "missedCost", "visitsCost", "reachCost", "heardCost", "answerCost", "oldCost", "guideCost", "seniorCost", "housingCost", "scamCost"];
@@ -96,8 +92,8 @@ var VOLUNTEER_DESCRIPTION = "Thank you for offering to talk. This form is separa
   "once your interview is done, or three months after you sign up if you aren't interviewed.";
 
 function headers_() {
-  var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "rid", "stage", "more", "test", "consent", "age18",
-    "residence", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen"];
+  var h = ["receivedAt", "startedAt", "sentAt", "survey", "variant", "version", "test", "consent", "age18",
+    "residence", "barangay", "transport", "year", "faculty", "org", "scholarship", "transferee", "firstGen", "familyVSU"];
   multiHeaders_(h, "network", NETWORKS);
   multiHeaders_(h, "twoSims", TWO_SIMS);
   multiHeaders_(h, "load", LOAD);
@@ -164,10 +160,9 @@ function obj_(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : 
 
 function row_(r, now) {
   var coins = obj_(r.coins);
-  var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version),
-    /^[0-9a-f]{16}$/.test(String(r.rid)) ? r.rid : "", STAGES.indexOf(r.stage) >= 0 ? r.stage : "", typeof r.more === "boolean" ? r.more : "", r.test === true,
-    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
-    cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen)];
+  var row = [now.toISOString(), cell_(r.startedAt), cell_(r.sentAt), cell_(r.survey), cell_(r.variant), cell_(r.version), r.test === true,
+    r.consent === true, r.age18 === true, cell_(r.residence), cell_(r.barangay), cell_(r.transport), cell_(r.year), cell_(r.faculty, 100),
+    cell_(r.org), cell_(r.scholarship), cell_(r.transferee), cell_(r.firstGen), cell_(r.familyVSU)];
   multiCells_(row, r.networks, NETWORKS, "");
   multiCells_(row, r.twoSims, TWO_SIMS, r.twoSimsOther);
   multiCells_(row, r.load, LOAD, "");

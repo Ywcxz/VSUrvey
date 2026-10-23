@@ -807,9 +807,6 @@ a{color:var(--sea)}
       return art(b + "</g>");
     },
     /* Visits it took: a door per visit; an hourglass where it still isn't done. */
-    /* The fork after the core: a paper plane to send now, a stack of cards to go on. */
-    sendNow: function () { return art('<rect width="120" height="90" fill="#FCE6B0"/><g class="wake"><path d="M24 50 L92 22 L74 72 L60 56 Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2.5" stroke-linejoin="round"/><path d="M60 56 L92 22" stroke="#13261D" stroke-width="2"/><path d="M12 68c10-2 18-6 26-12" fill="none" stroke="#1F7A8C" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/></g>'); },
-    goOn: function () { return art('<rect width="120" height="90" fill="#DDEFF2"/><g class="wake"><rect x="40" y="14" width="50" height="38" rx="4" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="34" y="22" width="50" height="38" rx="4" fill="#F7FBF8" stroke="#13261D" stroke-width="2"/><rect x="28" y="30" width="50" height="38" rx="4" fill="#FFFFFF" stroke="#13261D" stroke-width="2"/><path d="M36 42h30M36 50h22M36 58h26" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/><circle cx="88" cy="66" r="11" fill="#F2B33D" stroke="#13261D" stroke-width="2"/><path d="M88 60v12M82 66h12" stroke="#13261D" stroke-width="2.5" stroke-linecap="round"/></g>'); },
     visits: function (n) {
       var b = '<rect width="120" height="90" fill="#E4EFE8"/><rect y="70" width="120" height="20" fill="#C9DCCD"/><g class="wake">';
       function door(x) { return '<rect x="' + x + '" y="34" width="14" height="36" rx="2" fill="#A0704F" stroke="#13261D" stroke-width="1.6"/><circle cx="' + (x + 10.5) + '" cy="53" r="1.6" fill="#F2B33D"/>'; }
@@ -988,16 +985,6 @@ a{color:var(--sea)}
       '<g><g class="hero2">' + s.props + "</g></g>");
   }
 
-  /* The fork after the core: a signpost to send now, or to go on. */
-  function forkStage() {
-    return stageSvg(FRAME +
-      '<rect x="176" y="46" width="8" height="132" rx="2" fill="#7A5E44" stroke="#13261D" stroke-width="1.5"/>' +
-      '<g><path d="M86 58h80v30H86l-14-15Z" fill="#F2B33D" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><text x="122" y="78" text-anchor="middle" font-size="14" font-weight="800" fill="#13261D" font-family="sans-serif">Send</text></g>' +
-      '<g><path d="M194 98h80l14 15-14 15h-80Z" fill="#9ED1DB" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><text x="238" y="118" text-anchor="middle" font-size="14" font-weight="800" fill="#13261D" font-family="sans-serif">More</text></g>' +
-      '<g transform="translate(46 118) rotate(-12)"><path d="M0 18 L46 0 L34 40 L24 28 Z" fill="#F7FBF8" stroke="#13261D" stroke-width="2" stroke-linejoin="round"/><path d="M24 28 L46 0" stroke="#13261D" stroke-width="1.5"/></g>' +
-      '<g transform="translate(282 136)"><rect x="6" y="-6" width="40" height="28" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><rect x="3" y="-1" width="40" height="28" rx="3" fill="#F7FBF8" stroke="#13261D" stroke-width="1.5"/><rect y="4" width="40" height="28" rx="3" fill="#FFFFFF" stroke="#13261D" stroke-width="1.5"/><path d="M7 13h26M7 20h18" stroke="#C9C2B3" stroke-width="3" stroke-linecap="round"/></g>');
-  }
-
   /* The campus map, as in v1, drawn bigger. */
   function mapStage() { return '<div class="mapwrap noswipe">' + MAP_V1.replace('<svg id="map"', '<svg id="map" preserveAspectRatio="xMidYMid meet"') + "</div>"; }
 
@@ -1127,14 +1114,14 @@ a{color:var(--sea)}
   /* ---------- What is recorded ---------- */
   var A = {
     consent: false, age18: null, startedAt: null,
-    residence: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null,
+    residence: null, barangay: null, transport: null, year: null, faculty: null, org: null, scholarship: null, transferee: null, firstGen: null, familyVSU: null,
     networks: [], twoSims: [], twoSimsOther: "", load: [], validity: null, untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", loadApps: [], loadAppsOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstClasses: [], firstSuspensions: [], firstDocuments: [], firstEvents: [], firstScholarships: [], firstAnnouncements: [], groupChats: null, officialHow: [], checkPost: [], checkPostOther: "",
     classLast: null, classCost: [], officialLast: null, officialCost: [], missedLate: [], missedCost: [],
     whichOffice: null, visitsTook: null, visitsCost: [], missClass: null, whyQuiet: [], whyQuietOther: "",
     scenario: null, reachHow: null, reachGot: null, reachCost: [], concern: [], askFirst: null, answerRight: null, answerCost: [],
     oldAnswer: null, oldCost: [], guideLast: null, guideCost: [], seniorLast: null, seniorCost: [],
-    coins: {}, more: null,
+    coins: {},
     concernHeard: null, heardCost: [], fbPosting: [], whereFound: null, housingSince: null, housingCost: [], cantGoOut: [], buySell: [], scamSince: null, scamCost: [], whoJoin: [], whoRuns: null, hostedPay: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
     comment: ""
@@ -1145,6 +1132,9 @@ a{color:var(--sea)}
   /* ---------- Choices ---------- */
   var OPT = {
     residence: [["An on-campus dorm", "dorm"], ["A boarding house or apartment near campus", "bhouse"], ["My family's home, and I commute", "commute"], ["A relative's or friend's house", "relative"], ["Somewhere else", "elsewhere"]],
+    /* Baybay City's barangays along the highway, in the owner's order, with neighbors grouped so that fewer groups fall below
+       the floor of 10 respondents (D-110); Utod is the local name for Guadalupe (owner, 23 October 2026). */
+    barangay: [["Pangasugan", "pin"], ["Guadalupe (Utod)", "pin"], ["Marcos or San Agustin", "pin"], ["Patag or Gabas", "pin"], ["Bunga, or farther north", "pin"], ["Kilim, or farther south", "pin"], ["Somewhere else", "other"]],
     transport: [["Walk", "walk"], ["Bicycle", "bike"], ["My own motorcycle or car", "motor"], ["Habal-habal or tricycle", "trike"], ["Jeepney or multicab", "jeep"], ["Someone gives me a ride", "ride"]],
     year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5], ["Graduate student", "Graduate student", 0]],
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
@@ -1192,6 +1182,7 @@ a{color:var(--sea)}
     pull: [["Official answers from offices", "office"], ["Easier to reach faculty and staff", "door"], ["Notices and deadlines in one place", "board"], ["Scholarships and opportunities in one place", "star"], ["Events in one place", "flag"], ["Questions about my subjects", "guide"], ["My class schedule and rooms in one place", "calendar"], ["A marketplace only for VSU people", "tag"], ["No ads or endless feeds", "ban"], ["Works on little mobile data", "signal"], ["Other", "other"]],
     whoJoin: [["Faculty", "cap"], ["Office staff", "office"], ["Student orgs and councils", "flag"], ["Alumni", "star"], ["Incoming students", "guide"], ["Only students", "people"]],
     whoRuns: [["VSU", "seal"], ["Students, with VSU's support", "people"], ["A student council or org", "flag"], ["An outside company", "tag"], ["None of these", "ban"], ["Not sure", "other"]],
+    familyVSU: [["Yes, a parent or guardian", "house"], ["Yes, a brother or sister", "people"], ["Yes, another relative", "group"], ["No", "ban"], ["Not sure", "other"]],
     hostedPay: [["Use it only if it's free", "coin"], ["Pay a small fee to use it on campus", "tag"], ["Keep using my own mobile data instead", "signal"], ["I wouldn't use it", "ban"], ["Not sure", "other"]],
     /* The last time each situation came up (D-038, as proposed for revision): the answers that count as the problem are named in PROBLEM. */
     classLast: [["Before I left for class", "spark"], ["On the way, or when I got to the room", "walk"], ["Only after the class time", "calendar"], ["It hasn't happened this semester", "other"]],
@@ -1219,8 +1210,9 @@ a{color:var(--sea)}
     ["firstAnnouncements", "When an org calls a meeting or announces something, where do you usually hear about it?", [LATE, NEVER]]
   ];
   var NOT_YET = "It hasn't happened", NOTHING_MUCH = "Nothing much", NONE_OF_THESE = "None of these";
-  /* How long each part takes, as estimated from each screen's words and taps; the pilot confirms it. */
-  var CORE_MIN = 15, EXTRA_MIN = 7;
+  /* How long the survey takes, as estimated from each screen's words and taps; timed run-throughs replace it (D-128). The survey
+     may be long: every question can be skipped, and the first screen says how long it takes (owner, 23 October 2026). */
+  var SURVEY_MIN = "20\u201325";  // a typical path is about 21 minutes; a slow reader takes about 25
   var NO_REACH = "They usually don't reach me", NO_CHECK = "I didn't check", KEPT = "Kept it to myself", NOT_ME = "It hasn't happened to me";
   var ONLY_READ = "No, I only read", NOT_IN = "No, I'm not in any", NOT_TO_ME = "It doesn't happen to me", NO_TRADE = "I don't buy or sell with people on campus";
   /* A concern raised with someone who could act on it, or posted online, brings "Did you learn what happened to it?" (D-126). */
@@ -1289,23 +1281,17 @@ a{color:var(--sea)}
   MOMENTS.forEach(function (m) { byKey[m.k] = m; });
 
   /* ---------- The walk: chapters and steps ---------- */
-  /* The core comes first, with the coins before any question about problems, so the questions don't steer the coins. After the
-     network idea, respondents choose to send or to go on to an optional part (proposed, 22 October 2026). */
-  var CHAPTERS = ["Start", "Mornings", "Your form", "Coins", "Hearing from campus", "Reaching out", "Students and alumni", "Network idea", "Your choice", "Getting online", "More news", "Daily life", "Send"];
-  var OPTIONAL_FROM = 9;  // chapters from here on are the optional part
+  /* One walk, in the order of scenes-v3 (owner, 23 October 2026): Your form, which now opens with where the respondent wakes up
+     and how they get to class, then the parts on getting online and on communication, Daily life, the coins, and the network idea. */
+  var CHAPTERS = ["Start", "Your form", "Getting online", "Hearing from campus", "Reaching out", "Students and alumni", "Daily life", "Coins", "Network idea", "Send"];
   var STEPS = [];
   function step(o) { STEPS.push(o); return o; }
-  /* A part's questions; those in the optional part are asked only of respondents who chose to go on. */
   function part(ch, name, items) {
-    items.forEach(function (it) {
-      it.ch = ch; it.part = name; it.kicker = it.kicker || LABEL[it.id] || name;
-      if (ch >= OPTIONAL_FROM) { var w = it.when; it.when = function () { return A.more === true && (!w || w()); }; }
-      step(it);
-    });
+    items.forEach(function (it) { it.ch = ch; it.part = name; it.kicker = it.kicker || LABEL[it.id] || name; step(it); });
   }
   /* Each question carries a short label instead of a number, which follow-ups would change (D-125). */
   var LABEL = {
-    home: "Where you wake up", transport: "Getting to class",
+    home: "Where you wake up", barangay: "Where you stay", transport: "Getting to class", familyVSU: "Family at VSU",
     year: "Year", faculty: "Faculty", org: "Student orgs", scholarship: "Scholarship", transferee: "Before VSU", firstGen: "First in your family",
     networks: "Your networks", twoSims: "Two networks", load: "Your load", loadApps: "Apps it covers", validity: "Promo validity", untilExpiry: "Data allocation",
     reload: "Another promo", reloadWhy: "Why another promo", dataSpend: "Load in a week", dataSchool: "Data for school", signal: "Usable data",
@@ -1351,7 +1337,7 @@ a{color:var(--sea)}
   var FU = {
     twoSims: ["networks"], loadApps: ["load"], reload: ["untilExpiry"], reloadWhy: ["reload"], wifiSpend: ["onlineHome"],
     checkPost: ["officialLast"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
-    whereFound: ["home"], housingSince: ["home"]
+    whereFound: ["home"], housingSince: ["home"], barangay: ["home"]
   };
   /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
      around only for those who rent, and which data ran out only for those whose load includes app-only data (D-129, D-130). */
@@ -1361,6 +1347,20 @@ a{color:var(--sea)}
       "Applied for a VSU dorm": function () { return A.residence === DORM; },
       "A sign or tarpaulin outside": function () { return A.residence !== DORM; },
       "Walking around and asking": function () { return A.residence !== DORM; }
+    },
+    /* A VSU dorm's students walk or bike to class, since only bicycles may be kept at the dorms; the others don't walk, and are
+       asked which barangay they stay in (owner, 23 October 2026). */
+    transport: {
+      "Walk": function () { return A.residence === null || A.residence === DORM; },
+      "My own motorcycle or car": function () { return A.residence !== DORM; },
+      "Habal-habal or tricycle": function () { return A.residence !== DORM; },
+      "Jeepney or multicab": function () { return A.residence !== DORM; },
+      "Someone gives me a ride": function () { return A.residence !== DORM; }
+    },
+    /* The first in their family to go to college can still have a relative who studied at VSU, not a parent or a sibling. */
+    familyVSU: {
+      "Yes, a parent or guardian": function () { return A.firstGen !== "Yes"; },
+      "Yes, a brother or sister": function () { return A.firstGen !== "Yes"; }
     },
     reloadWhy: {
       "My open-access data ran out, but my app-only data didn't": function () { return A.load.indexOf(APP_DATA) >= 0; },
@@ -1388,14 +1388,15 @@ a{color:var(--sea)}
 
   step({ id: "intro", box: "intro", ch: 0, kind: "intro" });
   step({ id: "consent", box: "gate", ch: 0, kind: "consent", lock: true, autoMs: 1300, size: "short", hint: "consent" });
-  part(1, "Mornings", [
+  /* Your form, like every other part, can be skipped question by question. It opens with where the respondent wakes up, which
+     barangay they stay in if not a VSU dorm, and how they get to class (owner, 23 October 2026). */
+  part(1, "Your form", [
     { id: "home", box: "home", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you wake up during the semester?", hint: "tiles", core: true,
       opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
+    { id: "barangay", box: "home", kind: "chipsOne", key: "barangay", size: "short", prompt: "Which barangay is that in?", lede: "Neighboring barangays are grouped together.", core: true, opts: OPT.barangay,
+      when: function () { return A.residence !== null && A.residence !== DORM; } },
     { id: "transport", box: "home", kind: "tiles", key: "transport", cols: "t3", size: "short", prompt: "How do you mostly get to your classes?", core: true,
-      opts: OPT.transport.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) }
-  ]);
-  /* Your form, like every other part, can be skipped question by question. */
-  part(2, "Your form", [
+      opts: OPT.transport.map(function (o) { return { v: o[0], art: function () { return TILE.ride(o[1]); } }; }) },
     { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What year are you in?", say: "Morning! Your year?", core: true,
       opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
     { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
@@ -1403,68 +1404,10 @@ a{color:var(--sea)}
       opts: OPT.org.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
     { id: "scholarship", box: "pass", kind: "tiles", key: "scholarship", cols: "t3", prompt: "Do you have a scholarship right now?", say: "Scholarship?", core: true, opts: yesNo() },
     { id: "transferee", box: "pass", kind: "tiles", key: "transferee", cols: "t3", prompt: "Did you study at another college or university before VSU?", say: "Studied elsewhere?", core: true, opts: yesNo() },
-    { id: "firstGen", box: "pass", kind: "tiles", key: "firstGen", cols: "t3", prompt: "Are you the first in your family to go to college?", say: "Last one!", core: true, opts: yesNo(), autoMs: 2900,
-      beforeNext: function () { if (!printed) { printPass(); return calm() ? 300 : HANDOVER_MS + 100; } return handoverLeft(); } }
+    { id: "firstGen", box: "pass", kind: "tiles", key: "firstGen", cols: "t3", prompt: "Are you the first in your family to go to college?", say: "First in your family?", core: true, opts: yesNo() },
+    { id: "familyVSU", box: "pass", kind: "chipsOne", key: "familyVSU", prompt: "Has anyone in your family, or a relative, studied at VSU?", lede: "If more than one has, pick the first answer that fits.", say: "Last one!", core: true, opts: OPT.familyVSU, autoMs: 2900, beforeNext: handOver }
   ]);
-  /* The coins come before any question about problems, so the questions don't steer them. */
-  step({ id: "coins", box: "coins", ch: 3, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus concerns should get more attention?", lede: TAP + " a jar to drop a coin in, up to 10 in one jar.", spareLede: true, hint: "jars" });
-  /* Hearing from campus: where two kinds of news reach them first, two habits, then the last time a class changed, the last post
-     they couldn't place, and anything missed for hearing too late. */
-  function ranked(f) { return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " where you hear it first. You can add a 2nd and 3rd.", core: true }; }
-  part(4, "Hearing from campus", FIRSTS.slice(0, 2).map(ranked).concat([
-    { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many active group chats for classes, orgs, or friends are you in?", lede: "Count only the ones that still get messages.", core: true,
-      opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
-    { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
-    { id: "classLast", box: "m-d", kind: "chipsOne", key: "classLast", size: "bare", prompt: "The last time a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", core: true, opts: OPT.classLast, hint: "moment" },
-    costStep("classCost", "classLast", "m-d", "What did finding out late cost you?"),
-    { id: "officialLast", box: "m-o", kind: "chipsOne", key: "officialLast", size: "bare", prompt: "The last time you saw a post about a class suspension or another VSU matter, could you tell whether it was official?", core: true, opts: OPT.officialLast },
-    { id: "checkPost", box: "m-o", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "What did you do to check it?", lede: "Pick all that apply.", core: true, opts: OPT.checkPost, when: function () { return isProblem("officialLast"); } },
-    costStep("officialCost", "officialLast", "m-o", "What did not being sure cost you?"),
-    { id: "missedLate", box: "m-g", kind: "chipsMulti", key: "missedLate", exclusive: NONE_OF_THESE, size: "bare", prompt: "Since you started at VSU, have you missed any of these because you heard about it too late?", lede: "Pick all that apply.", core: true, opts: OPT.missedLate },
-    costStep("missedCost", "missedLate", "m-g", "What did missing it cost you?")
-  ]));
-  part(5, "Reaching out", [
-    { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never been to, what did you do first?", core: true,
-    opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "whichOffice", box: "errand", kind: "chipsOne", key: "whichOffice", size: "bare", prompt: "What kind of office was it?", core: true, opts: OPT.office, when: newOffice },
-    { id: "visitsTook", box: "errand", kind: "tiles", key: "visitsTook", cols: "t4", size: "short", prompt: "How many tries did it take to get it done?", lede: "Visits, messages, and calls all count.", core: true, when: newOffice,
-      opts: OPT.visits.map(function (o) { return { v: o[0], art: function () { return TILE.visits(o[1]); } }; }) },
-    costStep("visitsCost", "visitsTook", "errand", "What did the errand cost you?"),
-    { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
-    costStep("reachCost", "reachGot", "errand", "What did not getting what you needed cost you?"),
-    { id: "missClass", box: "errand", kind: "chipsOne", key: "missClass", size: "bare", prompt: "Since you started at VSU, has an errand at an office made you miss a class?", core: true, opts: OPT.missClass },
-    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, KEPT], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
-    { id: "whyQuiet", box: "errand", kind: "chipsMulti", key: "whyQuiet", size: "bare", other: "whyQuietOther", otherPh: "Other: why? (optional)", prompt: "Why did you keep it to yourself?", lede: "Pick all that apply.", core: true, opts: OPT.whyQuiet, when: function () { return A.concern.indexOf(KEPT) >= 0; } },
-    { id: "concernHeard", box: "errand", kind: "chipsOne", key: "concernHeard", size: "bare", prompt: "Did you learn what happened to your concern?", core: true, opts: OPT.heard, when: raisedIt },
-    costStep("heardCost", "concernHeard", "errand", "What did never hearing back cost you?")
-  ]);
-  part(6, "Students and alumni", [
-    { id: "askFirst", box: "peers", kind: "vigs", key: "askFirst", size: "tight", prompt: "The last time you had a question about a subject or a school process, where did you look or ask first?", core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
-    { id: "answerRight", box: "m-b", kind: "chipsOne", key: "answerRight", size: "bare", prompt: "Did the answer turn out to be right?", core: true, opts: OPT.answerRight, when: function () { return PEERS.indexOf(A.askFirst) >= 0; } },
-    costStep("answerCost", "answerRight", "m-b", "What did the unclear or wrong answer cost you?"),
-    { id: "oldAnswer", box: "m-n", kind: "chipsOne", key: "oldAnswer", size: "bare", prompt: "The last time you looked for an answer that someone had already given in a group chat or a post, did you find it?", core: true, opts: OPT.oldAnswer },
-    costStep("oldCost", "oldAnswer", "m-n", "What did not finding it cost you?"),
-    { id: "guideLast", box: "m-e", kind: "chipsOne", key: "guideLast", size: "bare", prompt: "The last time you went through a process like enrollment or clearance, how did you know the steps?", core: true, opts: OPT.guideLast },
-    costStep("guideCost", "guideLast", "m-e", "What did not having a current guide cost you?"),
-    { id: "seniorLast", box: "m-l", kind: "chipsOne", key: "seniorLast", size: "bare", prompt: "The last time you wanted advice from a senior or a graduate of your program, did you find someone to ask?", core: true, opts: OPT.seniorLast },
-    costStep("seniorCost", "seniorLast", "m-l", "What did not finding someone to ask cost you?"),
-    { id: "fbPosting", box: "anon", kind: "chipsMulti", key: "fbPosting", exclusive: [ONLY_READ, NOT_IN], size: "bare", prompt: "Have you posted a question or concern about VSU in an unofficial Facebook group?", lede: "Pick all that apply.", core: true, opts: OPT.fbPosting }
-  ]);
-  step({ id: "worksWell", box: "net", ch: 7, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
-  step({ id: "wouldUse", box: "net", ch: 7, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "whoJoin", box: "net", ch: 7, kind: "chipsMulti", key: "whoJoin", exclusive: "Only students", size: "bare", kicker: "Who should be there", prompt: "Besides students, who should be able to join it?", lede: "Pick any that apply.", core: true, opts: OPT.whoJoin });
-  step({ id: "postPreference", box: "net", ch: 7, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
-    opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
-  step({ id: "wantBack", box: "net", ch: 7, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
-    opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
-  step({ id: "whoRuns", box: "net", ch: 7, kind: "chipsOne", key: "whoRuns", size: "bare", kicker: "Who should run it", prompt: "Who would you trust most to run it?", core: true, opts: OPT.whoRuns });
-  step({ id: "keepAway", box: "net", ch: 7, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
-  /* The core ends here. Going on sends the core first, so stopping later loses nothing. */
-  step({ id: "more", box: "fork", ch: 8, kind: "branch", key: "more", size: "short", kicker: "Your choice", prompt: "That's the core of the survey. Send now, or tell us more?",
-    lede: "Your answers so far are what the study needs most. If you have about " + EXTRA_MIN + " more minutes, there are optional questions on getting online, more campus news, and daily life.",
-    opts: [{ v: "no", label: "Send now", art: function () { return TILE.sendNow(); } }, { v: "yes", label: "Tell us more", art: function () { return TILE.goOn(); } }] });
-  part(9, "Getting online", [
+  part(2, "Getting online", [
     { id: "networks", box: "data", kind: "tiles", multi: true, max: 2, key: "networks", cols: "t3", size: "bare", prompt: "Which mobile networks do you use?", lede: "Pick up to two. Skip this if you don't use a SIM.", hint: "vigs", core: true,
       opts: OPT.networks.map(function (o) { return { v: o[0], art: function () { return TILE.sim(o[1]); } }; }) },
     { id: "twoSims", box: "data", kind: "chipsMulti", key: "twoSims", exclusive: NO_REASON, size: "bare", other: "twoSimsOther", otherPh: "Other: why? (optional)", prompt: "Why do you use two networks?", lede: "Pick all that apply.", core: true, opts: OPT.twoSims, when: function () { return A.networks.length === 2; } },
@@ -1489,12 +1432,53 @@ a{color:var(--sea)}
     { id: "onlineHome", box: "data", kind: "tiles", multi: true, exclusive: NO_NET, key: "onlineHome", cols: "t3", size: "short", prompt: "Where you stay, how do you get online?", lede: "Pick all that apply. Piso Wi‑Fi nearby counts as Wi‑Fi.", core: true,
       opts: OPT.onlineHome.map(function (o) { return { v: o[0], label: o[0].replace("Wi-Fi", "Wi‑Fi"), art: function () { return TILE.net(o[1]); } }; }) },
     { id: "wifiSpend", box: "data", kind: "tiles", key: "wifiSpend", cols: "t3", size: "bare", extras: [SOMEONE_PAYS, NOT_SURE], prompt: "In a month, about how much do you pay for Wi‑Fi where you stay?", lede: "Count piso Wi‑Fi and your share of any bill you split.", core: true, when: paysWifi,
-      opts: OPT.wifiSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) },
-    { id: "hostedPay", box: "data", kind: "chipsOne", key: "hostedPay", size: "bare", prompt: "Suppose VSU's own network ran on campus, so you could use it there without mobile data. Which would you go for?", core: true, opts: OPT.hostedPay }
+      opts: OPT.wifiSpend.map(function (o) { return { v: o[0], art: function () { return TILE.load(o[1], o[2]); } }; }) }
   ]);
-  part(10, "More news", FIRSTS.slice(2).map(ranked));
+  /* Hearing from campus: where six kinds of news reach them first, two habits, then the last time a class changed, the last post
+     they couldn't place, and anything missed for hearing too late. */
+  function ranked(f) { return { id: f[0], box: "news", kind: "pick", multi: true, max: 3, rank: true, exclusive: f[2], key: f[0], size: "news", extras: f[2], prompt: f[1], lede: TAP + " where you hear it first. You can add a 2nd and 3rd.", core: true }; }
+  part(3, "Hearing from campus", FIRSTS.map(ranked).concat([
+    { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many active group chats for classes, orgs, or friends are you in?", lede: "Count only the ones that still get messages.", core: true,
+      opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
+    { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
+    { id: "classLast", box: "m-d", kind: "chipsOne", key: "classLast", size: "bare", prompt: "The last time a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", core: true, opts: OPT.classLast, hint: "moment" },
+    costStep("classCost", "classLast", "m-d", "What did finding out late cost you?"),
+    { id: "officialLast", box: "m-o", kind: "chipsOne", key: "officialLast", size: "bare", prompt: "The last time you saw a post about a class suspension or another VSU matter, could you tell whether it was official?", core: true, opts: OPT.officialLast },
+    { id: "checkPost", box: "m-o", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "What did you do to check it?", lede: "Pick all that apply.", core: true, opts: OPT.checkPost, when: function () { return isProblem("officialLast"); } },
+    costStep("officialCost", "officialLast", "m-o", "What did not being sure cost you?"),
+    { id: "missedLate", box: "m-g", kind: "chipsMulti", key: "missedLate", exclusive: NONE_OF_THESE, size: "bare", prompt: "Since you started at VSU, have you missed any of these because you heard about it too late?", lede: "Pick all that apply.", core: true, opts: OPT.missedLate },
+    costStep("missedCost", "missedLate", "m-g", "What did missing it cost you?")
+  ]));
+  part(4, "Reaching out", [
+    { id: "scenario", box: "errand", kind: "vigs", key: "scenario", cols: "v3", size: "tight", prompt: "The last time you needed something from an office you'd never been to, what did you do first?", core: true,
+    opts: OPT.scenario.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "whichOffice", box: "errand", kind: "chipsOne", key: "whichOffice", size: "bare", prompt: "What kind of office was it?", core: true, opts: OPT.office, when: newOffice },
+    { id: "visitsTook", box: "errand", kind: "tiles", key: "visitsTook", cols: "t4", size: "short", prompt: "How many tries did it take to get it done?", lede: "Visits, messages, and calls all count.", core: true, when: newOffice,
+      opts: OPT.visits.map(function (o) { return { v: o[0], art: function () { return TILE.visits(o[1]); } }; }) },
+    costStep("visitsCost", "visitsTook", "errand", "What did the errand cost you?"),
+    { id: "reachHow", box: "errand", kind: "vigs", key: "reachHow", size: "tight", prompt: "The last time you needed to reach a teacher or staff member outside class, how did you try first?", core: true, opts: OPT.reachHow.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "reachGot", box: "errand", kind: "tiles", key: "reachGot", size: "short", prompt: "Did you get what you needed?", core: true, opts: OPT.reachGot.map(function (o) { return { v: o[0], art: function () { return TILE.got(o[1]); } }; }), when: function () { return A.reachHow !== null && A.reachHow !== NOT_YET; } },
+    costStep("reachCost", "reachGot", "errand", "What did not getting what you needed cost you?"),
+    { id: "missClass", box: "errand", kind: "chipsOne", key: "missClass", size: "bare", prompt: "Since you started at VSU, has an errand at an office made you miss a class?", core: true, opts: OPT.missClass },
+    { id: "concern", box: "errand", kind: "chipsMulti", key: "concern", exclusive: [NOT_YET, KEPT], size: "bare", prompt: "The last time you had a concern about a campus service, what did you do?", lede: "Pick all that apply.", core: true, opts: OPT.concern },
+    { id: "whyQuiet", box: "errand", kind: "chipsMulti", key: "whyQuiet", size: "bare", other: "whyQuietOther", otherPh: "Other: why? (optional)", prompt: "Why did you keep it to yourself?", lede: "Pick all that apply.", core: true, opts: OPT.whyQuiet, when: function () { return A.concern.indexOf(KEPT) >= 0; } },
+    { id: "concernHeard", box: "errand", kind: "chipsOne", key: "concernHeard", size: "bare", prompt: "Did you learn what happened to your concern?", core: true, opts: OPT.heard, when: raisedIt },
+    costStep("heardCost", "concernHeard", "errand", "What did never hearing back cost you?")
+  ]);
+  part(5, "Students and alumni", [
+    { id: "askFirst", box: "peers", kind: "vigs", key: "askFirst", size: "tight", prompt: "The last time you had a question about a subject or a school process, where did you look or ask first?", core: true, opts: OPT.askFirst.map(function (o) { return { v: o[0], art: VIG[o[1]] }; }) },
+    { id: "answerRight", box: "m-b", kind: "chipsOne", key: "answerRight", size: "bare", prompt: "Did the answer turn out to be right?", core: true, opts: OPT.answerRight, when: function () { return PEERS.indexOf(A.askFirst) >= 0; } },
+    costStep("answerCost", "answerRight", "m-b", "What did the unclear or wrong answer cost you?"),
+    { id: "oldAnswer", box: "m-n", kind: "chipsOne", key: "oldAnswer", size: "bare", prompt: "The last time you looked for an answer that someone had already given in a group chat or a post, did you find it?", core: true, opts: OPT.oldAnswer },
+    costStep("oldCost", "oldAnswer", "m-n", "What did not finding it cost you?"),
+    { id: "guideLast", box: "m-e", kind: "chipsOne", key: "guideLast", size: "bare", prompt: "The last time you went through a process like enrollment or clearance, how did you know the steps?", core: true, opts: OPT.guideLast },
+    costStep("guideCost", "guideLast", "m-e", "What did not having a current guide cost you?"),
+    { id: "seniorLast", box: "m-l", kind: "chipsOne", key: "seniorLast", size: "bare", prompt: "The last time you wanted advice from a senior or a graduate of your program, did you find someone to ask?", core: true, opts: OPT.seniorLast },
+    costStep("seniorCost", "seniorLast", "m-l", "What did not finding someone to ask cost you?"),
+    { id: "fbPosting", box: "anon", kind: "chipsMulti", key: "fbPosting", exclusive: [ONLY_READ, NOT_IN], size: "bare", prompt: "Have you posted a question or concern about VSU in an unofficial Facebook group?", lede: "Pick all that apply.", core: true, opts: OPT.fbPosting }
+  ]);
   /* Daily life: where they found the place they stay, food when they can't go out, and buying and selling, each with its problem. */
-  part(11, "Daily life", [
+  part(6, "Daily life", [
     { id: "whereFound", box: "daily", kind: "chipsOne", key: "whereFound", size: "bare", prompt: "How did you find the place where you stay now?", core: true, opts: OPT.whereFound, when: rents },
     { id: "housingSince", box: "m-i", kind: "chipsOne", key: "housingSince", size: "bare", prompt: "Since you started at VSU, have you had trouble finding a place to stay or a boardmate?", core: true, opts: OPT.housingSince, when: rents },
     costStep("housingCost", "housingSince", "m-i", "What did the trouble finding a place cost you?"),
@@ -1503,8 +1487,20 @@ a{color:var(--sea)}
     { id: "scamSince", box: "m-j", kind: "chipsOne", key: "scamSince", size: "bare", prompt: "Since you started at VSU, have you been scammed, or nearly scammed, buying or selling with people on campus?", core: true, opts: OPT.scamSince, when: function () { return A.buySell.indexOf(NO_TRADE) < 0; } },
     costStep("scamCost", "scamSince", "m-j", "What did it cost you?")
   ]);
-  step({ id: "send", box: "send", ch: 12, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
-  step({ id: "final", box: "final", ch: 12, kind: "final", noMenu: true, when: function () { return sent; } });
+  /* The coins come after the questions, which give the jars their context, and before the network idea (owner, 23 October 2026). */
+  step({ id: "coins", box: "coins", ch: 7, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus concerns should get more attention?", lede: TAP + " a jar to drop a coin in, up to 10 in one jar.", spareLede: true, hint: "jars" });
+  step({ id: "worksWell", box: "net", ch: 8, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do group chats and Facebook do well?", lede: "Pick any that apply.", opts: OPT.works });
+  step({ id: "wouldUse", box: "net", ch: 8, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
+  step({ id: "whoJoin", box: "net", ch: 8, kind: "chipsMulti", key: "whoJoin", exclusive: "Only students", size: "bare", kicker: "Who should be there", prompt: "Besides students, who should be able to join it?", lede: "Pick any that apply.", core: true, opts: OPT.whoJoin });
+  step({ id: "postPreference", box: "net", ch: 8, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
+    opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
+  step({ id: "wantBack", box: "net", ch: 8, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
+    opts: OPT.wantBack.map(function (o) { return { v: o[0], art: function () { return TILE.reply(o[1]); } }; }) });
+  step({ id: "whoRuns", box: "net", ch: 8, kind: "chipsOne", key: "whoRuns", size: "bare", kicker: "Who should run it", prompt: "Who would you trust most to run it?", core: true, opts: OPT.whoRuns });
+  step({ id: "hostedPay", box: "net", ch: 8, kind: "chipsOne", key: "hostedPay", size: "bare", kicker: "Hosted on campus", prompt: "Suppose VSU's own network ran on campus, so you could use it there without mobile data. Which would you go for?", core: true, opts: OPT.hostedPay });
+  step({ id: "keepAway", box: "net", ch: 8, kind: "chipsMulti", key: "keepAway", size: "bare", other: "keepAwayOther", otherPh: "Other: what else? (optional)", kicker: "What would keep you away", prompt: "What would keep you away from it?", lede: "Pick any that apply.", opts: OPT.away });
+  step({ id: "send", box: "send", ch: 9, kind: "send", kicker: "Your day", prompt: "Your VSU, in panels" });
+  step({ id: "final", box: "final", ch: 9, kind: "final", noMenu: true, when: function () { return sent; } });
   STEPS.forEach(function (s) { if (s.costOf) FU[s.id] = [s.costOf]; });
 
   var stepById = {};
@@ -1512,7 +1508,7 @@ a{color:var(--sea)}
   var CONSENT_AT = STEPS.indexOf(stepById.consent);
   function gated(s) { return STEPS.indexOf(s) > CONSENT_AT; }
   function cleared() { return A.consent && A.age18 === true; }
-  function autoOf(s) { return !s.multi && ["tiles", "rows", "pick", "chipsOne", "scale", "branch", "gate", "consent", "vigs"].indexOf(s.kind) >= 0; }
+  function autoOf(s) { return !s.multi && ["tiles", "rows", "pick", "chipsOne", "scale", "gate", "consent", "vigs"].indexOf(s.kind) >= 0; }
   function spent() { return Object.keys(A.coins).reduce(function (t, k) { return t + A.coins[k]; }, 0); }
 
   function done(s) {
@@ -1520,7 +1516,6 @@ a{color:var(--sea)}
       case "intro": return true;
       case "consent": return A.consent;
       case "final": return true;
-      case "branch": return A.more !== null;
       case "vigs": return s.multi ? A[s.key].length > 0 : A[s.key] !== null;
       case "chipsMulti": return A[s.key].length > 0;
       case "pick": return A[s.key].length > 0;
@@ -1554,7 +1549,7 @@ a{color:var(--sea)}
         '<p>Thank you for your time.</p><p class="sign">Project CAMPUS</p></div>' +
         '<div class="how">' + icon("tap") + "<span>" + (calm() ? TAP + " an answer, then Next. Use the arrows to go back or skip." : TOUCH ? "Tap an answer and you'll move on. Use the arrows, or swipe, to go back or skip." : "Click an answer and you'll move on. Use the arrows, or your arrow keys, to go back or skip.") + "</span></div>" +
         (/^https:\/\//.test(FORM_URL) ? '<p class="note">Prefer a plain form? <a href="' + esc(FORM_URL) + '" target="_blank" rel="noopener">Answer in Google Forms instead</a>. Please answer only once.</p>' : "") +
-        '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">About ' + CORE_MIN + " minutes, then an optional part if you like.</span></div>";
+        '<div class="sendrow startrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">This might take ' + SURVEY_MIN + " minutes.</span></div>";
     },
     consent: function () {
       return '<p class="kicker">At the gate</p><h2 class="sr" id="h-consent" tabindex="-1">Before you go in</h2><ul class="consent-list">' +
@@ -1583,10 +1578,6 @@ a{color:var(--sea)}
       return head(s) + '<div class="answers"><div class="vigs" data-key="' + s.key + '" data-part="pick" role="group" aria-labelledby="h-' + s.id + '">' +
         CHANNELS.map(function (o, i) { return vigBtn({ v: o[0], art: VIG[o[1]] }, i, true); }).join("") + "</div>" +
         '<div class="chips none-row outcomes" data-key="' + s.key + '" style="--n:' + s.extras.length + '">' + s.extras.map(function (x, i) { return chipBtn(x, x, i); }).join("") + "</div></div>";
-    },
-    branch: function (s) {
-      return head(s) + '<div class="answers"><div class="tiles" data-key="more" role="group" aria-labelledby="h-' + s.id + '">' + s.opts.map(tileBtn).join("") + "</div>" +
-        '<p class="note">If you go on, your answers so far are sent first, so nothing is lost if you stop.</p></div>';
     },
     map: function (s) {
       return head(s) + '<div class="answers"><p class="count"><span id="map-count">0 of 3 pins</span><span>A sketch, not to scale</span></p>' +
@@ -1639,7 +1630,6 @@ a{color:var(--sea)}
     coins: { bg: "#E9A93A", ink: "dark", cls: "nostage" },
     anon: { bg: "#4C5BA8", ink: "light", stage: anonStage },
     net: { bg: "#2E6B3A", ink: "light", stage: netStage },
-    fork: { bg: "#1E4D3A", ink: "light", stage: forkStage },
     send: { bg: "#13261D", ink: "light", cls: "nostage" },
     final: { bg: "#0F1E3A", ink: "light", stage: finalStage }
   };
@@ -1648,7 +1638,7 @@ a{color:var(--sea)}
     if (STEPS.some(function (s) { return s.box === "m-" + m.k; })) BOXES["m-" + m.k] = { bg: m.bg, ink: m.ink, cls: "mbox", stage: function () { return momentStage(m); } };
   });
   /* Each part keeps one background color (D-125): its drawings and other screens take the part's color. */
-  var PART_BG = { 4: BOXES.news, 5: BOXES.errand, 6: BOXES.peers, 10: BOXES.news, 11: { bg: "#2C8C99", ink: "light" } };
+  var PART_BG = { 1: BOXES.pass, 3: BOXES.news, 4: BOXES.errand, 5: BOXES.peers, 6: { bg: "#2C8C99", ink: "light" } };
   STEPS.forEach(function (s) { var c = PART_BG[s.ch], b = BOXES[s.box]; if (c && b && b !== c) { b.bg = c.bg; b.ink = c.ink; } });
 
   var view = $("#view"), boxEls = {}, panelEls = {};
@@ -1677,7 +1667,6 @@ a{color:var(--sea)}
   /* ---------- Answering ---------- */
   function isOn(key, v) {
     var a;
-    if (key === "more") return (A.more === true && v === "yes") || (A.more === false && v === "no");
     if (key === "consent") return A.consent;
     if (key === "why") { var p = A.pins[activePin]; return !!p && p.why === v; }
     if (key === "area") return false;
@@ -1709,11 +1698,7 @@ a{color:var(--sea)}
 
   function setAnswer(s, key, v, btn) {
     var turnedOn = true;
-    if (key === "more") {
-      var want = v === "yes";
-      A.more = A.more === want ? null : want;
-      turnedOn = A.more !== null;
-    } else if (key === "consent") {
+    if (key === "consent") {
       A.consent = !A.consent;
       A.age18 = A.consent ? true : null;  // the consent statement confirms 18 or older (D-094)
       turnedOn = A.consent;
@@ -1768,6 +1753,7 @@ a{color:var(--sea)}
   function pruneFollowUps() {
     if (!isProblem("officialLast")) { A.checkPost.length = 0; A.checkPostOther = ""; }
     if (PEERS.indexOf(A.askFirst) < 0) A.answerRight = null;
+    if (A.residence === null || A.residence === DORM) A.barangay = null;
     if (A.buySell.indexOf(NO_TRADE) >= 0) A.scamSince = null;
     if (!rents()) A.housingSince = null;
     STEPS.forEach(function (s) { if (s.costOf && !isProblem(s.costOf)) A[s.key].length = 0; });
@@ -1852,8 +1838,10 @@ a{color:var(--sea)}
     });
     if (key) passType();
     fillCard();
-    if (key === "firstGen" && !printed) printPass();
+    if (key === "familyVSU" && !printed) printPass();
   }
+  /* Leaving Your form's last question prints the form if it hasn't been, and waits until it has left her hands. */
+  function handOver() { if (!printed) { printPass(); return calm() ? 300 : HANDOVER_MS + 100; } return handoverLeft(); }
   /* The pass prints, then she hands it over; the walk moves on once it has left her hands. */
   var printedAt = 0, HANDOVER_MS = 2650;
   function printPass() {
@@ -1868,11 +1856,11 @@ a{color:var(--sea)}
     setTimeout(function () {
       wrap.classList.remove("printing");
       wrap.classList.add("printed");
-      if (curId !== "firstGen") return;
+      if (curId !== "familyVSU") return;
       replay(wrap, "handing");
       setTimeout(function () {
         wrap.classList.remove("handing");
-        if (curId === "firstGen") { wrap.classList.add("gone"); say(boxEls.pass, "pass-say", "You're all set!"); }
+        if (curId === "familyVSU") { wrap.classList.add("gone"); say(boxEls.pass, "pass-say", "You're all set!"); }
       }, 1000);
     }, 1550);
   }
@@ -2059,9 +2047,9 @@ a{color:var(--sea)}
     if (s.box === "home") { homeReact(); if (!calm()) replay(box, "ringing"); }
     if (s.box === "pass") {
       var svg = $(".scene", box), card = $("#passwrap");
-      if (s.id === "firstGen" && printed) say(box, "pass-say", "Here's your form!");
+      if (s.id === "familyVSU" && printed) say(box, "pass-say", "Here's your form!");
       else say(box, "pass-say", s.say);
-      card.classList.toggle("docked", printed && s.id !== "firstGen");
+      card.classList.toggle("docked", printed && s.id !== "familyVSU");
       if (!card.classList.contains("handing")) card.classList.remove("gone");
       passReact(null);
     }
@@ -2150,7 +2138,6 @@ a{color:var(--sea)}
     cancelAuto();
     hideHand();
     var from = curId ? stepById[curId] : null;
-    if (from && from.kind === "branch" && A.more === true && dir > 0) sendCore();
     var toBox = boxEls[to.box], toPanel = panelEls[to.id];
     curId = to.id;
     toBox.dataset.size = to.size || "";
@@ -2206,7 +2193,7 @@ a{color:var(--sea)}
     nextLbl.textContent = label;
     nextBtn.setAttribute("aria-label", d || s.lock ? "Next" : "Skip this question");
   }
-  /* The parts on this respondent's path: the optional ones appear once they choose to go on. */
+  /* The parts on this respondent's path. */
   function shownChapters() { var seen = {}, out = []; list().forEach(function (x) { if (!seen[x.ch]) { seen[x.ch] = true; out.push(x.ch); } }); return out; }
   function updateBar() {
     var s = stepById[curId], chs = shownChapters(), at = chs.indexOf(s.ch);
@@ -2413,15 +2400,16 @@ a{color:var(--sea)}
     var hits = asked.filter(isProblem);
     var top = Object.keys(A.coins).sort(function (a, b) { return A.coins[b] - A.coins[a]; })[0];
     var cells = [
-      cell("house", "#B7791F", "Mornings", A.residence || "Skipped"),
+      cell("house", "#B7791F", "Where you wake up", A.residence || "Skipped"),
       cell("cap", "#1F7A8C", "Your form", [short("year"), short("faculty")].join(", ")),
       cell("chat", "#7A5BA6", "Where you first hear of suspensions", A.firstSuspensions[0] || "Skipped"),
       cell("office", "#E4705A", "First move at an office", A.scenario || "Skipped"),
       cell("calendar", "#D9483B", "Last times that went badly", hits.length + " of " + asked.length, '<span class="dotrow">' + hits.map(function () { return "<i></i>"; }).join("") + "</span>"),
       cell("coin", "#C98A16", "Most attention", top ? jarById[top][1] : "No coins spent"),
       cell("bubble", "#2C8C99", "Posting in unofficial groups", A.fbPosting.join(", ") || "Skipped"),
+      cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped")),
       cell("star", "#2E6B3A", "Would draw you", A.wouldUse[0] || "Skipped")
-    ].concat(A.more ? [cell("signal", "#2F6DB5", "Mobile data a week", A.dataSpend || (!buysLoad() ? "No load" : "Skipped"))] : []);
+    ];
     $("#strip").innerHTML = cells.join("");
     $("#comment").value = A.comment;
     var gaps = {};
@@ -2440,36 +2428,19 @@ a{color:var(--sea)}
     var b = e.target.closest("[data-jump-to]");
     if (b) go(b.dataset.jumpTo, -1);
   });
-  /* A random number for this sitting only, so the full answer replaces the core sent before it. It is made fresh on each visit,
-     kept nowhere on the device, and says nothing about the respondent. */
-  var RID = (function () {
-    var b = new Uint8Array(8), c = window.crypto || window.msCrypto;
-    if (c && c.getRandomValues) c.getRandomValues(b); else for (var i = 0; i < 8; i++) b[i] = Math.floor(Math.random() * 256);
-    return Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
-  })();
-  /* "core" is sent when the respondent goes on to the optional part; "final" from the Send screen, and it replaces the core. */
-  function record(stage) {
+  function record() {
     var r = JSON.parse(JSON.stringify(A));
     delete r.pins;
     r.variant = VARIANT;
     r.survey = SURVEY_ID;
     r.version = SURVEY_VERSION;
-    r.rid = RID;
-    r.stage = stage;
     r.sentAt = new Date().toISOString();
     r.test = TEST;
     return r;
   }
-  var coreSent = false;
-  function sendCore() {
-    if (coreSent || sent || !LIVE || !cleared()) return;
-    coreSent = true;
-    fetch(ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(record("core")) })
-      .catch(function () { coreSent = false; });
-  }
   $("#send").addEventListener("click", function () {
     if (sent || sending || !cleared()) return;
-    var btn = this, note = $("#send-note"), r = record("final");
+    var btn = this, note = $("#send-note"), r = record();
     function finish() {
       sending = false;
       sent = true;
