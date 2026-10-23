@@ -101,6 +101,17 @@ button,a,input,textarea{touch-action:manipulation}
 @keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .agree.nudge-me{box-shadow:0 0 0 4px rgba(242,179,61,.6)}
 .kicker{font:650 13.5px/1.2 var(--display);color:var(--ink-soft);margin:0 0 6px}
+/* A follow-up keeps the question it follows, and the answer given, in view above it, small (owner, 23 October 2026). */
+.recap{margin:0 0 10px;padding:0 0 9px 10px;border-left:3px solid var(--mango);border-bottom:1px solid var(--edge);font-size:13px;line-height:1.3;color:var(--ink-soft)}
+.recap .rq{margin:0 0 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recap .ra{margin:0;font-weight:650;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel.fu-step .prompt{font-size:clamp(19px,5vw,23px)}
+.panel.fu-step .chip{min-height:38px;padding:7px 12px;font-size:14px}
+.panel.fu-step .chips{gap:6px}
+.panel.fu-step .tiles{gap:8px}
+.panel.fu-step .tile{padding:7px 6px 9px;gap:5px;border-radius:16px}
+.panel.fu-step .tile .art{max-width:84px}
+.panel.fu-step .tile .lbl{font-size:13.5px}
 .kicker .fu{display:inline-block;margin:0 7px 0 0;padding:2px 8px;border-radius:999px;background:var(--mango);color:#13261D;font:750 11.5px/1.35 var(--display);vertical-align:1px}
 .prompt{font:700 clamp(21px,5.6vw,27px)/1.12 var(--display);font-variation-settings:"opsz" 48;letter-spacing:-.012em;margin:0 0 6px;max-width:30ch}
 .prompt:focus{outline:none}
@@ -948,7 +959,7 @@ a{color:var(--sea)}
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Skipped</dd><dt>Dept.</dt><dd data-f="department">Skipped</dd><dt>Resides</dt><dd data-f="residence">Skipped</dd><dt>Scholar</dt><dd data-f="scholar">Skipped</dd></dl></div></div></div></div>';
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Prefer not to say</dd><dt>Dept.</dt><dd data-f="department">Prefer not to say</dd><dt>Resides</dt><dd data-f="residence">Prefer not to say</dd><dt>Scholar</dt><dd data-f="scholar">Prefer not to say</dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -1129,7 +1140,7 @@ a{color:var(--sea)}
        (owner, 23 October 2026). */
     getAround: [["A bicycle", "bike"], ["A motorcycle", "motor"], ["A car", "car"], ["I ride along with someone", "ride"]],
     commute: [["Habal-habal or tricycle", "trike"], ["Jeepney or multicab", "jeep"], ["My own bicycle, motorcycle, or car", "motor"], ["A ride with someone", "ride"], ["Walk", "walk"]],
-    year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5], ["Graduate student", "Graduate student", 0]],
+    year: [["1st", "1st year", 1], ["2nd", "2nd year", 2], ["3rd", "3rd year", 3], ["4th", "4th year", 4], ["5th or higher", "5th year or higher", 5]],
     org: [["An officer or leader", "officer"], ["An active member", "member"], ["A member, but I rarely take part", "inactive"], ["Not a member of any", "neither"]],
     yesno: [["Yes", "stampYes"], ["No", "stampNo"], ["Prefer not to say", "stampSkip"]],
     /* Orgs: the kinds a member is in, then one follow-up for each level of involvement (owner, 23 October 2026). */
@@ -1262,22 +1273,25 @@ a{color:var(--sea)}
   /* Those who rarely take part in orgs, or aren't in any, are asked what holds them back. */
   var ORG_OFFICER = "An officer or leader", ORG_ACTIVE = "An active member", ORG_RARELY = "A member, but I rarely take part", ORG_NONE = "Not a member of any";
   function inOrgs() { return A.org !== null && A.org !== ORG_NONE; }
-  /* Each faculty's Main Campus departments and institutes, as VSU's Faculties page lists them (opened 23 October 2026), for the
-     department question; Nursing and Veterinary Medicine list none that students belong to, so they skip it. The page differs
-     from VSU's reorganization article on Meteorology, Teacher Education, and Management and Economics (E-057). */
+  /* Each faculty's Main Campus departments, as VSU's Faculties page lists them (opened 23 October 2026), without its institutes,
+     which students don't belong to (owner, 23 October 2026). A faculty with one department isn't asked; Nursing and Veterinary
+     Medicine list none that students belong to, so the form shows the faculty. The page differs from VSU's reorganization article
+     on Meteorology, Teacher Education, and Management and Economics (E-057). */
   var DEPARTMENTS = {
     "Agriculture and Food Science": ["Agricultural Education and Extension", "Agronomy", "Animal Science", "Development Communication", "Food Science and Technology", "Horticulture", "Pest Management", "Plant Breeding and Genetics", "Soil Science"],
     "Computing": ["Computer Science and Technology"],
     "Engineering": ["Agricultural and Biosystems Engineering", "Civil Engineering", "Geodetic Engineering", "Mechanical Engineering", "Meteorology"],
-    "Forestry and Environmental Science": ["Forest Science", "Institute of Tropical Ecology and Environmental Science"],
+    "Forestry and Environmental Science": ["Forest Science"],
     "Humanities and Social Sciences": ["Arts, Languages and Literature", "Philosophy and Social Sciences"],
     "Management and Economics": ["Business and Management", "Hospitality Management", "Tourism Management", "Economics"],
     "Natural and Mathematical Sciences": ["Biological Sciences", "Biotechnology", "Mathematics", "Physics", "Pure and Applied Chemistry", "Statistics"],
-    "Teacher Education": ["Teacher Education", "Institute of Human Kinetics"]
+    "Teacher Education": ["Teacher Education"]
   };
   function departmentOf(v) { return Object.keys(DEPARTMENTS).filter(function (f) { return DEPARTMENTS[f].indexOf(v) >= 0; })[0]; }
   function facultyName() { return A.faculty ? A.faculty.replace(/^Faculty of /, "") : null; }
-  function hasDepartments() { return !!DEPARTMENTS[facultyName()]; }
+  function hasDepartments() { return !!DEPARTMENTS[facultyName()] && DEPARTMENTS[facultyName()].length > 1; }
+  /* A faculty's only department is recorded without asking. */
+  function soleDepartment() { var d = DEPARTMENTS[facultyName()]; return d && d.length === 1 ? d[0] : null; }
   /* The ten Main Campus faculties named in VSU's announcement of 16 January 2025, by name. */
   var FACULTIES = [["FAFS", "Agriculture and Food Science"], ["FOC", "Computing"], ["FE", "Engineering"], ["FFES", "Forestry and Environmental Science"], ["FHSS", "Humanities and Social Sciences"], ["FME", "Management and Economics"], ["FNMS", "Natural and Mathematical Sciences"], ["FON", "Nursing"], ["FTE", "Teacher Education"], ["FVM", "Veterinary Medicine"]];
   /* Channel order: the owner's, the same for everyone and every news question (D-119, revised 21 October 2026). It replaces a
@@ -1410,9 +1424,9 @@ a{color:var(--sea)}
   part(1, "Your form", [
     { id: "year", box: "pass", kind: "tiles", key: "year", cols: "t3", prompt: "What's your year level?", say: "Morning! Your year level?", hint: "tiles", core: true,
       opts: OPT.year.map(function (o) { return { v: o[0], label: o[1], art: o[2] ? function () { return TILE.books(o[2]); } : TILE.gradcap }; }) },
-    { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department or institute is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
-    { id: "department", box: "pass", kind: "chipsOne", key: "department", size: "short", prompt: "Which department?", lede: "The department or institute of your degree program.", say: "Which department?", core: true,
-      opts: Object.keys(DEPARTMENTS).reduce(function (all, f) { return all.concat(DEPARTMENTS[f]); }, []).map(function (d) { return [d, /^Institute/.test(d) ? "office" : "cap"]; }).concat([[NOT_SURE, "other"]]), when: hasDepartments },
+    { id: "faculty", box: "pass", kind: "rows", key: "faculty", size: "tight", prompt: "Which faculty are you in?", lede: "Your department is part of one of these.", spareLede: true, say: "Which faculty?", core: true },
+    { id: "department", box: "pass", kind: "chipsOne", key: "department", size: "short", prompt: "Which department?", lede: "The department of your degree program.", say: "Which department?", core: true,
+      opts: Object.keys(DEPARTMENTS).reduce(function (all, f) { return all.concat(DEPARTMENTS[f]); }, []).map(function (d) { return [d, "cap"]; }), when: hasDepartments },
     { id: "home", box: "pass", kind: "tiles", key: "residence", cols: "t3", size: "short", prompt: "Where do you currently reside?", say: "Where do you live?", core: true,
       opts: OPT.residence.map(function (o) { return { v: o[0], art: TILE[o[1]] }; }) },
     { id: "dormPart", box: "pass", kind: "chipsOne", key: "dormPart", size: "short", prompt: "Which part of campus is your dorm in?", say: "Which part?", core: true, opts: OPT.dormPart,
@@ -1545,7 +1559,7 @@ a{color:var(--sea)}
 
   /* ---------- Panels ---------- */
   function head(s) {
-    return (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
+    return (FU[s.id] ? '<div class="recap" aria-hidden="true"><p class="rq"></p><p class="ra"></p></div>' : "") + (s.kicker ? '<p class="kicker">' + (FU[s.id] ? '<span class="fu">Follow-up</span>' : "") + esc(s.kicker) + "</p>" : "") + '<h2 class="prompt" id="h-' + s.id + '" tabindex="-1">' + esc(s.prompt) + "</h2>" + (s.lede ? '<p class="lede' + (s.spareLede ? " spare" : "") + '">' + esc(s.lede) + "</p>" : "");
   }
   function chipBtn(label, v, i, extra) { return '<button type="button" class="chip" data-v="' + esc(v) + '" aria-pressed="false" style="--i:' + (i || 0) + '"' + (extra || "") + ">" + esc(label) + "</button>"; }
   function tileBtn(o, i) { return '<button type="button" class="tile" data-v="' + esc(o.v) + '" aria-pressed="false" style="--i:' + i + '">' + (o.art ? o.art() : "") + '<span class="lbl">' + esc(o.label || o.v) + "</span></button>"; }
@@ -1666,7 +1680,7 @@ a{color:var(--sea)}
     var sheet = $(".sheet", el);
     STEPS.filter(function (s) { return s.box === id; }).forEach(function (s) {
       var p = doc.createElement("div");
-      p.className = "panel";
+      p.className = "panel" + (FU[s.id] ? " fu-step" : "");
       p.dataset.step = s.id;
       p.hidden = true;
       p.setAttribute("role", "group");
@@ -1769,7 +1783,8 @@ a{color:var(--sea)}
     if (A.residence !== DORM) A.dormPart = null;
     if (!inOrgs()) { A.orgKinds.length = 0; A.orgKindsOther = ""; }
     [["orgRun", ORG_OFFICER], ["orgKeep", ORG_ACTIVE], ["orgWhy", ORG_RARELY], ["orgNone", ORG_NONE]].forEach(function (p) { if (A.org !== p[1]) { A[p[0]].length = 0; A[p[0] + "Other"] = ""; } });
-    if (!hasDepartments() || (A.department !== NOT_SURE && departmentOf(A.department) !== facultyName())) A.department = null;
+    if (soleDepartment()) A.department = soleDepartment();
+    else if (!hasDepartments() || departmentOf(A.department) !== facultyName()) A.department = null;
     if (!offCampus()) { A.barangay = null; A.commute.length = 0; }
     if (!isProblem("officialTell")) { A.checkPost.length = 0; A.checkPostOther = ""; }
     if (!newOffice()) { A.whichOffice.length = 0; A.visitsTook.length = 0; }
@@ -1831,10 +1846,10 @@ a{color:var(--sea)}
     if (v === null && key !== "department") return "Skipped";
     if (v === NOT_SAID) return "Not said";
     if (key === "faculty") { var f = FACULTIES.filter(function (x) { return "Faculty of " + x[1] === v; })[0]; return f ? f[0] : v; }
-    if (key === "year") return v === "Graduate student" ? "Graduate" : v === "5th or higher" ? "5th+" : v + " year";
+    if (key === "year") return v === "5th or higher" ? "5th+" : v + " year";
     /* The form's department line names the department, or else the faculty; its scholar line reads Yes or None from Getting by. */
-    if (key === "department") { if (v && v !== NOT_SURE) return v.replace(/^Institute of /, ""); return A.faculty ? short("faculty") : "Skipped"; }
-    if (key === "scholar") return !A.support.length ? "Skipped" : A.support.indexOf("A scholarship or financial aid") >= 0 ? "Yes" : "None";
+    if (key === "department") { if (v) return v; return A.faculty && !DEPARTMENTS[facultyName()] ? facultyName() : "Skipped"; }
+    if (key === "scholar") return !A.support.length ? "Skipped" : A.support.indexOf("A scholarship or financial aid") >= 0 ? "Yes" : "No";
     if (key === "residence") return v === DORM ? (A.dormPart ? A.dormPart + " dorm" : "Campus dorm") : { "A boarding house or apartment near campus": "Boarding house", "My family's home, and I commute": "Family home", "A relative's or friend's house": "Relative's or friend's" }[v] || "Elsewhere";
     if (key === "org") return { "An officer or leader": "Officer", "An active member": "Active member", "A member, but I rarely take part": "Member", "Not a member of any": "None" }[v] || v;
     if (v === "Prefer not to say") return "Not said";
@@ -1842,8 +1857,11 @@ a{color:var(--sea)}
   }
   function fillCard() {
     var card = $("#passcard");
+    /* A line left blank on the form reads Prefer not to say (owner, 23 October 2026). */
     ["year", "department", "residence", "scholar"].forEach(function (k) {
       var dd = $('[data-f="' + k + '"]', card), t = short(k);
+      if (t === "Skipped") t = "Prefer not to say";
+      if (k === "residence" && A.barangay && A.residence !== DORM) t += ", " + A.barangay.replace(/, or farther/, " or farther");
       if (dd.textContent !== t) { dd.textContent = t; }
     });
     card.style.setProperty("--band", A.org === "An officer or leader" ? "#F2B33D" : A.org === "An active member" || A.org === "A member, but I rarely take part" ? "#1F7A8C" : "#9AA9A0");
@@ -2063,6 +2081,7 @@ a{color:var(--sea)}
   /* ---------- Entering a step ---------- */
   function enter(s) {
     var box = boxEls[s.box];
+    recapOf(s);
     applyShowIf(s);
     if (s.box === "gate") gateReact();
     if (s.box === "pass") {
@@ -2128,10 +2147,18 @@ a{color:var(--sea)}
 
   function cancelAnims(el) { if (el.getAnimations) el.getAnimations().forEach(function (a) { a.cancel(); }); }
   function isCurrent(el) { var s = stepById[curId]; return el === boxEls[s.box] || el === panelEls[s.id]; }
-  function slide(a, b, dir, fade) {
+  function slide(a, b, dir, fade, up) {
     b.hidden = false;
     if (calm() || !b.animate) { a.hidden = true; return; }
     cancelAnims(a); cancelAnims(b);
+    /* Into a follow-up the screen moves up, and back down out of it, so a follow-up reads as part of its question. */
+    if (up) {
+      var dy = dir < 0 ? -1 : 1;
+      var rise = a.animate([{ transform: "translateY(0)", opacity: 1 }, { transform: "translateY(" + (-dy * 10) + "%)", opacity: 0 }], { duration: 220, easing: "cubic-bezier(.4,0,.2,1)" });
+      b.animate([{ transform: "translateY(" + (dy * 14) + "%)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 340, easing: "cubic-bezier(.2,.8,.2,1)" });
+      rise.onfinish = function () { if (!isCurrent(a)) a.hidden = true; };
+      return;
+    }
     if (fade) {
       var gone = a.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: "ease-out" });
       b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: "ease-in" });
@@ -2151,6 +2178,17 @@ a{color:var(--sea)}
     if (meta) meta.setAttribute("content", def.bg);
     void size;
   }
+  /* A question and its follow-up, or two follow-ups of one question. */
+  function parentOf(s) { return FU[s.id] ? FU[s.id][0] : null; }
+  function related(a, b) { var pa = parentOf(a), pb = parentOf(b); return pa === b.id || pb === a.id || (!!pa && pa === pb); }
+  /* The recap: the question a follow-up follows, and the answer given to it. */
+  function recapOf(s) {
+    var p = panelEls[s.id], r = p && $(".recap", p), q = stepById[parentOf(s)];
+    if (!r || !q) return;
+    var v = A[q.key], text = Array.isArray(v) ? v.join(", ") : v;
+    $(".rq", r).textContent = q.prompt;
+    $(".ra", r).textContent = text || "Skipped";
+  }
   function go(id, dir, quiet) {
     var to = stepById[id];
     if (!to || to.id === curId) return;
@@ -2162,7 +2200,7 @@ a{color:var(--sea)}
     curId = to.id;
     toBox.dataset.size = to.size || "";
     if (!from) { toBox.hidden = false; toPanel.hidden = false; }
-    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir, from.ch === to.ch);
+    else if (from.box === to.box) slide(panelEls[from.id], toPanel, dir, from.ch === to.ch && !related(from, to), related(from, to));
     else {
       $$(".panel", toBox).forEach(function (p) { if (p !== toPanel) p.hidden = true; });
       toPanel.hidden = false;

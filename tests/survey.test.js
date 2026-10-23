@@ -103,12 +103,14 @@ async function walkAll(page, shot, dorm) {
   await at(page, "year", shot);
   assert.strictEqual(await page.locator(inStep("year", ".kicker")).textContent(), "Year", "each question has a label, not a number");
   assert.strictEqual(await page.locator(inStep("year", "h2")).textContent(), "What's your year level?");
+  assert.strictEqual(await page.locator(btn("year", "Graduate student")).count(), 0, "undergraduates only");
   assert.ok(await page.locator('[data-box="pass"]').isVisible(), "asked at the reception desk");
   await page.click(btn("year", "2nd"));
   await one(page, "faculty", "Faculty of Engineering", shot);
   await at(page, "department", shot);
   assert.strictEqual(await page.locator(inStep("department", ".kicker")).textContent(), "Follow-upDepartment");
-  assert.deepStrictEqual(await offered(page, "department"), ["Agricultural and Biosystems Engineering", "Civil Engineering", "Geodetic Engineering", "Mechanical Engineering", "Meteorology", "Not sure"], "only the faculty's own departments, as VSU's Faculties page lists them");
+  assert.deepStrictEqual(await offered(page, "department"), ["Agricultural and Biosystems Engineering", "Civil Engineering", "Geodetic Engineering", "Mechanical Engineering", "Meteorology"], "only the faculty's own departments, as VSU's Faculties page lists them");
+  assert.strictEqual(await page.locator(inStep("department", ".recap .ra")).textContent(), "Faculty of Engineering", "a follow-up keeps the answer it follows in view");
   await page.click(btn("department", "Mechanical Engineering"));
   await at(page, "home", shot);
   assert.strictEqual(await page.locator(inStep("home", ".kicker")).textContent(), "Where you live");
@@ -156,8 +158,8 @@ async function walkAll(page, shot, dorm) {
   const card = await page.locator("#passcard dt").evaluateAll(ds => ds.map(d => d.textContent));
   assert.deepStrictEqual(card, ["Year", "Dept.", "Resides", "Scholar"], "the form's lines, in order");
   assert.strictEqual(await page.locator('#passcard [data-f="department"]').textContent(), "Mechanical Engineering");
-  assert.strictEqual(await page.locator('#passcard [data-f="residence"]').textContent(), dorm ? "Upper campus dorm" : "Relative's or friend's", "where you live is on the form");
-  assert.strictEqual(await page.locator('#passcard [data-f="scholar"]').textContent(), dorm ? "Yes" : "None", "the scholar line reads from how you get by");
+  assert.strictEqual(await page.locator('#passcard [data-f="residence"]').textContent(), dorm ? "Upper campus dorm" : "Relative's or friend's, Guadalupe (Utod)", "where you live is on the form, with the barangay off campus");
+  assert.strictEqual(await page.locator('#passcard [data-f="scholar"]').textContent(), dorm ? "Yes" : "No", "the scholar line reads Yes or No from how you get by");
   if (SHOTS && shot) { await page.waitForTimeout(1700); await page.screenshot({ path: path.join(SHOTS, shot + "-familyVSU-printed.png") }); }
   // Getting online
   await at(page, "networks", shot);
@@ -942,15 +944,22 @@ function rowOf(r) {
     // Department follows faculty, offering only that faculty's; Nursing and Veterinary Medicine list none (owner, 23 October 2026)
     await t.page.evaluate(() => window.__survey.go("faculty"));
     await at(t.page, "faculty");
-    await t.page.click(btn("faculty", "Faculty of Computing"));
+    await t.page.click(btn("faculty", "Faculty of Humanities and Social Sciences"));
     await at(t.page, "department");
-    assert.deepStrictEqual(await t.page.locator(inStep("department", "[data-v]")).evaluateAll(bs => bs.filter(b => !b.hidden).map(b => b.dataset.v)), ["Computer Science and Technology", "Not sure"]);
-    await t.page.click(btn("department", "Computer Science and Technology"));
+    assert.deepStrictEqual(await t.page.locator(inStep("department", "[data-v]")).evaluateAll(bs => bs.filter(b => !b.hidden).map(b => b.dataset.v)), ["Arts, Languages and Literature", "Philosophy and Social Sciences"], "departments only, no institutes and no Not sure");
+    await t.page.click(btn("department", "Philosophy and Social Sciences"));
+    await t.page.evaluate(() => window.__survey.go("faculty"));
+    await at(t.page, "faculty");
+    await t.page.click(btn("faculty", "Faculty of Computing"));
+    assert.strictEqual((await ans()).department, "Computer Science and Technology", "a faculty's only department is recorded without asking");
+    assert.ok(!(await steps()).includes("department"), "no department question for a faculty with one");
+    assert.strictEqual(await t.page.locator('#passcard [data-f="department"]').textContent(), "Computer Science and Technology");
     await t.page.evaluate(() => window.__survey.go("faculty"));
     await at(t.page, "faculty");
     await t.page.click(btn("faculty", "Faculty of Nursing"));
     assert.strictEqual((await ans()).department, null, "a department of another faculty is taken back");
     assert.ok(!(await steps()).includes("department"), "no department for Nursing");
+    assert.strictEqual(await t.page.locator('#passcard [data-f="department"]').textContent(), "Nursing", "the form shows the faculty when it lists no departments");
     // One org follow-up for each level of involvement, and kinds of orgs for members only
     await t.page.evaluate(() => window.__survey.go("org"));
     await at(t.page, "org");
@@ -1194,7 +1203,7 @@ function rowOf(r) {
     await next(t.page);
     await at(t.page, "home");
     assert.ok(/\bskip\b/.test(await bar(1)), "a skip is typed in as a short grey line");
-    assert.strictEqual(await t.page.locator('#passcard [data-f="department"]').textContent(), "Skipped", "no faculty, no department on the form");
+    assert.strictEqual(await t.page.locator('#passcard [data-f="department"]').textContent(), "Prefer not to say", "a line left blank reads Prefer not to say");
     await t.page.evaluate(() => window.__survey.go("support"));
     await at(t.page, "support");
     await t.page.click(btn("support", "A relative supports me"));
