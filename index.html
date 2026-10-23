@@ -966,7 +966,7 @@ a{color:var(--sea)}
       talkHtml("pass-say", 180, 64, "Morning! Your year?");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F4F8F5"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#F2B33D" stroke-width="2" fill="none"/></svg></div>' +
-    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year">Prefer not to say</dd><dt>Program</dt><dd data-f="program">Prefer not to say</dd><dt>Resides</dt><dd data-f="residence">Prefer not to say</dd><dt>Scholar</dt><dd data-f="scholar">Prefer not to say</dd></dl></div></div></div></div>';
+    '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year"></dd><dt>Program</dt><dd data-f="program"></dd><dt>Resides</dt><dd data-f="residence"></dd><dt>Scholar</dt><dd data-f="scholar"></dd></dl></div></div></div></div>';
 
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
@@ -1288,28 +1288,29 @@ a{color:var(--sea)}
   /* Those who rarely take part in orgs, or aren't in any, are asked what holds them back. */
   var ORG_OFFICER = "An officer or leader", ORG_ACTIVE = "An active member", ORG_RARELY = "A member, but I rarely take part", ORG_NONE = "Not a member of any";
   function inOrgs() { return A.org !== null && A.org !== ORG_NONE; }
-  /* Each faculty's undergraduate degree programs offered at the Main Campus, without majors, as VSU's admissions page lists them
-     (opened 23 October 2026), with BS Mathematics from its own Main Campus page, and without three the list includes that VSU's
-     pages place at other campuses: BS Environmental Management and BS Environmental Science (Alangalang) and BS Marine Biology
-     (Tolosa) (E-057). A faculty with one program records it without asking (owner, 23 October 2026). Each program's acronym is
-     VSU's, for the form's monitor. */
+  /* Each faculty's undergraduate degree programs offered at the Main Campus, without majors: VSU's admissions page (opened 23
+     October 2026), corrected by the owner on 23 October 2026: BS Meteorology under Natural and Mathematical Sciences, with BS
+     Agricultural Chemistry, BS Applied Physics, and BS Mathematics; BA Literature and BA Philosophy in Humanities and Social
+     Sciences; BS Environmental Science kept and BS Environmental Management and BS Marine Biology left out, as other campuses'
+     (E-057). A faculty with one program records it without asking. Acronyms are VSU's where its pages give them, for the monitor. */
   var PROGRAMS = {
     "Agriculture and Food Science": ["BS Agriculture", "BS Development Communication", "BS Food Technology"],
     "Computing": ["BS Computer Science"],
-    "Engineering": ["BS Agricultural and Biosystems Engineering", "BS Civil Engineering", "BS Geodetic Engineering", "BS Mechanical Engineering", "BS Meteorology"],
-    "Forestry and Environmental Science": ["BS Forestry"],
-    "Humanities and Social Sciences": ["BA English Language Studies", "BS Philosophy"],
+    "Engineering": ["BS Agricultural and Biosystems Engineering", "BS Civil Engineering", "BS Geodetic Engineering", "BS Mechanical Engineering"],
+    "Forestry and Environmental Science": ["BS Environmental Science", "BS Forestry"],
+    "Humanities and Social Sciences": ["BA English Language Studies", "BA Literature", "BA Philosophy"],
     "Management and Economics": ["BS Agribusiness", "BS Economics", "BS Hospitality Management", "BS Tourism Management"],
-    "Natural and Mathematical Sciences": ["BS Biology", "BS Biotechnology", "BS Chemistry", "BS Mathematics", "BS Statistics"],
+    "Natural and Mathematical Sciences": ["BS Agricultural Chemistry", "BS Applied Physics", "BS Biology", "BS Biotechnology", "BS Chemistry", "BS Mathematics", "BS Meteorology", "BS Statistics"],
     "Nursing": ["BS Nursing"],
     "Teacher Education": ["Bachelor of Culture and Arts Education", "Bachelor of Early Childhood Education", "Bachelor of Elementary Education", "Bachelor of Physical Education", "Bachelor of Secondary Education"],
     "Veterinary Medicine": ["Doctor of Veterinary Medicine"]
   };
   var ACRONYM = { "BS Agriculture": "BSA", "BS Development Communication": "BSDC", "BS Food Technology": "BSFT", "BS Computer Science": "BSCS",
     "BS Agricultural and Biosystems Engineering": "BSAE", "BS Civil Engineering": "BSCE", "BS Geodetic Engineering": "BSGE", "BS Mechanical Engineering": "BSME",
-    "BS Meteorology": "BSMet", "BS Forestry": "BSF", "BA English Language Studies": "ABELS", "BS Philosophy": "BSPhilo", "BS Agribusiness": "BSAB",
-    "BS Economics": "BSEcon", "BS Hospitality Management": "BSHM", "BS Tourism Management": "BSTM", "BS Biology": "BSBio", "BS Biotechnology": "BSBiotech",
-    "BS Chemistry": "BSChem", "BS Mathematics": "BSMath", "BS Statistics": "BSS", "BS Nursing": "BSN", "Bachelor of Culture and Arts Education": "BCAEd",
+    "BS Environmental Science": "BSES", "BS Forestry": "BSF", "BA English Language Studies": "ABELS", "BA Literature": "ABLit", "BA Philosophy": "ABPhilo",
+    "BS Agribusiness": "BSAB", "BS Economics": "BSEcon", "BS Hospitality Management": "BSHM", "BS Tourism Management": "BSTM",
+    "BS Agricultural Chemistry": "BSAgChem", "BS Applied Physics": "BSAP", "BS Biology": "BSBio", "BS Biotechnology": "BSBiotech", "BS Chemistry": "BSChem",
+    "BS Mathematics": "BSMath", "BS Meteorology": "BSMet", "BS Statistics": "BSS", "BS Nursing": "BSN", "Bachelor of Culture and Arts Education": "BCAEd",
     "Bachelor of Early Childhood Education": "BECEd", "Bachelor of Elementary Education": "BEEd", "Bachelor of Physical Education": "BPEd",
     "Bachelor of Secondary Education": "BSEd", "Doctor of Veterinary Medicine": "DVM" };
   function programOf(v) { return Object.keys(PROGRAMS).filter(function (f) { return PROGRAMS[f].indexOf(v) >= 0; })[0]; }
@@ -1397,7 +1398,7 @@ a{color:var(--sea)}
   var FU = {
     twoSims: ["networks"], reload: ["untilExpiry"], reloadWhy: ["reload"], wifiSpend: ["onlineHome"],
     checkPost: ["officialTell"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
-    whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"], whichOffice: ["scenario"], visitsTook: ["scenario"], missClass: ["scenario"], program: ["faculty"], orgKinds: ["org"], orgRun: ["org"], orgKeep: ["org"], orgWhy: ["org"], orgNone: ["org"]
+    whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"], whichOffice: ["scenario"], visitsTook: ["scenario"], missClass: ["scenario"], reachHard: ["reachWhy"], program: ["faculty"], orgKinds: ["org"], orgRun: ["org"], orgKeep: ["org"], orgWhy: ["org"], orgNone: ["org"]
   };
   /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
      around only for those who rent, and which data ran out only for those whose load includes app-only data (D-129, D-130). */
@@ -1862,7 +1863,6 @@ a{color:var(--sea)}
   /* Your form: the monitor fills, the form is printed and handed to you. */
   /* The monitor shows the form being filled in: its four lines, each typed as its question is answered (owner, 23 October 2026). */
   var CARD = ["year", "program", "residence", "scholar"];
-  var PASS_KEYS = ["year", "faculty", "residence", "support"];
   function filled(k) { return Array.isArray(A[k]) ? A[k].length > 0 : A[k] !== null; }
   function short(key) {
     var v = A[key];
@@ -1881,7 +1881,13 @@ a{color:var(--sea)}
     return v;
   }
   /* A line left blank on the form reads Prefer not to say (owner, 23 October 2026). */
-  function cardText(k) { var t = short(k); return t === "Skipped" ? "Prefer not to say" : t; }
+  /* A line stays blank until its question is answered, and reads Prefer not to say once it is skipped, or when the form prints. */
+  var CARD_ASKS = { year: ["year"], program: ["faculty", "program"], residence: ["home"], scholar: ["support"] };
+  function cardText(k) {
+    var t = short(k);
+    if (t !== "Skipped") return t;
+    return printed || CARD_ASKS[k].some(function (id) { return passSkipped[stepById[id].key]; }) ? "Prefer not to say" : "";
+  }
   function fillCard() {
     var card = $("#passcard"), svg = $(".scene", boxEls.pass);
     CARD.forEach(function (k, i) {
@@ -1898,13 +1904,14 @@ a{color:var(--sea)}
   function passType() { if (!calm()) replay($(".scene", boxEls.pass), "typing"); }
   function passReact(key) {
     var box = boxEls.pass, svg = $(".scene", box);
-    PASS_KEYS.forEach(function (k, i) {
-      var bar = $('[data-bar="' + i + '"]', svg);
-      bar.classList.toggle("on", filled(k));
-      bar.classList.toggle("skip", !filled(k) && !!passSkipped[k]);
+    fillCard();
+    /* A monitor line is typed once its answer is in, and greys out as Prefer not to say once skipped. */
+    CARD.forEach(function (k, i) {
+      var bar = $('[data-bar="' + i + '"]', svg), t = cardText(k);
+      bar.classList.toggle("on", !!t && t !== "Prefer not to say");
+      bar.classList.toggle("skip", t === "Prefer not to say");
     });
     if (key) passType();
-    fillCard();
     if (key === "familyVSU" && !printed) printPass();
   }
   /* Leaving Your form's last question prints the form if it hasn't been, and waits until it has left her hands. */

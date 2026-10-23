@@ -109,7 +109,8 @@ async function walkAll(page, shot, dorm) {
   await one(page, "faculty", "Faculty of Engineering", shot);
   await at(page, "program", shot);
   assert.strictEqual(await page.locator(inStep("program", ".kicker")).textContent(), "Follow-upProgram");
-  assert.deepStrictEqual(await offered(page, "program"), ["BS Agricultural and Biosystems Engineering", "BS Civil Engineering", "BS Geodetic Engineering", "BS Mechanical Engineering", "BS Meteorology"], "only the faculty's own Main Campus programs");
+  assert.deepStrictEqual(await offered(page, "program"), ["BS Agricultural and Biosystems Engineering", "BS Civil Engineering", "BS Geodetic Engineering", "BS Mechanical Engineering"], "only the faculty's own Main Campus programs, with Meteorology under Natural and Mathematical Sciences");
+  assert.strictEqual(await page.locator('#passcard [data-f="program"]').textContent(), "", "the program line stays blank until the program is answered or skipped");
   assert.strictEqual(await page.locator(inStep("program", ".recap .ra")).textContent(), "Faculty of Engineering", "a follow-up keeps the answer it follows in view");
   await page.click(btn("program", "BS Mechanical Engineering"));
   await at(page, "home", shot);
@@ -259,7 +260,7 @@ async function walkAll(page, shot, dorm) {
   assert.strictEqual(await page.locator(inStep("reachWhy", "h2")).textContent(), "Why have you needed to reach a teacher or staff member outside class?", "why, not how");
   await many(page, "reachWhy", ["A signature or a document", "A question about a lesson"], shot);
   await at(page, "reachHard", shot);
-  assert.strictEqual(await page.locator(inStep("reachHard", ".kicker")).textContent(), "What made it hard", "asked after every reason, so not tagged as a follow-up");
+  assert.strictEqual(await page.locator(inStep("reachHard", ".kicker")).textContent(), "Follow-upWhat made it hard", "a follow-up of the reasons");
   await many(page, "reachHard", ["They didn't reply, or replied days later", "I hesitated to ask"], shot);
   await at(page, "concern", shot);
   const concernOrder = await page.locator(inStep("concern", "[data-v]")).evaluateAll(bs => bs.map(b => b.dataset.v));
@@ -946,8 +947,8 @@ function rowOf(r) {
     await at(t.page, "faculty");
     await t.page.click(btn("faculty", "Faculty of Humanities and Social Sciences"));
     await at(t.page, "program");
-    assert.deepStrictEqual(await t.page.locator(inStep("program", "[data-v]")).evaluateAll(bs => bs.filter(b => !b.hidden).map(b => b.dataset.v)), ["BA English Language Studies", "BS Philosophy"]);
-    await t.page.click(btn("program", "BS Philosophy"));
+    assert.deepStrictEqual(await t.page.locator(inStep("program", "[data-v]")).evaluateAll(bs => bs.filter(b => !b.hidden).map(b => b.dataset.v)), ["BA English Language Studies", "BA Literature", "BA Philosophy"]);
+    await t.page.click(btn("program", "BA Philosophy"));
     await t.page.evaluate(() => window.__survey.go("faculty"));
     await at(t.page, "faculty");
     await t.page.click(btn("faculty", "Faculty of Nursing"));
@@ -962,8 +963,9 @@ function rowOf(r) {
     assert.strictEqual(await t.page.locator(btn("program", "Another program")).count(), 0, "no Another program");
     await t.page.evaluate(() => window.__survey.go("faculty"));
     await at(t.page, "faculty");
-    await t.page.click(btn("faculty", "Faculty of Forestry and Environmental Science"));
-    assert.strictEqual((await ans()).program, "BS Forestry", "Main Campus programs only, so Forestry has one");
+    await t.page.click(btn("faculty", "Faculty of Natural and Mathematical Sciences"));
+    await at(t.page, "program");
+    assert.deepStrictEqual(await t.page.locator(inStep("program", "[data-v]")).evaluateAll(bs => bs.filter(b => !b.hidden).map(b => b.dataset.v)), ["BS Agricultural Chemistry", "BS Applied Physics", "BS Biology", "BS Biotechnology", "BS Chemistry", "BS Mathematics", "BS Meteorology", "BS Statistics"]);
     // One org follow-up for each level of involvement, and kinds of orgs for members only
     await t.page.evaluate(() => window.__survey.go("org"));
     await at(t.page, "org");
