@@ -175,7 +175,7 @@ async function walk(page, o = {}) {
     await walk(o.page); await o.page.waitForTimeout(200);
     assert.strictEqual(o.posts.length, 0);
     await o.ctx.close();
-    o = await open(browser, { html: HTML.replace("var OPEN = false;", "var OPEN = true;") });
+    o = await open(browser, { html: HTML.replace("var OPEN = false;", "var OPEN = true;").replace(/var ENDPOINT = "[^"]*";/, 'var ENDPOINT = "";') });
     await walk(o.page); await o.page.waitForTimeout(200);
     assert.strictEqual(o.posts.length, 0, "an empty ENDPOINT sends nothing");
     await o.ctx.close();
