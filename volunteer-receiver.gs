@@ -25,7 +25,10 @@
  * rows three months old, and test rows a day old. Run purge() by hand to delete them at once.
  *
  * Privacy: Apps Script gives this script no IP address or other identifier of the sender, and the
- * script stores none. Never copy these rows into the survey's sheet, the repositories, or interview
+ * script stores none. The survey's last screen leads here, so a sign-up often arrives seconds after
+ * that student's survey answer. To keep the two from being matched (D-143), this sheet keeps only
+ * the day of signing up, never the time, and puts each new row at a random place, not at the bottom.
+ * Never set the two sheets side by side to match them. Never copy these rows into the survey's sheet, the repositories, or interview
  * notes (D-086); notes carry a number, never a name.
  */
 
@@ -45,7 +48,7 @@ var ORG = ["An officer or leader", "An active member", "A member, but I rarely t
 var FREE = ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekends"];
 
 function headers_() {
-  return ["receivedAt", "deleteBy", "test", "name", "contact", "year", "faculty", "residence", "org", "free", "interviewDone"];
+  return ["signedUpOn", "deleteBy", "test", "name", "contact", "year", "faculty", "residence", "org", "free", "interviewDone"];
 }
 
 /* A value a sheet would read as a formula is kept as text. */
@@ -54,6 +57,12 @@ function cell_(v, max) {
   var s = String(v).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max || 120);
   return /^[=+\-@]/.test(s) ? "'" + s : s;
 }
+
+/* The day in the Philippines (UTC+8), as 2026-10-25, with no time. */
+function day_(d) { return new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10); }
+
+/* Where a new row goes: after a random one of the rows there, so the order of rows says nothing about when each came. */
+function slot_(last, rand) { return 1 + Math.floor(rand * Math.max(last, 1)); }
 
 function pick_(v, list) { return list.indexOf(v) >= 0 ? v : ""; }
 
@@ -64,7 +73,7 @@ function picks_(v, list) {
 
 function row_(r, now) {
   var deleteBy = new Date(now.getTime() + (r.test === true ? KEEP_TEST_DAYS : KEEP_DAYS) * 86400000);
-  return [now.toISOString(), deleteBy.toISOString().slice(0, 10), r.test === true,
+  return [day_(now), day_(deleteBy), r.test === true,
     cell_(r.name, 60), cell_(r.contact, 120),
     pick_(r.year, YEARS), pick_(r.faculty, FACULTIES), pick_(r.residence, RESIDENCE), pick_(r.org, ORG), picks_(r.free, FREE),
     false];
@@ -83,7 +92,7 @@ function refusal_(r) {
 
 /* Which rows the clean-up deletes, counted from the bottom so deleting doesn't shift the rest. */
 function expired_(values, now) {
-  var h = headers_(), at = h.indexOf("receivedAt"), test = h.indexOf("test"), done = h.indexOf("interviewDone"), out = [];
+  var h = headers_(), at = h.indexOf("signedUpOn"), test = h.indexOf("test"), done = h.indexOf("interviewDone"), out = [];
   for (var i = values.length - 1; i >= 1; i--) {
     var v = values[i], got = new Date(v[at]), age = (now.getTime() - got.getTime()) / 86400000;
     if (v[done] === true || isNaN(age) || age >= KEEP_DAYS || (v[test] === true && age >= KEEP_TEST_DAYS)) out.push(i + 1);
@@ -101,8 +110,10 @@ function doPost(e) {
     if (why) return reply_({ ok: false, error: why });
     lock.waitLock(10000);
     var sh = sheet_();
-    sh.appendRow(row_(r, new Date()));
-    sh.getRange(sh.getLastRow(), headers_().indexOf("interviewDone") + 1).insertCheckboxes();
+    var row = row_(r, new Date()), after = slot_(sh.getLastRow(), Math.random());
+    sh.insertRowAfter(after);
+    sh.getRange(after + 1, 1, 1, row.length).setValues([row]);
+    sh.getRange(after + 1, headers_().indexOf("interviewDone") + 1).insertCheckboxes();
     return reply_({ ok: true });
   } catch (err) {
     return reply_({ ok: false, error: "could not save" });
@@ -147,5 +158,5 @@ function setup() {
   Logger.log("Ready. Deploy this script as a web app, then put its URL in volunteer.html's ENDPOINT.");
 }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, expired_: expired_,
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, day_: day_, slot_: slot_, cell_: cell_, refusal_: refusal_, expired_: expired_,
   YEARS: YEARS, FACULTIES: FACULTIES, RESIDENCE: RESIDENCE, ORG: ORG, FREE: FREE, KEEP_DAYS: KEEP_DAYS };

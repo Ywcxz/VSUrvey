@@ -403,7 +403,7 @@ pre.payload{white-space:pre-wrap;font-size:12px;background:var(--tile);padding:1
   /* ---------- Sending ---------- */
   function record() {
     return {
-      form: FORM, version: FORM_VERSION, test: TEST, sentAt: new Date().toISOString(),
+      form: FORM, version: FORM_VERSION, test: TEST,
       consent: A.consent === true, age18: A.consent === true,
       name: String(A.name).trim(), contact: String(A.contact).trim(),
       year: A.year, faculty: A.faculty, residence: A.residence, org: A.org, free: A.free.slice()
