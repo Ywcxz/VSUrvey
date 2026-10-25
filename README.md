@@ -3,14 +3,25 @@
 VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, an interactive page of drawn scenes (D-037). Version `since-v1` asks about each problem in the respondent's time at VSU, which the first screen names once, with all that have happened picked, in place of how often and how serious (D-038, as proposed for revision; owner, 23 October 2026). It is one walk in the order of `scenes-v3`, and long by choice: the first screen says it takes 20 to 25 minutes, and any question can be skipped (owner, 23 October 2026).
 
 - `index.html` is the whole survey: one self-contained page.
-- `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet and keeps the separate interview-volunteer form up to date. Its first lines say how to set it up or update it.
-- `tests/` walks the survey in a headless browser with made-up answers and checks what it would send: `cd tests && npm install && npm test`.
+- `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet. Its first lines say how to set it up or update it.
+- `volunteer.html` is the interview sign-up, in the survey's look, linked from the survey's last screen. It is its own page, so it can be shared on its own too.
+- `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers (D-039; D-143, proposed). It deletes each sign-up once the interview is ticked as done, or three months after signing up (D-111). It replaces the Google Form the survey's script used to build.
+- `tests/` walks the survey and the sign-up in a headless browser with made-up answers and checks what they would send: `cd tests && npm install && npm test`. `npm run test:volunteer` runs only the sign-up's checks.
 
 ## Before the survey opens
 
-The page ships closed. Near the top of the script in `index.html`, `OPEN` is `false`, so even the live address sends nothing. Set it to `true` only once VSU's permission to run the survey is in hand (D-083).
+The page ships closed. Near the top of the script in `index.html`, `OPEN` is `false`, so even the live address sends nothing. Set it to `true` only once VSU's permission to run the survey is in hand (D-083). `volunteer.html` has its own `OPEN`, also `false`, for the interviews; it also sends nothing until its `ENDPOINT` holds the sign-up receiver's address.
 
-To check that answers reach the sheet before then, open the live address with `?test=1` added. That answer is marked as a test; delete it from the sheet afterward.
+To check that answers reach the sheet before then, open the live address with `?test=1` added. That answer is marked as a test; delete it from the sheet afterward. The survey's last screen passes `?test=1` on to the sign-up, whose test rows delete themselves a day later.
+
+### Going live, step by step
+
+1. **Survey receiver.** In the survey's Apps Script, paste the current `survey-receiver.gs`, run `setup()`, then Deploy > Manage deployments > edit > Version: New version > Deploy. The URL in `ENDPOINT` stays the same.
+2. **Sign-up receiver.** Make a new, separate Google Sheet, paste `volunteer-receiver.gs` into its Apps Script, run `setup()`, and deploy it as a web app (Execute as: Me; Who has access: Anyone). Its URL goes in `volunteer.html`'s `ENDPOINT` through a pull request.
+3. **Retire the Google Form.** In the old interview-volunteer form, turn off "Accepting responses", and delete any responses it holds once those volunteers are contacted or three months have passed (D-111).
+4. **Test.** Open the live survey with `?test=1`, send, follow the sign-up link, and sign up. Check that one row reaches "Responses since" and one reaches "Sign-ups", in their separate sheets. Delete the survey's test row.
+5. **Finish the checklist below**, including the pilot and the timed run-throughs.
+6. **Open.** Once VSU's written permission is in hand, a pull request sets `OPEN = true` in `index.html`, and in `volunteer.html` if the permission covers the interviews.
 
 The protocol the survey follows, and the problem each question bears on, are in Chapter 8 of the master document.
 
@@ -25,7 +36,8 @@ Tick every item before `OPEN` becomes `true`. "Tests" means `npm test` checks it
 - [ ] A respondent can go back and change an answer, and the parts menu shows progress. (Tests)
 - [ ] Nothing is sent while `OPEN` is `false`, except answers marked as tests; previews never send. The Send screen sends one record. (Tests)
 - [ ] Test answers are marked and are deleted from the sheet before analysis. (By hand)
-- [ ] Interview sign-ups go to the separate form, never into the survey sheet. (By hand)
+- [ ] Interview sign-ups go to the sign-up's own sheet, never into the survey sheet, and nothing in a sign-up ties it to a survey answer. (Tests; the two separate sheets by hand)
+- [ ] The sign-up receiver's daily clean-up is installed (`setup()`), and the old Google Form no longer accepts responses. (By hand)
 - [ ] Comments are never quoted, and a comment that shows its writer is under 18 removes the whole record. (By hand)
 - [ ] With reduced motion on, nothing moves on by itself and the walk still works. (Tests)
 - [ ] A pilot of at least 5 students checks the wording, auto-advance (did anyone feel rushed, or move on by accident?), the since-you-started questions (do students read "pick all that have happened" as covering their whole time at VSU, without the period in each question?), the "More below" sign on phones, and the length (where did anyone stop, or start skipping?). (By hand)

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E4D3A">
+<meta name="robots" content="noindex">
+<meta name="description" content="Sign up for a 30-minute interview about student life at VSU Main Campus, for Project CAMPUS, an independent proposal. Not an official VSU study.">
+<title>VSUrvey: Interview sign-up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,300..800&display=swap" rel="stylesheet">
+<style>
+/* The interview sign-up, in the survey's look (index.html): the same colors, type, answers, and bottom bar.
+   It is a page of its own with its own receiver (volunteer-receiver.gs), so contact details never meet survey answers (D-039). */
+:root{
+  --ink:#13261D; --ink-soft:#4A5E53; --card:#FFFFFF; --edge:rgba(19,38,29,.14);
+  --tile:#EEF4F0; --tile-ink:#13261D; --on:#1E4D3A; --on-ink:#FFFFFF; --pick:#FFF3D1;
+  --mango:#F2B33D; --gumamela:#D9483B; --sea:#1F7A8C; --leaf:#1E4D3A;
+  --shadow:0 18px 40px rgba(12,40,26,.22);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --bg:#1E4D3A; --scene-ink:#F4F8F5; --stage-h:30vh;
+  --table:#C98A4B; --table-top:#E0A867; --stool:#7A4E2A; --ground:rgba(255,255,255,.12); --cup1:#F7FBF8; --cup2:#9ED1DB;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8F1EB; --ink-soft:#AFC2B6; --card:#13221B; --edge:rgba(232,241,235,.16);
+    --tile:#1C2F26; --tile-ink:#E8F1EB; --on:#F2B33D; --on-ink:#13261D; --pick:#3A3420; --shadow:0 18px 40px rgba(0,0,0,.5);
+    --bg:#123326;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8F1EB; --ink-soft:#AFC2B6; --card:#13221B; --edge:rgba(232,241,235,.16);
+  --tile:#1C2F26; --tile-ink:#E8F1EB; --on:#F2B33D; --on-ink:#13261D; --pick:#3A3420; --shadow:0 18px 40px rgba(0,0,0,.5);
+  --bg:#123326;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+button,a,input{touch-action:manipulation}
+:focus-visible{outline:3px solid var(--mango);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Shell ---------- */
+.app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.bar{flex:none;height:50px;display:flex;align-items:center;gap:10px;padding:0 12px;z-index:5}
+.chap{display:flex;align-items:center;gap:10px;min-height:40px;padding:6px 12px 6px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:var(--scene-ink);font:650 14px/1 var(--display);min-width:0}
+.chname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dots{display:flex;gap:4px;align-items:center;flex:none}
+.dots i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;opacity:.32;transition:width .3s,opacity .3s}
+.dots i.done{opacity:.8}
+.dots i.now{width:18px;opacity:1}
+.flag{margin-left:auto;font:650 12.5px/1.2 var(--body);color:var(--scene-ink);background:rgba(0,0,0,.18);padding:6px 10px;border-radius:999px;white-space:nowrap}
+@media (max-width:480px){ .flag .rest{display:none} .dots{gap:3px} .dots i{width:6px;height:6px} .dots i.now{width:14px} }
+.view{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+.stage{position:relative;flex:none;height:var(--stage-h);transition:height .35s ease;display:flex;align-items:center;justify-content:center;padding:0 10px 8px}
+.stage>svg{display:block;width:100%;height:100%;max-width:560px;overflow:visible}
+.view[data-size="short"]{--stage-h:20vh}
+@media (max-height:720px){ .view{--stage-h:24vh} .view[data-size="short"]{--stage-h:15vh} }
+.sheet{position:relative;flex:1;min-height:0;background:var(--card);color:var(--ink);border-radius:28px 28px 0 0;box-shadow:var(--shadow)}
+.panel{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:22px 18px calc(100px + env(safe-area-inset-bottom,0px));scrollbar-width:thin}
+.panel-in{max-width:620px;margin:0 auto}
+.panel-in.enter-r{animation:inR .32s cubic-bezier(.2,.8,.3,1)}
+.panel-in.enter-l{animation:inL .32s cubic-bezier(.2,.8,.3,1)}
+@keyframes inR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+.sheet::after{content:"";position:absolute;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--card) 62%);pointer-events:none}
+
+/* ---------- Text and answers ---------- */
+.kicker{font:650 13.5px/1.2 var(--display);color:var(--ink-soft);margin:0 0 6px}
+.kicker .opt{display:inline-block;margin:0 0 0 6px;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink-soft);font:700 11.5px/1.35 var(--display);vertical-align:1px}
+.prompt{font:700 clamp(21px,5.6vw,27px)/1.12 var(--display);font-variation-settings:"opsz" 48;letter-spacing:-.012em;margin:0 0 6px;max-width:30ch}
+.prompt:focus{outline:none}
+.prompt:focus-visible{outline:3px solid var(--mango);outline-offset:4px;border-radius:6px}
+.lede{font-size:15.5px;color:var(--ink-soft);margin:0 0 14px;max-width:52ch}
+.note{font-size:14px;color:var(--ink-soft);margin:12px 0 0}
+.note a,.letter a{color:inherit;font-weight:700;white-space:nowrap}
+.letter p{margin:0 0 10px;max-width:60ch;font-size:15.5px}
+.letter .sign{font:700 15px/1.2 var(--display);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.col{flex-direction:column;align-items:stretch}
+.chips.col .chip{text-align:left;border-radius:16px}
+@media (min-width:700px){ .chips.two{display:grid;grid-template-columns:1fr 1fr} .chips.two .chip{text-align:left;border-radius:16px} }
+.chip{position:relative;padding:10px 15px;border-radius:999px;border:1.5px solid var(--edge);background:var(--tile);color:var(--tile-ink);min-height:44px;cursor:pointer;font-size:15.5px;line-height:1.2;transition:background .2s,color .2s,border-color .2s,transform .12s}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed="true"]{background:var(--on);color:var(--on-ink);border-color:transparent}
+.field{width:100%;font:inherit;font-size:17px;padding:13px 15px;border-radius:14px;border:1.5px solid var(--edge);background:var(--tile);color:var(--tile-ink)}
+.field::placeholder{color:var(--ink-soft);opacity:.8}
+.field:focus{outline:none;border-color:var(--mango);box-shadow:0 0 0 3px rgba(242,179,61,.35)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 16px/1 var(--body);padding:16px 24px;border-radius:999px;border:0;background:var(--on);color:var(--on-ink);cursor:pointer;min-height:52px;text-decoration:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.sendrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.consent-list{margin:2px 0 10px;padding:0 0 0 18px;font-size:14.5px;line-height:1.36;max-width:62ch}
+.consent-list li{margin:0 0 5px;padding-left:2px}
+.consent-list li::marker{color:var(--sea)}
+.consent-list a{font-weight:700;white-space:nowrap;color:inherit}
+.agree{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-top:6px;padding:12px 14px;border-radius:18px;border:2px dashed var(--ink-soft);background:var(--tile);color:var(--tile-ink);cursor:pointer;font:650 16px/1.3 var(--display)}
+.agree .box2{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--ink-soft);display:grid;place-items:center}
+.agree .box2 svg{width:20px;height:20px;opacity:0}
+.agree[aria-pressed="true"]{border-style:solid;border-color:var(--mango);background:var(--pick)}
+.agree[aria-pressed="true"] .box2{background:var(--mango);border-color:var(--mango)}
+.agree[aria-pressed="true"] .box2 svg{opacity:1}
+.nudge-me{animation:nudgeMe .6s ease-in-out 2}
+@keyframes nudgeMe{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.agree.nudge-me,.field.nudge-me{box-shadow:0 0 0 4px rgba(242,179,61,.6)}
+.warn{color:var(--gumamela);font-weight:700}
+/* The Send screen lists what will be sent, so a typo in the contact can be caught. */
+.slip{margin:4px 0 0;padding:4px 0;border-top:1px solid var(--edge)}
+.slip div{display:grid;grid-template-columns:minmax(96px,34%) 1fr auto;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--edge)}
+.slip dt{font:650 13.5px/1.25 var(--display);color:var(--ink-soft)}
+.slip dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.slip dd.empty{font-weight:400;color:var(--ink-soft)}
+@media (max-width:699px){ .slip div{padding:6px 0;gap:8px} .slip dt{font-size:12.5px} .slip dd{font-size:15px} #send{display:none} .sendrow.sending{margin-top:8px} }
+.linkbtn{border:0;background:none;padding:4px 2px;color:var(--sea);font:700 14px/1 var(--body);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+pre.payload{white-space:pre-wrap;font-size:12px;background:var(--tile);padding:10px;border-radius:12px;max-height:220px;overflow:auto}
+
+/* ---------- Bottom bar ---------- */
+.nav{position:fixed;z-index:6;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-user-select:none;user-select:none;font:700 16px/1 var(--body)}
+.nav svg{width:22px;height:22px;flex:none}
+.nav.prev{left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:50%;background:var(--tile);color:var(--tile-ink);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.nav.next{right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));height:54px;min-width:118px;padding:0 18px 0 24px;border-radius:999px;background:var(--tile);color:var(--tile-ink);box-shadow:0 4px 14px rgba(0,0,0,.14);transition:background .25s,color .25s}
+.nav.next.ready{background:var(--mango);color:#13261D}
+.nav.locked{opacity:.45;cursor:default}
+
+/* ---------- The drawing: two stools at a table, and what is being talked about ---------- */
+.bubble{transition:transform .35s cubic-bezier(.3,1.5,.5,1),opacity .25s;transform-origin:262px 96px}
+.bubble.pop{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.steam{animation:steam 3s ease-in-out infinite;opacity:.6}
+@keyframes steam{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-4px);opacity:.7}}
+@media (prefers-reduced-motion:reduce){ .panel-in.enter-r,.panel-in.enter-l,.bubble.pop,.steam,.nudge-me{animation:none} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <div class="chap"><span class="chname">Interview sign-up</span><span class="dots" id="dots" aria-hidden="true"></span></div>
+    <span class="flag" id="flag" hidden></span>
+  </header>
+  <main class="view" id="view">
+    <div class="stage" aria-hidden="true">
+      <svg viewBox="0 0 400 210" id="scene">
+        <ellipse cx="200" cy="192" rx="170" ry="12" fill="var(--ground)"/>
+        <!-- stools -->
+        <g fill="var(--stool)"><rect x="70" y="150" width="56" height="10" rx="5"/><rect x="80" y="158" width="7" height="34" rx="3"/><rect x="109" y="158" width="7" height="34" rx="3"/>
+          <rect x="274" y="150" width="56" height="10" rx="5"/><rect x="284" y="158" width="7" height="34" rx="3"/><rect x="313" y="158" width="7" height="34" rx="3"/></g>
+        <!-- table -->
+        <rect x="190" y="132" width="20" height="60" rx="4" fill="var(--table)"/>
+        <rect x="150" y="186" width="100" height="8" rx="4" fill="var(--table)"/>
+        <ellipse cx="200" cy="130" rx="66" ry="11" fill="var(--table-top)"/>
+        <!-- cups -->
+        <g><path d="M168 108h20l-3 18h-14Z" fill="var(--cup1)"/><path d="M188 112h4a4 4 0 0 1 0 8h-5" fill="none" stroke="var(--cup1)" stroke-width="2.5"/>
+          <path class="steam" d="M174 102c-3-4 3-6 0-10M181 102c-3-4 3-6 0-10" fill="none" stroke="var(--scene-ink)" stroke-width="2" stroke-linecap="round"/></g>
+        <g><path d="M212 110h18l-2.5 16h-13Z" fill="var(--cup2)"/><path d="M230 114h3.5a3.5 3.5 0 0 1 0 7h-4.5" fill="none" stroke="var(--cup2)" stroke-width="2.5"/></g>
+        <!-- what the talk is about -->
+        <g class="bubble" id="bubble">
+          <path d="M236 30h92a14 14 0 0 1 14 14v38a14 14 0 0 1-14 14h-52l-18 14 4-14h-26a14 14 0 0 1-14-14V44a14 14 0 0 1 14-14Z" fill="var(--scene-ink)"/>
+          <g id="topic" transform="translate(264 37) scale(2.2)" fill="none" stroke="var(--leaf)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></g>
+        </g>
+        <g fill="var(--mango)"><circle cx="58" cy="60" r="5"/><circle cx="352" cy="128" r="4"/><circle cx="128" cy="40" r="3"/></g>
+      </svg>
+    </div>
+    <div class="sheet"><div class="panel" id="panel"><div class="panel-in" id="panel-in"></div></div></div>
+  </main>
+</div>
+<button type="button" class="nav prev" id="prev" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+<button type="button" class="nav next" id="next"><span id="next-lbl">Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+<p class="sr" id="live" aria-live="polite"></p>
+<script>
+(function () {
+  "use strict";
+  /* ---------- Settings ---------- */
+  var ENDPOINT = "";  // the web app URL of volunteer-receiver.gs, its own Apps Script and private sheet, never the survey's
+  var PRODUCTION_HOSTS = ["project-campus-vsurvey.vercel.app", "istorya-sa-vsu.vercel.app"];  // sign-ups are sent only from these addresses
+  var CONTACT_PHONE = "09491171548";  // the researcher's number, as on the survey's consent screen (D-110)
+  var FORM = "volunteer";
+  var FORM_VERSION = "v1";
+  var OPEN = false;  // set to true only once VSU's permission to run the interviews is in hand (D-083); until then only ?test=1 sign-ups are sent
+
+  var doc = document;
+  function $(s, r) { return (r || doc).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || doc).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var params = (function () { try { return new URLSearchParams(location.search); } catch (e) { return null; } })();
+  var TEST = !!(params && params.get("test") === "1");
+  var ON_PRODUCTION = PRODUCTION_HOSTS.indexOf(location.hostname) >= 0;
+  var LIVE = /^https:\/\/script\.google\.com\//.test(ENDPOINT) && ON_PRODUCTION && (OPEN || TEST);
+  var mqReduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  function calm() { return !!(mqReduce && mqReduce.matches); }
+  var TOUCH = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+  var TAP = TOUCH ? "Tap" : "Click";
+  var mqPhone = window.matchMedia ? window.matchMedia("(max-width: 699px)") : null;
+  function onPhone() { return !!(mqPhone && mqPhone.matches); }
+  var PHONE_TEXT = CONTACT_PHONE.replace(/^(\d{4})(\d{3})(\d{4})$/, "$1 $2 $3");
+  var PHONE_HREF = "tel:+63" + CONTACT_PHONE.replace(/^0/, "");
+
+  var ICON = {
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    chat: '<path d="M4 4.5h10a2 2 0 0 1 2 2v5.5a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2Z"/><path d="M18.5 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-.5v2.5L16 18h-4"/>',
+    shield: '<path d="M12 3.5 19 6.5v5c0 4.5-3 7.5-7 9.5-4-2-7-5-7-9.5v-5Z"/><path d="M9 12l2 2 4-4"/>',
+    wave: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12m0-6.5a1.5 1.5 0 0 1 3 0V12m0-5a1.5 1.5 0 0 1 3 0v6.5c0 4-2.6 7-6.5 7-2.6 0-4-1.2-5.3-3.2L3.6 13.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/>',
+    phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+    book: '<path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5Z"/><path d="M12 6v13.5"/>',
+    hall: '<path d="M3 9.5 12 4l9 5.5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>',
+    house: '<path d="M3.5 11 12 4l8.5 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/>',
+    group: '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 19c.8-3 2.8-4.5 5.5-4.5s4.7 1.5 5.5 4.5M10.5 19c.8-3 2.8-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    send: '<path d="M3.5 11.5 20 4l-6 16-3.2-6.8Z"/><path d="M10.8 13.2 20 4"/>'
+  };
+  function icon(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[n] + "</svg>"; }
+
+  /* The options match the survey's own (index.html), so the two read alike. */
+  var YEARS = ["1st", "2nd", "3rd", "4th", "5th or higher"];
+  var FACULTIES = ["Agriculture and Food Science", "Computing", "Engineering", "Forestry and Environmental Science", "Humanities and Social Sciences",
+    "Management and Economics", "Natural and Mathematical Sciences", "Nursing", "Teacher Education", "Veterinary Medicine"];
+  var RESIDENCE = ["An on-campus dorm", "A boarding house or apartment near campus", "My family's home, and I commute", "A relative's or friend's house", "Somewhere else"];
+  var ORG = ["An officer or leader", "An active member", "A member, but I rarely take part", "Not a member of any"];
+  var FREE = ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekends"];
+
+  var A = { consent: false, name: "", contact: "", year: null, faculty: null, residence: null, org: null, free: [] };
+  var OPTIONAL = "Optional";
+  var STEPS = [
+    { id: "intro", topic: "chat", size: "tall" },
+    { id: "consent", topic: "shield", kicker: "Before you sign up" },
+    { id: "name", topic: "wave", kind: "text", key: "name", max: 60, auto: "nickname", kicker: "About you",
+      prompt: "What should I call you?", lede: "A first name or a nickname is enough.", ph: "Your first name or nickname" },
+    { id: "contact", topic: "phone", kind: "text", key: "contact", max: 120, auto: "off", kicker: "About you",
+      prompt: "How can I reach you?", lede: "A mobile number, a Messenger name, or an email address. It's used only to set a time.", ph: "Number, Messenger name, or email" },
+    { id: "year", topic: "book", kind: "one", key: "year", opts: YEARS, optional: true, kicker: "So I talk with a mix of students",
+      prompt: "What's your year level?", lede: "This and the next three are optional. They help me talk with students from different years, faculties, and situations." },
+    { id: "faculty", topic: "hall", kind: "one", key: "faculty", opts: FACULTIES, optional: true, col: "two", kicker: "So I talk with a mix of students",
+      prompt: "Which faculty is your program in?" },
+    { id: "residence", topic: "house", kind: "one", key: "residence", opts: RESIDENCE, optional: true, col: "one", kicker: "So I talk with a mix of students",
+      prompt: "Where do you currently reside?" },
+    { id: "org", topic: "group", kind: "one", key: "org", opts: ORG, optional: true, col: "one", kicker: "So I talk with a mix of students",
+      prompt: "How involved are you in student orgs you chose to join?", lede: "Don't count the USSC, since every student is part of it." },
+    { id: "free", topic: "clock", kind: "many", key: "free", opts: FREE, optional: true, kicker: "Setting a time",
+      prompt: "When are you usually free?", lede: "Pick all that apply. We'll agree on the exact time when I message you." },
+    { id: "send", topic: "send", kicker: "Last step", size: "short" },
+    { id: "done", topic: "check", size: "tall" }
+  ];
+  var LABELS = { name: "Call you", contact: "Reach you at", year: "Year level", faculty: "Faculty", residence: "Resides in", org: "In student orgs", free: "Usually free" };
+  var at = 0, sending = false, sent = false, advanceTimer = 0;
+  function cur() { return STEPS[at]; }
+  function indexOf(id) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].id === id) return i; return -1; }
+  function filled(k) { return String(A[k] || "").trim().length > 0; }
+  /* Only the agreement, a name, and a way to reach the student are needed; everything else can be skipped. */
+  function blocked(s) {
+    if (s.id === "consent") return !A.consent;
+    if (s.kind === "text") return !filled(s.key);
+    return false;
+  }
+  function missing() { return ["name", "contact"].filter(function (k) { return !filled(k); }); }
+
+  /* ---------- Rendering ---------- */
+  var RENDER = {
+    intro: function () {
+      return '<h1 class="prompt" tabindex="-1">Sign up for an interview</h1><div class="letter">' +
+        "<p>Thank you for offering to talk. I'm Leo M. Subingsubing, a VSU alumnus. For Project CAMPUS, an independent proposal, I'd like to hear how student life at VSU Main Campus has gone for you, in a 30-minute interview. It is not an official VSU study.</p>" +
+        "<p>This sign-up is separate from the survey, so your name never meets your survey answers. You don't need to have taken the survey to sign up.</p>" +
+        '<p class="sign">Project CAMPUS</p></div>' +
+        '<div class="sendrow"><button type="button" class="btn" id="start">Start</button><span class="note" style="margin:0">It takes about 2 minutes.</span></div>';
+    },
+    consent: function (s) {
+      return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" tabindex="-1">How your details are kept</h2><ul class="consent-list">' +
+        "<li>What you give here, your name, your contact, and any optional answers, is used only to arrange the interview, and only I see it.</li>" +
+        "<li>It's kept in a private Google Sheet, apart from the survey's answers, and deleted once your interview is done, or three months after you sign up if we don't get to talk.</li>" +
+        '<li>Signing up doesn\'t commit you. Change your mind any time: text <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a> and I'll delete your details.</li></ul>" +
+        '<button type="button" class="agree" id="agree" aria-pressed="' + A.consent + '"><span class="box2">' + icon("check") + "</span><span>I'm a current VSU Main Campus undergraduate student, I'm 18 or older, and I agree to be contacted about an interview.</span></button>";
+    },
+    text: function (s) {
+      return head(s) + '<input class="field" id="field" type="text" maxlength="' + s.max + '" autocomplete="' + s.auto + '" placeholder="' + esc(s.ph) + '" aria-label="' + esc(s.prompt) + '" value="' + esc(A[s.key]) + '">' +
+        '<p class="note" id="need" hidden>This one is needed to set a time.</p>';
+    },
+    one: function (s) {
+      return head(s) + '<div class="chips' + (s.col === "two" ? " two" : s.col ? " col" : "") + '" role="group" aria-label="' + esc(s.prompt) + '">' + s.opts.map(function (o) {
+        return '<button type="button" class="chip" data-v="' + esc(o) + '" aria-pressed="' + (A[s.key] === o) + '">' + esc(o) + "</button>";
+      }).join("") + "</div>";
+    },
+    many: function (s) {
+      return head(s) + '<div class="chips" role="group" aria-label="' + esc(s.prompt) + '">' + s.opts.map(function (o) {
+        return '<button type="button" class="chip" data-v="' + esc(o) + '" aria-pressed="' + (A[s.key].indexOf(o) >= 0) + '">' + esc(o) + "</button>";
+      }).join("") + "</div>";
+    },
+    send: function (s) {
+      var gaps = missing();
+      var rows = Object.keys(LABELS).map(function (k) {
+        var v = Array.isArray(A[k]) ? A[k].join(", ") : String(A[k] || "").trim();
+        return '<div><dt>' + esc(LABELS[k]) + "</dt>" + (v ? "<dd>" + esc(v) + "</dd>" : '<dd class="empty">' + (k === "name" || k === "contact" ? '<span class="warn">Needed</span>' : "Skipped") + "</dd>") +
+          '<dd><button type="button" class="linkbtn" data-edit="' + k + '">Edit</button></dd></div>';
+      }).join("");
+      return '<p class="kicker">' + esc(s.kicker) + '</p><h2 class="prompt" tabindex="-1">Ready to send?</h2>' +
+        '<p class="lede">Check your contact, so my message reaches you.</p><dl class="slip">' + rows + "</dl>" +
+        '<div class="sendrow"><button type="button" class="btn" id="send"' + (gaps.length || sent ? " disabled" : "") + ">" + (sent ? "Sent" : "Send") + "</button>" +
+        '<span class="note" id="send-note" style="margin:0">' + (gaps.length ? "Add your " + gaps.map(function (k) { return k === "name" ? "name" : "contact"; }).join(" and ") + " first." : "") + "</span></div>" +
+        '<pre class="payload" id="payload" hidden></pre>';
+    },
+    done: function () {
+      var nm = String(A.name || "").trim();
+      return '<h2 class="prompt" tabindex="-1">Thank you' + (nm ? ", " + esc(nm) : "") + ".</h2>" +
+        '<div class="letter"><p>' + (LIVE ? "I'll message you to set a time." : "This is a preview, so nothing was sent.") + " If you took the survey, your answers there stay separate from your name.</p>" +
+        '<p>Changed your mind? Text <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a> and I'll delete your details.</p>" +
+        '<p class="sign">Leo, Project CAMPUS</p></div>';
+    }
+  };
+  function head(s) {
+    return '<p class="kicker">' + esc(s.kicker) + (s.optional ? '<span class="opt">' + OPTIONAL + "</span>" : "") + '</p><h2 class="prompt" tabindex="-1">' + esc(s.prompt) + "</h2>" +
+      (s.lede ? '<p class="lede">' + esc(s.lede) + "</p>" : "");
+  }
+
+  /* ---------- Moving between steps ---------- */
+  var DOT_STEPS = STEPS.filter(function (s) { return s.id !== "intro" && s.id !== "done"; });
+  $("#dots").innerHTML = DOT_STEPS.map(function () { return "<i></i>"; }).join("");
+  function show(i, dir, focusField) {
+    clearTimeout(advanceTimer);
+    at = i;
+    var s = cur(), box = $("#panel-in");
+    box.innerHTML = (RENDER[s.kind] || RENDER[s.id])(s);
+    box.className = "panel-in" + (dir ? (dir > 0 ? " enter-r" : " enter-l") : "");
+    $("#panel").scrollTop = 0;
+    $("#view").dataset.size = s.size === "tall" ? "" : "short";
+    var b = $("#bubble");
+    $("#topic").innerHTML = ICON[s.topic] || "";
+    b.classList.remove("pop"); void b.getBoundingClientRect(); b.classList.add("pop");
+    var di = DOT_STEPS.indexOf(s);
+    $$("#dots i").forEach(function (d, k) { d.className = k < di ? "done" : k === di ? "now" : ""; });
+    wire(s);
+    nav();
+    var f = $("#field");
+    if (f && focusField !== false && !TOUCH) f.focus();
+    else { var h = $(".prompt", box); if (h && dir) h.focus({ preventScroll: true }); }
+    $("#live").textContent = "";
+  }
+  function nav() {
+    var s = cur(), next = $("#next"), prev = $("#prev");
+    prev.hidden = at === 0 || s.id === "done" || (s.id === "send" && sent);
+    /* On phones Send sits in the bottom bar, where it is always in view, as in the survey. */
+    var sendBar = s.id === "send" && onPhone();
+    next.hidden = s.id === "intro" || s.id === "done" || (s.id === "send" && !sendBar);
+    if (sendBar) {
+      var gaps = missing().length > 0;
+      next.classList.toggle("locked", gaps || sent || sending);
+      next.classList.toggle("ready", !gaps && !sent && !sending);
+      $("#next-lbl").textContent = sent ? "Sent" : sending ? "Sending…" : "Send";
+      return;
+    }
+    var lock = blocked(s);
+    next.classList.toggle("locked", lock);
+    next.setAttribute("aria-disabled", lock ? "true" : "false");
+    var answered = s.kind === "one" ? !!A[s.key] : s.kind === "many" ? A[s.key].length > 0 : s.kind === "text" ? filled(s.key) : s.id === "consent" ? A.consent : false;
+    next.classList.toggle("ready", answered && !lock);
+    $("#next-lbl").textContent = s.optional && !answered ? "Skip" : "Next";
+  }
+  function forward() {
+    var s = cur();
+    if (s.id === "send") { submit(); return; }
+    if (blocked(s)) {
+      var el = s.id === "consent" ? $("#agree") : $("#field");
+      if (el) { el.classList.remove("nudge-me"); void el.offsetWidth; el.classList.add("nudge-me"); }
+      var need = $("#need"); if (need) need.hidden = false;
+      $("#live").textContent = s.id === "consent" ? "Please agree first." : "This one is needed to set a time.";
+      return;
+    }
+    if (at < STEPS.length - 1) show(at + 1, 1);
+  }
+  function back() { if (at > 0 && !(cur().id === "send" && sent)) show(at - 1, -1); }
+  function wire(s) {
+    var start = $("#start");
+    if (start) start.addEventListener("click", function () { show(1, 1); });
+    var agree = $("#agree");
+    if (agree) agree.addEventListener("click", function () { A.consent = !A.consent; agree.setAttribute("aria-pressed", A.consent); nav(); });
+    var f = $("#field");
+    if (f) {
+      f.addEventListener("input", function () { A[s.key] = f.value.slice(0, s.max); var need = $("#need"); if (need && filled(s.key)) need.hidden = true; nav(); });
+      f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); forward(); } });
+    }
+    $$(".chip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var v = c.dataset.v;
+        if (s.kind === "one") {
+          A[s.key] = A[s.key] === v ? null : v;
+          $$(".chip").forEach(function (o) { o.setAttribute("aria-pressed", A[s.key] === o.dataset.v); });
+          nav();
+          /* One answer moves on by itself, as in the survey, unless motion is reduced. */
+          clearTimeout(advanceTimer);
+          if (A[s.key] && !calm()) advanceTimer = setTimeout(function () { if (cur() === s) forward(); }, 520);
+        } else {
+          var i = A[s.key].indexOf(v);
+          if (i >= 0) A[s.key].splice(i, 1); else A[s.key].push(v);
+          c.setAttribute("aria-pressed", i < 0);
+          nav();
+        }
+      });
+    });
+    $$("[data-edit]").forEach(function (b) { b.addEventListener("click", function () { if (!sent) show(indexOf(b.dataset.edit), -1); }); });
+    var send = $("#send");
+    if (send) send.addEventListener("click", submit);
+  }
+
+  /* ---------- Sending ---------- */
+  function record() {
+    return {
+      form: FORM, version: FORM_VERSION, test: TEST, sentAt: new Date().toISOString(),
+      consent: A.consent === true, age18: A.consent === true,
+      name: String(A.name).trim(), contact: String(A.contact).trim(),
+      year: A.year, faculty: A.faculty, residence: A.residence, org: A.org, free: A.free.slice()
+    };
+  }
+  function submit() {
+    if (sent || sending || missing().length || !A.consent) return;
+    var btn = $("#send"), note = $("#send-note"), r = record();
+    function finish() {
+      sending = false; sent = true;
+      btn.textContent = "Sent"; btn.disabled = true; note.textContent = "";
+      if (!LIVE) { var p = $("#payload"); p.textContent = JSON.stringify(r, null, 2); p.hidden = false; }
+      nav();
+      setTimeout(function () { show(indexOf("done"), 1); }, calm() ? 0 : 700);
+    }
+    if (!LIVE) { finish(); return; }
+    sending = true; btn.disabled = true; btn.textContent = "Sending…"; nav();
+    fetch(ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(r) })
+      .then(finish)
+      .catch(function () {
+        sending = false; btn.disabled = false; btn.textContent = "Try again"; nav();
+        note.textContent = "Couldn't send. Check your connection, then " + TAP.toLowerCase() + " Try again.";
+      });
+  }
+
+  $("#next").addEventListener("click", forward);
+  $("#prev").addEventListener("click", back);
+  doc.addEventListener("keydown", function (e) {
+    var t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA");
+    if (typing || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === "ArrowRight" && !$("#next").hidden && cur().id !== "send") forward();
+    else if (e.key === "ArrowLeft" && !$("#prev").hidden) back();
+  });
+
+  function setFlag(short, rest) { var f = $("#flag"); f.innerHTML = esc(short) + '<span class="rest">' + esc(rest) + "</span>"; f.hidden = false; }
+  if (TEST && LIVE) setFlag("Test mode", ": this sign-up is marked as a test");
+  else if (!LIVE && ON_PRODUCTION) setFlag("Not open yet", ": nothing is sent");
+  else if (!LIVE) setFlag("Preview", ": nothing is sent");
+
+  show(0, 0, false);
+  window.__volunteer = { current: function () { return cur().id; }, live: LIVE, answers: A, record: record };
+})();
+</script>
+</body>
+</html>

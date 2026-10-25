@@ -5,7 +5,8 @@ This repository is the Project CAMPUS student survey (D-037), kept apart from th
 ## Never
 
 - Commit survey responses, contact details, or interview notes (D-086).
-- Set `OPEN` to `true`. The owner opens the survey once VSU's permission to run it is in hand (D-083).
+- Set `OPEN` to `true`, in `index.html` or `volunteer.html`. The owner opens the survey and the interview sign-up once VSU's permission is in hand (D-083).
+- Let the survey and the sign-up share a receiver, a sheet, or anything that would tie a sign-up to a survey answer (D-039).
 
 ## Before you push
 
