@@ -6,7 +6,7 @@
  * private Google Sheet, one record for each respondent who sends. Interview
  * sign-ups go elsewhere: volunteer.html posts to volunteer-receiver.gs, its own
  * script in its own spreadsheet, so contact details never touch the survey data
- * (D-143, proposed). The Google Form this script used to build is retired.
+ * (D-143). The Google Form this script used to build is retired.
  *
  * First-time setup
  * 1. Create a Google Sheet in your own account and keep it private.

@@ -5,7 +5,7 @@ VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about stude
 - `index.html` is the whole survey: one self-contained page.
 - `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet. Its first lines say how to set it up or update it.
 - `volunteer.html` is the interview sign-up, in the survey's look, linked from the survey's last screen. It is its own page, so it can be shared on its own too.
-- `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers (D-039; D-143, proposed). It deletes each sign-up once the interview is ticked as done, or three months after signing up (D-111). It replaces the Google Form the survey's script used to build.
+- `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers (D-039, D-143). It deletes each sign-up once the interview is ticked as done, or three months after signing up (D-111). It replaces the Google Form the survey's script used to build.
 - `tests/` walks the survey and the sign-up in a headless browser with made-up answers and checks what they would send: `cd tests && npm install && npm test`. `npm run test:volunteer` runs only the sign-up's checks.
 
 ## Before the survey opens
@@ -32,7 +32,7 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 ### Permission and protocol
 
 - [ ] VSU's written permission to run the survey is in hand, and says whether it covers the interviews and the pilot (D-083). Whether an ethics review is also needed is settled with OVPSAS and VSU's Research Ethics Board (Q-51). (By hand)
-- [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53: which answers count as each problem, and how results are split by year (D-132). All are fixed before any answer is read. The rows it rests on that still await him are confirmed: D-114 (the site ships closed) and D-143 (the sign-up page). (By hand)
+- [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53: which answers count as each problem, and how results are split by year (D-132). All are fixed before any answer is read. D-114 (the site ships closed), which still awaits him, is confirmed. (By hand)
 - [ ] The rules for releasing results (the floor of 10, combinations, free text) are published in Chapter 8. (By hand)
 
 ### The survey page

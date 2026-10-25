@@ -1,6 +1,6 @@
 /**
  * VSUrvey: interview sign-up receiver (volunteer-v1)
- * Project CAMPUS, decisions D-039, D-086, D-111, and D-143 (proposed)
+ * Project CAMPUS, decisions D-039, D-086, D-111, and D-143
  *
  * Receives sign-ups from volunteer.html and appends one row for each to a
  * private Google Sheet of its own. It is a separate script, in a separate
