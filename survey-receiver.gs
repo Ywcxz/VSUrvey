@@ -11,13 +11,13 @@
  * First-time setup
  * 1. Create a Google Sheet in your own account and keep it private.
  * 2. Extensions > Apps Script. Paste this file and save.
- * 3. Run setup() once and approve the permissions. It adds the "Responses since" tab and its header row.
+ * 3. Run setup() once and approve the permissions. It adds the "Responses" tab and its header row.
  * 4. Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.
  * 5. Put the web app URL in the page's ENDPOINT.
  *
  * Updating from an earlier version
  * 1. Replace the old code with this file and save.
- * 2. Run setup(). It adds the "Responses since" tab; earlier tabs are left as they are.
+ * 2. Run setup(). It adds the "Responses" tab; earlier tabs are left as they are.
  * 3. Deploy > Manage deployments > edit the web app > Version: New version > Deploy. The web app URL stays the same.
  *
  * The page posts plain text (no CORS preflight) and cannot read the reply,
@@ -31,7 +31,7 @@
  * When a question or an option changes on the page, change the lists below.
  */
 
-var SHEET_NAME = "Responses since";
+var SHEET_NAME = "Responses";
 var VARIANT = "since";
 var VERSION_PREFIX = "since-v1";
 /* Each problem is asked about since the respondent started at VSU, with all that have happened picked. */
