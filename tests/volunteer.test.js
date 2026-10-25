@@ -95,9 +95,13 @@ async function walk(page, o = {}) {
       assert.strictEqual(row.length, receiver.headers_().length, "the row fits the header");
       assert.strictEqual(row[receiver.headers_().indexOf("free")], "Weekday evenings, Weekends");
       assert.strictEqual(row[receiver.headers_().indexOf("deleteBy")], "2027-01-23", "deleted three months after signing up");
+      /* Only the day is kept, so a sign-up can't be matched to the survey answer sent seconds before it (D-143). */
+      assert.strictEqual(row[receiver.headers_().indexOf("signedUpOn")], "2026-10-25");
+      assert.ok(row.every(c => !/T\d\d:\d\d/.test(String(c))), "no time of day anywhere in the row");
+      assert.strictEqual(receiver.day_(new Date("2026-10-25T17:30:00Z")), "2026-10-26", "the day is the Philippines' day");
       /* Nothing in the record could tie it to a survey answer. */
       const keys = Object.keys(r).sort();
-      assert.deepStrictEqual(keys, ["age18", "consent", "contact", "faculty", "form", "free", "name", "org", "residence", "sentAt", "test", "version", "year"]);
+      assert.deepStrictEqual(keys, ["age18", "consent", "contact", "faculty", "form", "free", "name", "org", "residence", "test", "version", "year"]);
       assert.ok(/I'll message you/.test(await page.textContent("#panel")), "the thank-you says what happens next");
       assert.deepStrictEqual(errors, []);
       await ctx.close();
@@ -207,6 +211,13 @@ async function walk(page, o = {}) {
     assert.ok(!/FormApp/.test(fs.readFileSync(path.join(__dirname, "..", "survey-receiver.gs"), "utf8")), "the survey's receiver no longer builds a form");
   });
 
+  await check("a new sign-up goes at a random place among the rows, never only at the bottom", async () => {
+    assert.strictEqual(receiver.slot_(1, 0.99), 1, "the first sign-up goes under the header");
+    const seen = new Set();
+    for (let i = 0; i < 50; i++) { const s = receiver.slot_(5, i / 50); assert.ok(s >= 1 && s <= 5); seen.add(s); }
+    assert.strictEqual(seen.size, 5, "any place from under the header to the bottom");
+  });
+
   await check("the receiver keeps formulas out, refuses records without consent, and deletes what D-111 says", async () => {
     assert.strictEqual(receiver.cell_("=HYPERLINK(1)"), "'=HYPERLINK(1)");
     assert.strictEqual(receiver.cell_("+639170000000"), "'+639170000000");
@@ -216,9 +227,9 @@ async function walk(page, o = {}) {
     assert.strictEqual(receiver.refusal_({ ...ok, contact: "" }), "no contact");
     assert.strictEqual(receiver.refusal_({ ...ok, form: undefined, variant: "since" }), "not a sign-up", "a survey record never lands in the sign-up sheet");
     const H = receiver.headers_(), now = new Date("2026-10-25T00:00:00Z");
-    const row = (d, test, done) => { const a = H.map(() => ""); a[H.indexOf("receivedAt")] = d; a[H.indexOf("test")] = test; a[H.indexOf("interviewDone")] = done; return a; };
-    const rows = [H, row("2026-10-24T00:00:00Z", false, false), row("2026-07-20T00:00:00Z", false, false), row("2026-10-24T12:00:00Z", true, false),
-      row("2026-10-23T00:00:00Z", true, false), row("2026-10-20T00:00:00Z", false, true)];
+    const row = (d, test, done) => { const a = H.map(() => ""); a[H.indexOf("signedUpOn")] = d; a[H.indexOf("test")] = test; a[H.indexOf("interviewDone")] = done; return a; };
+    const rows = [H, row("2026-10-24", false, false), row("2026-07-20", false, false), row("2026-10-25", true, false),
+      row("2026-10-24", true, false), row("2026-10-20", false, true)];
     assert.deepStrictEqual(receiver.expired_(rows, now), [6, 5, 3], "interviewed, a day-old test, and three months old; bottom first");
   });
 
