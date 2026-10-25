@@ -554,7 +554,7 @@ a{color:var(--sea)}
   /* ---------- Settings ---------- */
   var ENDPOINT = "https://script.google.com/macros/s/AKfycbwIJSs4WGaK4mMbcqgrjOkXLecEtqzOkS2zaivv7rfCqAXFmwhmb0RsWXlfPpLrvuY1MA/exec";  // Apps Script web app (survey-receiver.gs)
   var PRODUCTION_HOSTS = ["project-campus-vsurvey.vercel.app", "istorya-sa-vsu.vercel.app"];  // answers are sent only from these addresses; previews send nothing
-  var VOLUNTEER_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdRbrp8VNvuU1sC6mbcz6if771mXJaF_6z7LV7nbW7e_iBcwQ/viewform";  // interview volunteers, a separate form
+  var VOLUNTEER_URL = "volunteer.html";  // the interview sign-up, its own page with its own receiver and sheet (D-039, D-143)
   /* Where "See what CAMPUS proposes" leads after sending: the CAMPUS site for now, then the documentary site and the network's
      mock-ups once they are live (owner, 23 October 2026). */
   var STORY_URL = "https://project-campus-gilt.vercel.app/";
@@ -2554,7 +2554,7 @@ a{color:var(--sea)}
   });
   function buildFinal() {
     var vol = $("#volunteer");
-    if (/^https:\/\//.test(VOLUNTEER_URL)) { vol.href = VOLUNTEER_URL; $("#volunteer-note").hidden = true; }
+    if (/^(https:\/\/|[\w-]+\.html$)/.test(VOLUNTEER_URL)) { vol.href = VOLUNTEER_URL + (TEST && !/^https:/.test(VOLUNTEER_URL) ? "?test=1" : ""); $("#volunteer-note").hidden = true; }
     else { vol.classList.add("is-off"); vol.removeAttribute("href"); $("#volunteer-note").hidden = false; }
     var sl = $("#story-link");
     if (/^https:\/\//.test(STORY_URL)) { sl.href = STORY_URL; $("#story-note").hidden = true; }
