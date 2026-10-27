@@ -1,6 +1,6 @@
 # VSUrvey: notes for Claude
 
-This repository is the Project CAMPUS student survey (D-037), kept apart from the master document so respondents don't read the proposal before answering (D-039). Its decisions are rows in the master document's register, `content/13-decisions.md` in [project-campus](https://github.com/Ywcxz/project-campus), and its protocol is in Chapter 8 there. A decision counts only once it is a row in that register.
+This repository is the Project CAMPUS student survey (D-037), kept apart from the master document so respondents don't read the proposal before answering (D-039). Its decisions are rows in the master document's register, `content/13-decisions.md` in [projectcampus-docs](https://github.com/Ywcxz/projectcampus-docs), and its protocol is in Chapter 8 there. A decision counts only once it is a row in that register.
 
 ## Never
 
