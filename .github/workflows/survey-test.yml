@@ -1,0 +1,40 @@
+# Walks the survey and the interview sign-up in a headless browser on each
+# pull request and on every push to main. The job is named "Survey test" so
+# it can be required in a ruleset on main. It runs in Playwright's own image,
+# which carries Chromium and its system libraries, pinned to the version in
+# tests/package.json.
+name: Survey test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  survey:
+    name: Survey test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install test dependencies
+        working-directory: tests
+        run: npm ci --no-audit --no-fund
+
+      - name: Walk the survey and the sign-up
+        working-directory: tests
+        shell: bash
+        env:
+          HOME: /root
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test-output.txt || {
+            grep -A3 '^FAIL' test-output.txt | head -40 | sed 's/^/::error::/'
+            exit 1
+          }

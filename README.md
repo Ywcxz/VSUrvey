@@ -7,6 +7,7 @@ VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about stude
 - `volunteer.html` is the interview sign-up, in the survey's look, linked from the survey's last screen. It is its own page, so it can be shared on its own too.
 - `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers (D-039, D-143). It deletes each sign-up once the interview is ticked as done, or three months after signing up (D-111). It replaces the Google Form the survey's script used to build.
 - `tests/` walks the survey and the sign-up in a headless browser with made-up answers and checks what they would send: `cd tests && npm install && npm test`. `npm run test:volunteer` runs only the sign-up's checks.
+- `.github/workflows/` runs the tests ("Survey test") and the name guard ("Name guard", D-030) on every pull request. The name guard reads the names from a repository secret, `PRIVATE_NAMES`, one per line; until it is set, it passes with a notice. `scripts/hooks/pre-commit` is the same guard for commits made on your own computer: `git config core.hooksPath scripts/hooks`.
 
 ## Before the survey opens
 

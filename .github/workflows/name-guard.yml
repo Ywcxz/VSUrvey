@@ -1,0 +1,72 @@
+# Name guard: fails a pull request, or a push to main, that adds a line
+# naming a stakeholder (D-030). The names live in a repository secret,
+# PRIVATE_NAMES, one per line, set on GitHub under Settings > Secrets and
+# variables > Actions. They never appear in this repository, and this
+# check never prints them: it reports only the file and line to fix.
+# Until the secret is set, the check passes with a notice.
+# It can't stop a name from reaching a public branch; it stops it from
+# reaching main and the live site. The local hook in scripts/hooks/ catches
+# it earlier, before a commit, for anyone who commits from their own computer.
+name: Name guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  names:
+    name: Name guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Look for private names in the lines this change adds
+        env:
+          PRIVATE_NAMES: ${{ secrets.PRIVATE_NAMES }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+
+          raw = os.environ.get("PRIVATE_NAMES", "").replace("\r", "")
+          names = [n.strip() for n in raw.split("\n")]
+          names = [n for n in names if n and not n.startswith("#")]
+          if not names:
+              print("::notice::No PRIVATE_NAMES secret is set, so names were not checked.")
+              sys.exit(0)
+          patterns = [re.compile(r"(?<!\w)" + re.escape(n) + r"(?!\w)", re.IGNORECASE) for n in names]
+
+          def git(*args):
+              return subprocess.run(["git", *args], capture_output=True, text=True)
+
+          base = os.environ.get("BASE_SHA", "")
+          if base and set(base) != {"0"} and git("cat-file", "-e", base + "^{commit}").returncode == 0:
+              diff = git("diff", "-U0", "--no-color", "--no-ext-diff", base, "HEAD").stdout
+          else:
+              diff = git("show", "-U0", "--no-color", "--no-ext-diff", "--format=", "HEAD").stdout
+
+          hits, path, line = [], None, 0
+          for row in diff.splitlines():
+              if row.startswith("+++ "):
+                  path = row[6:] if row.startswith("+++ b/") else None
+              elif row.startswith("@@"):
+                  m = re.search(r"\+(\d+)", row)
+                  line = int(m.group(1)) if m else 0
+              elif row.startswith("+") and path:
+                  if any(p.search(row[1:]) for p in patterns):
+                      hits.append((path, line))
+                  line += 1
+
+          for path, line in hits:
+              print(f"::error file={path},line={line}::This line adds a name from PRIVATE_NAMES. Stakeholder names stay out of this repository (D-030).")
+          if hits:
+              sys.exit(1)
+          print("No private names in the lines this change adds.")
+          PY
