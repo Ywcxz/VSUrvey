@@ -714,16 +714,12 @@ function rowOf(r) {
     await t.ctx.close();
   });
 
-  await check("the .vercel.app address still counts as live during the switch", async () => {
-    const t = await open(browser, { host: VERCEL_PROD });
-    assert.strictEqual(await t.page.evaluate(() => window.__survey.live), true);
-    await t.ctx.close();
-  });
-
-  await check("the old address still counts as live during the switch", async () => {
-    const t = await open(browser, { host: OLD_PROD });
-    assert.strictEqual(await t.page.evaluate(() => window.__survey.live), true);
-    await t.ctx.close();
+  await check("the old .vercel.app addresses no longer count as live", async () => {
+    for (const host of [VERCEL_PROD, OLD_PROD]) {
+      const t = await open(browser, { host });
+      assert.strictEqual(await t.page.evaluate(() => window.__survey.live), false, host);
+      await t.ctx.close();
+    }
   });
 
   await check("a preview address sends nothing and shows the record instead", async () => {

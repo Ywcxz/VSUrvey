@@ -170,9 +170,9 @@ async function walk(page, o = {}) {
     await o.ctx.close();
   });
 
-  await check("the .vercel.app address still counts as live during the switch", async () => {
+  await check("the old .vercel.app address no longer counts as live", async () => {
     const o = await open(browser, { host: VERCEL_PROD });
-    assert.strictEqual(await o.page.evaluate(() => window.__volunteer.live), true);
+    assert.strictEqual(await o.page.evaluate(() => window.__volunteer.live), false);
     await o.ctx.close();
   });
 
