@@ -66,3 +66,7 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 ### The interviews
 
 - [ ] The interview guide covers what the survey left out: trust in each channel (Q-64), and organization handovers (P-08). The survey asks how a post was checked; the interviews ask why. (By hand)
+
+## Licence
+
+Code is under the [MIT License](LICENSE). Writing and pictures are under [CC BY 4.0](LICENSE-CONTENT.md), which says which files are which. Copyright © 2026 Leo M. Subingsubing (D-159).
