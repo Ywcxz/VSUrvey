@@ -1,0 +1,27 @@
+#!/bin/sh
+# Name guard: stops a commit that adds a stakeholder's name to this public
+# repository (D-030). The names stay outside the repository, one per line, in
+#   ~/.config/project-campus/private-names.txt
+# or in the file named by the CAMPUS_PRIVATE_NAMES environment variable.
+# Blank lines and lines starting with # are ignored.
+#
+# Turn it on once per clone:  git config core.hooksPath scripts/hooks
+
+list="${CAMPUS_PRIVATE_NAMES:-$HOME/.config/project-campus/private-names.txt}"
+if [ ! -s "$list" ]; then
+  echo "name guard: no private name list at $list, so names were not checked." >&2
+  exit 0
+fi
+
+patterns=$(mktemp) || exit 1
+trap 'rm -f "$patterns"' EXIT
+grep -v '^[[:space:]]*#' "$list" | sed 's/[[:space:]]*$//' | grep -v '^$' > "$patterns"
+[ -s "$patterns" ] || exit 0
+
+# Only the lines this commit adds; the matched name is never printed.
+if git diff --cached -U0 --no-color --diff-filter=ACMR | grep '^+' | grep -v '^+++' | grep -i -w -F -q -f "$patterns"; then
+  echo "name guard: this commit adds a name from your private list." >&2
+  echo "Stakeholder names stay out of this repository (D-030). Remove it and commit again." >&2
+  exit 1
+fi
+exit 0

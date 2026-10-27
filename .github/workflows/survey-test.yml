@@ -1,0 +1,36 @@
+# Walks the survey and the interview sign-up in a headless browser on each
+# pull request and on every push to main. The job is named "Survey test" so
+# it can be required in a ruleset on main.
+name: Survey test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  survey:
+    name: Survey test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install test dependencies
+        working-directory: tests
+        run: npm ci --no-audit --no-fund
+
+      - name: Install the browser
+        working-directory: tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Walk the survey and the sign-up
+        working-directory: tests
+        run: npm test
