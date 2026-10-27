@@ -29,6 +29,7 @@ jobs:
 
       - name: Walk the survey and the sign-up
         working-directory: tests
+        shell: bash
         env:
           HOME: /root
         run: |
