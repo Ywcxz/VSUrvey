@@ -1,0 +1,13 @@
+{
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/", "has": [{ "type": "host", "value": "project-campus-vsurvey.vercel.app" }], "destination": "https://survey.projectcampus.org/student-life", "permanent": false },
+    { "source": "/index.html", "has": [{ "type": "host", "value": "project-campus-vsurvey.vercel.app" }], "destination": "https://survey.projectcampus.org/student-life", "permanent": false },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "project-campus-vsurvey.vercel.app" }], "destination": "https://survey.projectcampus.org/:path*", "permanent": false },
+    { "source": "/", "has": [{ "type": "host", "value": "survey.projectcampus.org" }], "destination": "/student-life", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/student-life", "destination": "/index.html" }
+  ]
+}

@@ -20,7 +20,8 @@ assert.ok(HTML.includes('var ENDPOINT = "'), "volunteer.html must declare ENDPOI
 const withEndpoint = h => h.replace(/var ENDPOINT = "[^"]*";/, 'var ENDPOINT = "' + FAKE_ENDPOINT + '";');
 const CLOSED = withEndpoint(HTML);
 const OPENED = CLOSED.replace("var OPEN = false;", "var OPEN = true;");
-const PROD = "https://project-campus-vsurvey.vercel.app/";
+const PROD = "https://survey.projectcampus.org/";
+const VERCEL_PROD = "https://project-campus-vsurvey.vercel.app/";
 const PREVIEW = "https://istorya-preview.example/";
 const EXE = process.env.CHROMIUM || (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined);
 const PHONE = { width: 360, height: 640 };
@@ -41,7 +42,7 @@ async function open(browser, o = {}) {
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.route("**/*", route => {
     const req = route.request(), u = req.url();
-    if (u.startsWith(PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.html || OPENED });
+    if (u.startsWith(PROD) || u.startsWith(VERCEL_PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.html || OPENED });
     if (u.startsWith("https://script.google.com/")) { posts.push(req.postData()); return route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }); }
     return route.abort();
   });
@@ -166,6 +167,12 @@ async function walk(page, o = {}) {
     const r = JSON.parse(o.posts[0]);
     assert.strictEqual(r.test, true);
     assert.strictEqual(receiver.row_(r, new Date("2026-10-25T00:00:00Z"))[1], "2026-10-26", "test rows are deleted a day later");
+    await o.ctx.close();
+  });
+
+  await check("the .vercel.app address still counts as live during the switch", async () => {
+    const o = await open(browser, { host: VERCEL_PROD });
+    assert.strictEqual(await o.page.evaluate(() => window.__volunteer.live), true);
     await o.ctx.close();
   });
 
