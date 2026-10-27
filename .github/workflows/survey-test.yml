@@ -15,7 +15,7 @@ jobs:
   survey:
     name: Survey test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
 
@@ -29,7 +29,7 @@ jobs:
 
       - name: Install the browser
         working-directory: tests
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Walk the survey and the sign-up
         working-directory: tests
