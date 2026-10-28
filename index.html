@@ -555,8 +555,8 @@ a{color:var(--sea)}
 @keyframes eyesShut{0%,93%,100%{opacity:0}94.5%,97%{opacity:1}}
 .bob{animation:kidBob 3.8s ease-in-out infinite}
 @keyframes kidBob{0%,100%{translate:0 0}50%{translate:0 -2.5px}}
-.typing{animation:typing 1.6s ease-in-out infinite}
-@keyframes typing{0%,100%{opacity:1}50%{opacity:.35}}
+.peers-typing{animation:peersTyping 1.6s ease-in-out infinite}
+@keyframes peersTyping{0%,100%{opacity:1}50%{opacity:.35}}
 #pc-s{transform-box:view-box;transform-origin:320px 40px;animation:tick 60s steps(60) infinite}
 @keyframes tick{to{rotate:360deg}}
 .led{animation:ledBlink 2.6s steps(1) infinite}
@@ -1130,7 +1130,7 @@ a{color:var(--sea)}
   function peersStage() {
     function kid(x, skin, hair, shirt) { return '<g transform="translate(' + x + ' 0)"><g class="bob" style="animation-delay:' + (-x / 70).toFixed(1) + 's"><circle cx="0" cy="104" r="20" fill="' + skin + '"/><path d="M-20 100c2-24 38-24 40 0-8-8-32-8-40 0Z" fill="' + hair + '"/><ellipse class="blush" cx="-11" cy="112" rx="3.2" ry="1.9"/><ellipse class="blush" cx="11" cy="112" rx="3.2" ry="1.9"/><g class="eyes"><circle cx="-7" cy="106" r="2.6" fill="#1F2A22"/><circle cx="7" cy="106" r="2.6" fill="#1F2A22"/></g><g class="shut" opacity="0"><path d="M-9.6 106.4q2.6 1.69 5.2 0M4.4 106.4q2.6 1.69 5.2 0" fill="none" stroke="#1F2A22" stroke-width="1.6" stroke-linecap="round"/></g><path d="M-5 115q5 4 10 0" stroke="#1F2A22" stroke-width="1.53" fill="none" stroke-linecap="round"/><path d="M-36 176c2-36 70-36 72 0Z" fill="' + shirt + '"/></g></g>'; }
     return stageSvg(FRAME + kid(100, "#8A5A3C", "#1B1B22", "#2B7385") + kid(180, "#A0704F", "#3A2A20", "#E8B23E") + kid(260, "#7A4E33", "#1B1B22", "#CE5A45") +
-      '<g transform="translate(118 28)"><path d="M0 0h44a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H20l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><text class="typing" x="22" y="23" text-anchor="middle" font-size="18" font-weight="800" fill="#5E8E5A" font-family="sans-serif">?</text></g>' +
+      '<g transform="translate(118 28)"><path d="M0 0h44a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H20l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><text class="peers-typing" x="22" y="23" text-anchor="middle" font-size="18" font-weight="800" fill="#5E8E5A" font-family="sans-serif">?</text></g>' +
       '<g transform="translate(206 38)"><path d="M0 0h52a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8H38l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><path d="M6 10h40M6 18h28" stroke="#5E8E5A" stroke-width="3.5" stroke-linecap="round"/></g>');
   }
 

@@ -1035,6 +1035,22 @@ function rowOf(r) {
     await u.ctx.close();
   });
 
+  await check("the Your form scene never fades while she types an answer", async () => {
+    const t = await open(browser, {});
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "year");
+    await t.page.click(btn("year", "2nd"));
+    const seen = [];
+    for (let i = 0; i < 12; i++) {
+      seen.push(await t.page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-box="pass"] .scene')).opacity)));
+      await t.page.waitForTimeout(100);
+    }
+    assert.ok(seen.every(o => o === 1), "the drawing's opacity: " + seen.join(", "));
+    await t.ctx.close();
+  });
+
   await check("the walk works with reduced motion", async () => {
     const t = await open(browser, { reduced: true, mobile: true });
     await t.page.click("#start");
