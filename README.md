@@ -1,17 +1,17 @@
 # VSUrvey
 
-VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, an interactive page of drawn scenes (D-037). Version `since-v1` asks about each problem in the respondent's time at VSU, which the first screen names once, with all that have happened picked, in place of how often and how serious (D-132, revising D-038). It is one walk in the order of `scenes-v3`, and long by choice: the first screen says it takes 20 to 25 minutes, and any question can be skipped (D-133).
+VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, an interactive page of drawn scenes ([D-037](https://docs.projectcampus.org/decisions.html#d-037)). Version `since-v1` asks about each problem in the respondent's time at VSU, which the first screen names once, with all that have happened picked, in place of how often and how serious ([D-132](https://docs.projectcampus.org/decisions.html#d-132), revising [D-038](https://docs.projectcampus.org/decisions.html#d-038)). It is one walk in the order of `scenes-v3`, and long by choice: the first screen says it takes 20 to 25 minutes, and any question can be skipped ([D-133](https://docs.projectcampus.org/decisions.html#d-133)).
 
 - `index.html` is the whole survey: one self-contained page.
 - `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet. Its first lines say how to set it up or update it.
 - `volunteer.html` is the interview sign-up, in the survey's look, linked from the survey's last screen. It is its own page, so it can be shared on its own too.
-- `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers (D-039, D-143). It deletes each sign-up once the interview is ticked as done, or three months after signing up (D-111). It replaces the Google Form the survey's script used to build.
+- `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers ([D-039](https://docs.projectcampus.org/decisions.html#d-039), [D-143](https://docs.projectcampus.org/decisions.html#d-143)). It deletes each sign-up once the interview is ticked as done, or three months after signing up ([D-111](https://docs.projectcampus.org/decisions.html#d-111)). It replaces the Google Form the survey's script used to build.
 - `tests/` walks the survey and the sign-up in a headless browser with made-up answers and checks what they would send: `cd tests && npm install && npm test`. `npm run test:volunteer` runs only the sign-up's checks.
-- `.github/workflows/` runs the tests ("Survey test") and the name guard ("Name guard", D-030) on every pull request. The name guard reads the names from a repository secret, `PRIVATE_NAMES`, one per line; until it is set, it passes with a notice. `scripts/hooks/pre-commit` is the same guard for commits made on your own computer: `git config core.hooksPath scripts/hooks`.
+- `.github/workflows/` runs the tests ("Survey test") and the name guard ("Name guard", [D-030](https://docs.projectcampus.org/decisions.html#d-030)) on every pull request. The name guard reads the names from a repository secret, `PRIVATE_NAMES`, one per line; until it is set, it passes with a notice. `scripts/hooks/pre-commit` is the same guard for commits made on your own computer: `git config core.hooksPath scripts/hooks`.
 
 ## Before the survey opens
 
-The page ships closed. Near the top of the script in `index.html`, `OPEN` is `false`, so even the live address sends nothing. Set it to `true` only once VSU's permission to run the survey is in hand (D-083). `volunteer.html` has its own `OPEN`, also `false`, for the interviews; it also sends nothing until its `ENDPOINT` holds the sign-up receiver's address.
+The page ships closed. Near the top of the script in `index.html`, `OPEN` is `false`, so even the live address sends nothing. Set it to `true` only once VSU's permission to run the survey is in hand ([D-083](https://docs.projectcampus.org/decisions.html#d-083)). `volunteer.html` has its own `OPEN`, also `false`, for the interviews; it also sends nothing until its `ENDPOINT` holds the sign-up receiver's address.
 
 To check that answers reach the sheet before then, open the live address with `?test=1` added. That answer is marked as a test; delete it from the sheet afterward. The survey's last screen passes `?test=1` on to the sign-up, whose test rows delete themselves a day later.
 
@@ -19,7 +19,7 @@ To check that answers reach the sheet before then, open the live address with `?
 
 1. **Survey receiver.** In the survey's Apps Script, paste the current `survey-receiver.gs`, run `setup()`, then Deploy > Manage deployments > edit > Version: New version > Deploy. The URL in `ENDPOINT` stays the same.
 2. **Sign-up receiver.** Make a new, separate Google Sheet, paste `volunteer-receiver.gs` into its Apps Script, run `setup()`, and deploy it as a web app (Execute as: Me; Who has access: Anyone). Its URL goes in `volunteer.html`'s `ENDPOINT` through a pull request.
-3. **Retire the Google Form.** In the old interview-volunteer form, turn off "Accepting responses", and delete any responses it holds once those volunteers are contacted or three months have passed (D-111).
+3. **Retire the Google Form.** In the old interview-volunteer form, turn off "Accepting responses", and delete any responses it holds once those volunteers are contacted or three months have passed ([D-111](https://docs.projectcampus.org/decisions.html#d-111)).
 4. **Test.** Open the live survey with `?test=1`, send, follow the sign-up link, and sign up. Check that one row reaches "Responses since" and one reaches "Sign-ups", in their separate sheets. Delete the survey's test row.
 5. **Finish the checklist below**, including the pilot and the timed run-throughs.
 6. **Open.** Once VSU's written permission is in hand, a pull request sets `OPEN = true` in `index.html`, and in `volunteer.html` if the permission covers the interviews.
@@ -32,8 +32,8 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 
 ### Permission and protocol
 
-- [ ] VSU's written permission to run the survey is in hand, and says whether it covers the interviews and the pilot (D-083). Whether an ethics review is also needed is settled with OVPSAS and VSU's Research Ethics Board (Q-51). (By hand)
-- [ ] The owner has confirmed the protocol in Chapter 8, closing Q-53: which answers count as each problem, and how results are split by year (D-132). All are fixed before any answer is read. D-114 (the site ships closed), which still awaits him, is confirmed. (By hand)
+- [ ] VSU's written permission to run the survey is in hand, and says whether it covers the interviews and the pilot ([D-083](https://docs.projectcampus.org/decisions.html#d-083)). Whether an ethics review is also needed is settled with OVPSAS and VSU's Research Ethics Board ([Q-51](https://docs.projectcampus.org/decisions.html#q-51)). (By hand)
+- [ ] The owner has confirmed the protocol in Chapter 8, closing [Q-53](https://docs.projectcampus.org/decisions.html#q-53): which answers count as each problem, and how results are split by year ([D-132](https://docs.projectcampus.org/decisions.html#d-132)). All are fixed before any answer is read. [D-114](https://docs.projectcampus.org/decisions.html#d-114) (the site ships closed), which still awaits him, is confirmed. (By hand)
 - [ ] The rules for releasing results (the floor of 10, combinations, free text) are published in Chapter 8. (By hand)
 
 ### The survey page
@@ -49,10 +49,10 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 
 - [ ] A pilot of at least 5 students, within the permission, checks the wording, auto-advance (did anyone feel rushed, or move on by accident?), the since-you-started questions (do students read "pick all that have happened" as covering their whole time at VSU, without the period in each question?), the "More below" sign on phones, the length (where did anyone stop, or start skipping?), and the interview sign-up. (By hand)
 - [ ] The first screen's time estimate comes from the median and 90th percentile of at least 10 timed run-throughs, or is labeled preliminary. The current "20–25 minutes" is a preliminary estimate from the page's own text and answer counts (re-estimated on 23 October 2026: about 23 minutes on a typical path at a typical reading speed, 15 to 28 across reading speeds and paths), not a timing. (By hand)
-- [ ] The program lists are checked with VSU's registrar, since VSU's admissions page leaves out at least BS Mathematics (E-057). (By hand)
-- [ ] The barangay groups are checked against where students actually reside: whether any group is too small to report (D-110), and whether "Guadalupe (Utod)" is the name students use. Lower and upper campus are checked against where VSU's dorms are. (By hand)
+- [ ] The program lists are checked with VSU's registrar, since VSU's admissions page leaves out at least BS Mathematics ([E-057](https://docs.projectcampus.org/evidence.html#e-057)). (By hand)
+- [ ] The barangay groups are checked against where students actually reside: whether any group is too small to report ([D-110](https://docs.projectcampus.org/decisions.html#d-110)), and whether "Guadalupe (Utod)" is the name students use. Lower and upper campus are checked against where VSU's dorms are. (By hand)
 - [ ] The office types in "What kind of office was it?" are checked against VSU's own offices, so each office a student might mean has a clear answer. (By hand)
-- [ ] The load bands' middles (about ₱50, ₱100, ₱150 a week) and the uses in "What do you use your mobile data for?" are re-checked against the networks' current promos (D-139). (By hand)
+- [ ] The load bands' middles (about ₱50, ₱100, ₱150 a week) and the uses in "What do you use your mobile data for?" are re-checked against the networks' current promos ([D-139](https://docs.projectcampus.org/decisions.html#d-139)). (By hand)
 - [ ] The jars' three concerns from the student council federation's list (VSU's online services, basic facilities, grading and academic rules) are checked against the council's own published list. (By hand)
 
 ### Where answers and sign-ups go
@@ -65,8 +65,8 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 
 ### The interviews
 
-- [ ] The interview guide covers what the survey left out: trust in each channel (Q-64), and organization handovers (P-08). The survey asks how a post was checked; the interviews ask why. (By hand)
+- [ ] The interview guide covers what the survey left out: trust in each channel ([Q-64](https://docs.projectcampus.org/decisions.html#q-64)), and organization handovers ([P-08](https://docs.projectcampus.org/evidence.html#p-08)). The survey asks how a post was checked; the interviews ask why. (By hand)
 
 ## Licence
 
-Code is under the [MIT License](LICENSE). Writing and pictures are under [CC BY 4.0](LICENSE-CONTENT.md), which says which files are which. Copyright © 2026 Leo M. Subingsubing (D-159).
+Code is under the [MIT License](LICENSE). Writing and pictures are under [CC BY 4.0](LICENSE-CONTENT.md), which says which files are which. Copyright © 2026 Leo M. Subingsubing ([D-159](https://docs.projectcampus.org/decisions.html#d-159)).
