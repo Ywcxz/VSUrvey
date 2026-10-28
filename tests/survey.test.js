@@ -969,8 +969,9 @@ function rowOf(r) {
   /* three.js draws two moments, the ring of coins on the first screen and the confetti on the last, only on a computer or a
      fast connection without data saver, with motion on and a graphics card (D-166). It loads after the first screen shows. */
   await check("a computer gets the 3D ring of coins on the first screen and the confetti on the last", async () => {
-    const t = await open(browser, { init: SOFT_GL });
+    const t = await open(browser, { init: [SOFT_GL, 'window.__drawn = 0; (function look() { var h = document.querySelector(\'[data-box="intro"] .hero\'); if (h && getComputedStyle(h).opacity !== "0") window.__drawn++; if (!document.querySelector("canvas.three.on")) requestAnimationFrame(look); })();'] });
     await t.page.waitForSelector('[data-box="intro"] .stage.has-3d > canvas.three.on', { timeout: 15000 });
+    assert.strictEqual(await t.page.evaluate(() => window.__drawn), 0, "the drawn ring never shows before the coins");
     assert.deepStrictEqual(from3d(t).sort(), ["js/scene3d.js", "js/three.module.min.js"]);
     await t.page.waitForFunction(() => getComputedStyle(document.querySelector('[data-box="intro"] .hero')).opacity === "0", null, { timeout: 3000 });
     assert.strictEqual(await t.page.locator('[data-box="intro"] canvas').evaluate(c => getComputedStyle(c).pointerEvents), "none", "the drawing takes no taps");

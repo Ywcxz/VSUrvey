@@ -546,7 +546,6 @@ a{color:var(--sea)}
 /* ---------- Life in the scenes ----------
    Small motions on long, slow loops, so a scene feels lived in without pulling the eye from the question. Blinks
    change only opacity, so nothing but the eyes follows the pointer. Reduced motion stops all of it (below). */
-.blush{fill:#E58A73;opacity:.36}
 .eyes{animation:eyesOpen 5.2s infinite}
 .shut{animation:eyesShut 5.2s infinite}
 [data-box="gate"] .eyes,[data-box="gate"] .shut{animation-duration:6.4s;animation-delay:-2.1s}
@@ -613,7 +612,8 @@ a{color:var(--sea)}
 .three.on{opacity:1}
 .three.now{transition:none}
 .hero{transition:opacity .6s ease}
-.has-3d>.hero{opacity:0}
+.has-3d>.hero,.await-3d>.hero{opacity:0}
+.await-3d>.hero{transition:none}
 .has-3d>.hero *{animation-play-state:paused}
 
 @media (prefers-reduced-motion:reduce){
@@ -624,7 +624,7 @@ a{color:var(--sea)}
 </head>
 <body>
 <noscript><p style="color:#1F2A22;padding:24px">This survey needs JavaScript to run.</p></noscript>
-<svg class="defs" aria-hidden="true" focusable="false"><defs><filter id="paper" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="1.2" dy="2.2" stdDeviation="1.6" flood-color="#1F2A22" flood-opacity=".22"/></filter><filter id="paper-soft" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx=".6" dy="1.4" stdDeviation="1.2" flood-color="#1F2A22" flood-opacity=".12"/></filter><clipPath id="paper-panel"><rect width="360" height="220" rx="22"/></clipPath><radialGradient id="scene-light" cx="18%" cy="8%" r="85%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".34"/><stop offset=".65" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="scene-gold" cx="94%" cy="2%" r="62%"><stop offset="0" stop-color="#F7D47A" stop-opacity=".42"/><stop offset=".7" stop-color="#F7D47A" stop-opacity="0"/></radialGradient></defs></svg>
+<svg class="defs" aria-hidden="true" focusable="false"><defs><filter id="paper" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="1.2" dy="2.2" stdDeviation="1.6" flood-color="#1F2A22" flood-opacity=".22"/></filter><filter id="paper-soft" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx=".6" dy="1.4" stdDeviation="1.2" flood-color="#1F2A22" flood-opacity=".12"/></filter><filter id="paper-art" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx=".6" dy="1.3" stdDeviation=".9" flood-color="#1F2A22" flood-opacity=".22"/></filter><clipPath id="paper-panel"><rect width="360" height="220" rx="22"/></clipPath><radialGradient id="scene-light" cx="18%" cy="8%" r="85%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".34"/><stop offset=".65" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="scene-gold" cx="94%" cy="2%" r="62%"><stop offset="0" stop-color="#F7D47A" stop-opacity=".42"/><stop offset=".7" stop-color="#F7D47A" stop-opacity="0"/></radialGradient></defs></svg>
 <div class="app" id="app">
   <header class="bar">
     <button class="chap" id="chap" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" disabled><span class="dots" id="dots" aria-hidden="true"></span><span class="chname" id="chname">Start</span></button>
@@ -764,7 +764,7 @@ a{color:var(--sea)}
   }
 
   /* ---------- Small object drawings for answer tiles (120 x 90) ---------- */
-  function art(body, bg) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 120 90">' + (bg ? '<rect width="120" height="90" fill="' + bg + '"/>' : "") + body + "</svg></span>"; }
+  function art(body, bg) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 120 90">' + (bg ? '<rect width="120" height="90" fill="' + bg + '"/>' : "") + unline(body) + "</svg></span>"; }
   var ground = '<rect y="74" width="120" height="16" fill="#D0DCCB"/>';
   function simLabel(name) {
     var parts = name.split(" · "), lines = name.length > 9 && parts.length > 1 ? [parts.slice(0, Math.ceil(parts.length / 2)).join(" · "), parts.slice(Math.ceil(parts.length / 2)).join(" · ")] : [name];
@@ -933,7 +933,7 @@ a{color:var(--sea)}
   };
 
   /* ---------- Vignettes: small scenes for the news and errand questions (140 x 98) ---------- */
-  function vig(bg, body) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 140 98"><rect width="140" height="98" fill="' + bg + '"/>' + body + "</svg></span>"; }
+  function vig(bg, body) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 140 98"><rect width="140" height="98" fill="' + bg + '"/>' + unline(body) + "</svg></span>"; }
   function phone(x, y, screen) { return '<g transform="translate(' + x + " " + y + ')"><rect width="46" height="80" rx="8" fill="#1F2A22"/><rect x="4" y="7" width="38" height="66" rx="4" fill="#FAF9F4"/>' + screen + "</g>"; }
   var ping = '<g class="ping"><circle cx="0" cy="0" r="8" fill="#CE5A45" stroke="#FFFFFF" stroke-width="2"/><text x="0" y="3.5" text-anchor="middle" font-size="10" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g>';
   var VIG = {
@@ -1000,6 +1000,17 @@ a{color:var(--sea)}
      The scenes are cut paper: flat shapes without outlines, in up to four layers that slide in at different speeds as a scene
      arrives (arrive()). lay() makes a layer, piece() a cut-out that casts a soft shadow, backdrop() the far layer in the panel's
      own color, and paperGround() a strip along the front. unline() takes the outlines off a drawing made with them. */
+  /* The answers' pictures are cut paper too: each piece on a picture's background casts a small shadow (the background and its
+     ground strip, as wide as the picture, don't). */
+  function paperArt(scope) {
+    $$(".art svg", scope).forEach(function (svg) {
+      var w = svg.viewBox.baseVal.width;
+      Array.prototype.forEach.call(svg.children, function (el) {
+        if (el.tagName === "rect" && Number(el.getAttribute("width")) >= w) return;
+        el.setAttribute("filter", "url(#paper-art)");
+      });
+    });
+  }
   function lay(n, body) { return '<g class="lay l' + n + '">' + body + "</g>"; }
   function piece(body) { return '<g filter="url(#paper)">' + body + "</g>"; }
   /* Only thin outlines around filled shapes go; lines that are drawn for themselves, like a handle or a ring, stay. */
@@ -1026,14 +1037,13 @@ a{color:var(--sea)}
       (road ? '<path d="M0 202H360" stroke="rgba(255,255,255,.6)" stroke-width="3" stroke-dasharray="14 12"/>' : "") + "</g>") + "</g>";
   }
   /* A paper face on a head centred at (x, y), sized by k (1 for a head of radius 23): brows, eyes with a catch-light that
-     blink and follow you, a blush, and an open smile. */
+     blink and follow you, and an open smile. */
   function paperFace(x, y, k, brow) {
     function P(dx, dy) { return (x + dx * k).toFixed(1) + " " + (y + dy * k).toFixed(1); }
     function R(v) { return +(v * k).toFixed(2); }
     function eye(dx) { return '<ellipse cx="' + (x + dx * k).toFixed(1) + '" cy="' + (y + k).toFixed(1) + '" rx="' + R(4.6) + '" ry="' + R(5.4) + '" fill="#FFFFFF"/>'; }
     function pupil(dx) { return '<circle class="pupil" cx="' + (x + dx * k).toFixed(1) + '" cy="' + (y + 2 * k).toFixed(1) + '" r="' + R(2.8) + '" fill="#1F2A22"/><circle class="pupil" cx="' + (x + (dx + 1) * k).toFixed(1) + '" cy="' + (y + 0.6 * k).toFixed(1) + '" r="' + R(0.9) + '" fill="#FFFFFF"/>'; }
     return '<path d="M' + P(-16, -10) + "q" + R(6) + " " + R(-4) + " " + R(11) + " 0M" + P(5, -10) + "q" + R(6) + " " + R(-4) + " " + R(11) + ' 0" stroke="' + (brow || "#1B1B22") + '" stroke-width="' + R(2.2) + '" fill="none" stroke-linecap="round"/>' +
-      '<ellipse class="blush" cx="' + (x - 17 * k).toFixed(1) + '" cy="' + (y + 11 * k).toFixed(1) + '" rx="' + R(4.4) + '" ry="' + R(2.6) + '"/><ellipse class="blush" cx="' + (x + 17 * k).toFixed(1) + '" cy="' + (y + 11 * k).toFixed(1) + '" rx="' + R(4.4) + '" ry="' + R(2.6) + '"/>' +
       '<g class="eyes">' + eye(-10) + eye(10) + pupil(-10) + pupil(10) + "</g>" +
       '<g class="shut" opacity="0"><path d="M' + P(-14.6, 2) + "q" + R(4.6) + " " + R(3.2) + " " + R(9.2) + " 0M" + P(5.4, 2) + "q" + R(4.6) + " " + R(3.2) + " " + R(9.2) + ' 0" fill="none" stroke="#1F2A22" stroke-width="' + R(1.8) + '" stroke-linecap="round"/></g>' +
       '<path d="M' + P(-7, 13) + "q" + R(7) + " " + R(7) + " " + R(14) + ' 0Z" fill="#5A2E22"/>';
@@ -1102,7 +1112,6 @@ a{color:var(--sea)}
           '<circle cx="180" cy="84" r="23" fill="' + SKIN + '"/><ellipse cx="157" cy="87" rx="3.5" ry="5" fill="' + SKIN + '"/><ellipse cx="203" cy="87" rx="3.5" ry="5" fill="' + SKIN + '"/>' +
           '<path d="M156 86C152 56 205 50 205 82C198 70 186 64 172 66C164 70 160 76 156 86Z" fill="' + HAIR + '"/><circle cx="203" cy="62" r="10" fill="' + HAIR + '"/><path d="M196 52l14 6" stroke="#E8B23E" stroke-width="2.4" stroke-linecap="round"/>' +
           '<path d="M164 74q6-4 11 0M185 74q6-4 11 0" stroke="' + HAIR + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-          '<ellipse class="blush" cx="163" cy="95" rx="4.4" ry="2.6"/><ellipse class="blush" cx="197" cy="95" rx="4.4" ry="2.6"/>' +
           '<g class="eyes"><ellipse cx="170" cy="85" rx="4.6" ry="5.4" fill="#FFFFFF"/><ellipse cx="190" cy="85" rx="4.6" ry="5.4" fill="#FFFFFF"/><circle class="pupil" cx="170" cy="86" r="2.8" fill="#1F2A22"/><circle class="pupil" cx="190" cy="86" r="2.8" fill="#1F2A22"/><circle class="pupil" cx="171" cy="84.6" r=".9" fill="#FFFFFF"/><circle class="pupil" cx="191" cy="84.6" r=".9" fill="#FFFFFF"/></g>' +
           '<g class="shut" opacity="0"><path d="M165.4 86q4.6 3.2 9.2 0M185.4 86q4.6 3.2 9.2 0" fill="none" stroke="#1F2A22" stroke-width="1.8" stroke-linecap="round"/></g>' +
           '<path d="M173 97q7 7 14 0Z" fill="#5A2E22"/><path d="M175.5 99.6q4.5 2.6 9 0" fill="none" stroke="#E58A73" stroke-width="1.6" stroke-linecap="round"/>' +
@@ -1148,9 +1157,9 @@ a{color:var(--sea)}
   var PAPER_PROPS = {
     l: '<rect x="139" y="154" width="5" height="22" rx="2" fill="#1F2A22"/><rect x="149" y="154" width="5" height="22" rx="2" fill="#1F2A22"/><rect x="126" y="120" width="11" height="25" rx="4" fill="#2B7385"/>' +
       '<rect x="134" y="115" width="25" height="43" rx="11" fill="#FAF9F4"/><path d="M146.5 115a12.5 12.5 0 0 1 12.5 12.5V147a11 11 0 0 1-11 11h-1.5Z" fill="#1F2A22" opacity=".1"/>' +
-      '<circle cx="146" cy="102" r="11.5" fill="#A0704F"/><path d="M134.6 100c0-9 5-13 11.4-13s11.4 4 11.4 13c-3-5-7-6.5-11.4-6.5s-8.4 1.5-11.4 6.5Z" fill="#1B1B22"/>' + paperFace(146, 103.5, 0.46) +
+      '<rect x="142.5" y="108" width="7" height="9" fill="#8A5A3C"/><circle cx="146" cy="102" r="11.5" fill="#A0704F"/><path d="M134.6 100c0-9 5-13 11.4-13s11.4 4 11.4 13c-3-5-7-6.5-11.4-6.5s-8.4 1.5-11.4 6.5Z" fill="#1B1B22"/>' + paperFace(146, 103.5, 0.46) +
       '<path d="M196 176v-54a18 18 0 0 1 36 0v54Z" fill="#1F2A22"/><path d="M214 104a18 18 0 0 1 18 18v54h-18Z" fill="#000000" opacity=".18"/><path d="M207 106l7 9 7-9Z" fill="#E8B23E"/>' +
-      '<circle cx="214" cy="88" r="12.5" fill="#8A5A3C"/>' + paperFace(214, 90, 0.5) +
+      '<rect x="209.5" y="94" width="9" height="12" fill="#74472F"/><circle cx="214" cy="88" r="12.5" fill="#8A5A3C"/>' + paperFace(214, 90, 0.5) +
       '<g class="capbob"><path d="M195 74l19-9.5 19 9.5-19 9.5Z" fill="#1F2A22"/><path d="M226 75v10" stroke="#CE5A45" stroke-width="2.5" stroke-linecap="round"/></g>' +
       '<rect x="160" y="66" width="32" height="18" rx="9" fill="#FAF9F4"/><path d="M168 82l-4 7 9-5Z" fill="#FAF9F4"/><g class="dots3" fill="#1F2A22"><circle cx="168" cy="75" r="2.2"/><circle cx="176" cy="75" r="2.2"/><circle cx="184" cy="75" r="2.2"/></g>'
   };
@@ -1227,9 +1236,9 @@ a{color:var(--sea)}
         '<circle cx="13" cy="84" r="8" fill="' + hair + '"/><path d="M-20 102c0-16 9-24 20-24s20 8 20 24c-5-9-12-13-20-13s-15 4-20 13Z" fill="' + hair + '"/>'];
       return '<g transform="translate(' + x + ' 0)"><g class="bob" style="animation-delay:' + (-x / 70).toFixed(1) + 's">' + piece(
         '<path d="M-36 178c2-36 70-36 72 0Z" fill="' + shirt + '"/><path d="M0 144c19 0 34 13 36 34H6Z" fill="#1F2A22" opacity=".12"/><path d="M-8 145l8 9 8-9Z" fill="#FAF9F4"/>' +
-        '<rect x="-6" y="118" width="12" height="12" fill="' + skin + '"/><rect x="-6" y="118" width="12" height="5" fill="#1F2A22" opacity=".15"/>' +
-        '<ellipse cx="-20" cy="106" rx="3" ry="4" fill="' + skin + '"/><ellipse cx="20" cy="106" rx="3" ry="4" fill="' + skin + '"/><circle cx="0" cy="104" r="20" fill="' + skin + '"/>' + hairs[cut] +
-        paperFace(0, 106, 0.82, hair)) + "</g></g>";
+        '<rect x="-6" y="130" width="12" height="22" fill="' + skin + '"/><rect x="-6" y="130" width="12" height="9" fill="#1F2A22" opacity=".15"/>' +
+        '<g transform="translate(0 14)"><ellipse cx="-20" cy="106" rx="3" ry="4" fill="' + skin + '"/><ellipse cx="20" cy="106" rx="3" ry="4" fill="' + skin + '"/><circle cx="0" cy="104" r="20" fill="' + skin + '"/>' + hairs[cut] +
+        paperFace(0, 106, 0.82, hair) + "</g>") + "</g></g>";
     }
     return stageSvg(lay(1, backdrop("campus")) +
       lay(2, kid(100, "#8A5A3C", "#1B1B22", "#2B7385", 0) + kid(180, "#A0704F", "#3A2A20", "#E8B23E", 1) + kid(260, "#7A4E33", "#1B1B22", "#CE5A45", 2)) +
@@ -1900,6 +1909,7 @@ a{color:var(--sea)}
     view.appendChild(el);
     boxEls[id] = el;
   });
+  paperArt(view);
 
   /* ---------- Answering ---------- */
   function isOn(key, v) {
@@ -2319,7 +2329,7 @@ a{color:var(--sea)}
     if (s.box === "net") netReact();
     if (s.box === "send") buildSend();
     if (s.box === "final") buildFinal();
-    if (s.box === "intro") afterLoad(intro3d);
+    if (s.box === "intro") { hold3d(want3dOnce() && roomFor3d()); afterLoad(intro3d); }
     if (s.box === "final") setTimeout(final3d, 250);
     syncStep(s);
   }
@@ -2774,14 +2784,23 @@ a{color:var(--sea)}
     if (!(window.matchMedia && matchMedia("(pointer: fine) and (min-width: 900px)").matches) && c.effectiveType !== "4g") return false;
     return hasGPU();
   }
+  var wants3d = null;
+  function want3dOnce() { if (wants3d === null) wants3d = want3d(); return wants3d; }
   function load3d() {
-    if (!three) three = want3d() ? import("./js/scene3d.js?v=2").catch(function () { return null; }) : Promise.resolve(null);
+    if (!three) three = want3dOnce() ? import("./js/scene3d.js?v=2").catch(function () { return null; }) : Promise.resolve(null);
     return three;
   }
   if (mqReduce && mqReduce.addEventListener) mqReduce.addEventListener("change", function () { if (calm() && ring3d) ring3d.stop(); });
-  function afterLoad(fn) {
-    if (doc.readyState === "complete") setTimeout(fn, 300);
-    else window.addEventListener("load", function () { setTimeout(fn, 300); }, { once: true });
+  /* Runs once the first screen has been painted. */
+  function afterLoad(fn) { requestAnimationFrame(function () { setTimeout(fn, 0); }); }
+  /* Where the ring will be drawn in 3D, the drawn ring stays hidden, so the coins don't change before your eyes. It shows if the
+     3D can't start, or hasn't within four seconds. */
+  var holdTimer = 0;
+  function hold3d(on) {
+    var st = $(".stage", boxEls.intro);
+    clearTimeout(holdTimer);
+    st.classList.toggle("await-3d", !!on);
+    if (on) holdTimer = setTimeout(function () { if (!st.classList.contains("has-3d")) st.classList.remove("await-3d"); }, 4000);
   }
   /* The coins need room above and below the title. On a short screen the drawn ring stays, and three.js waits for the end. */
   function roomFor3d() {
@@ -2789,13 +2808,14 @@ a{color:var(--sea)}
     return !!tt && st.clientHeight - tt.offsetHeight >= 110;
   }
   function intro3d() {
-    if (curId !== "intro" || !roomFor3d()) return;
+    if (curId !== "intro" || !roomFor3d()) { hold3d(false); return; }
     load3d().then(function (m) {
       /* The ring stops itself once the first screen is left, and starts again on the way back. */
-      if (!m || calm() || curId !== "intro" || (ring3d && !ring3d.done())) return;
+      if (curId !== "intro" || (ring3d && !ring3d.done())) return;
+      if (!m || calm()) { hold3d(false); return; }
       try {
         ring3d = m.ring($(".stage", boxEls.intro), MOMENTS.map(function (s) { return { color: s.bg, ink: s.ink === "light" ? "#F7F7F1" : "#1F2A22", icon: ICON[s.icon] }; }));
-      } catch (e) { ring3d = null; }
+      } catch (e) { ring3d = null; hold3d(false); }
     });
   }
   function final3d() {
