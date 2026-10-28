@@ -14,6 +14,8 @@ Copyright © 2026 Leo M. Subingsubing.
 
 The code, the scripts and styles in `index.html` and `volunteer.html`, `survey-receiver.gs`, `volunteer-receiver.gs`, `scripts/`, `tests/`, `.github/`, and `vercel.json`, is under the MIT License.
 
+The fonts in `fonts/` are neither: Newsreader, by the Newsreader Project Authors, and Atkinson Hyperlegible, by the Braille Institute of America, are under the SIL Open Font License 1.1, in `fonts/OFL-*.txt`.
+
 ## Credit
 
 Credit the work as: *Project CAMPUS, by Leo M. Subingsubing, CC BY 4.0*, with a link to https://projectcampus.org, and say if you changed it.

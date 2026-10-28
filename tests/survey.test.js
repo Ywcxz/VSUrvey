@@ -19,6 +19,12 @@ const HTML = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 /* The page ships closed (OPEN = false) until VSU's permission is in hand; most tests open it. */
 const HTML_OPEN = HTML.replace("var OPEN = false;", "var OPEN = true;");
 assert.notStrictEqual(HTML_OPEN, HTML, "index.html must declare var OPEN = false;");
+/* The pages are served under the live security policy in vercel.json, with the hash of the script actually served (the tests
+   change it, to open the page), so anything the policy would block in production fails here too. */
+const csp = require("../scripts/csp.js");
+const POLICY = csp.current();
+const CSP_WATCH = 'window.__csp = []; document.addEventListener("securitypolicyviolation", function (e) { window.__csp.push(e.violatedDirective + " " + (e.blockedURI || "inline")); });';
+const policyFor = html => POLICY.replace(csp.hashes(HTML)[0], csp.hashes(html)[0]);
 const PROD = "https://survey.projectcampus.org/";
 const VERCEL_PROD = "https://project-campus-vsurvey.vercel.app/";
 const OLD_PROD = "https://istorya-sa-vsu.vercel.app/";
@@ -48,17 +54,24 @@ const PHONE_FIT = `window.phoneFit = function (p, bottom) {
   p.scrollTop = 0;
   return bad;
 };`;
+/* The site's own files, the bundled fonts, come from the repository; any other address on the site is the page. */
+function siteFile(u) {
+  const m = /^https:\/\/[^/]+\/(fonts\/[\w.-]+\.woff2)$/.exec(u.split("?")[0]);
+  const f = m && path.join(__dirname, "..", m[1]);
+  return f && fs.existsSync(f) ? { status: 200, contentType: "font/woff2", body: fs.readFileSync(f) } : null;
+}
 async function open(browser, o = {}) {
   const mobile = !!o.mobile;
   const ctx = await browser.newContext({ viewport: o.viewport || (mobile ? PHONE : DESKTOP), hasTouch: mobile, isMobile: mobile, reducedMotion: o.reduced ? "reduce" : "no-preference" });
   const page = await ctx.newPage();
   await page.addInitScript(PHONE_FIT);
+  await page.addInitScript(CSP_WATCH);
   const posts = [], errors = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.route("**/*", route => {
     const req = route.request(), u = req.url();
-    if (u.startsWith(PROD) || u.startsWith(VERCEL_PROD) || u.startsWith(OLD_PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.closed ? HTML : HTML_OPEN });
+    if (u.startsWith(PROD) || u.startsWith(VERCEL_PROD) || u.startsWith(OLD_PROD) || u.startsWith(PREVIEW)) return route.fulfill(siteFile(u) || { status: 200, contentType: "text/html; charset=utf-8", headers: { "Content-Security-Policy": policyFor(o.closed ? HTML : HTML_OPEN) }, body: o.closed ? HTML : HTML_OPEN });
     if (u.startsWith("https://script.google.com/")) { posts.push(req.postData()); return route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }); }
     return route.abort();
   });
@@ -375,6 +388,12 @@ function rowOf(r) {
     }
   });
 
+  await check("vercel.json's security policy allows exactly the pages' own scripts (if not: node scripts/csp.js)", async () => {
+    assert.strictEqual(csp.current(), csp.policy(), "the security policy is out of date with the pages' scripts: run node scripts/csp.js");
+    assert.ok(/connect-src https:\/\/script\.google\.com https:\/\/script\.googleusercontent\.com;/.test(POLICY), "answers may go only to the Apps Script receivers");
+    assert.ok(!/script-src[^;]*'unsafe-inline'/.test(POLICY), "no inline script runs unless the policy names its hash");
+  });
+
   const browser = await chromium.launch({ executablePath: EXE });
 
   /* On a phone the respondent stays with a relative; on a computer, in a VSU dorm. */
@@ -384,6 +403,7 @@ function rowOf(r) {
       await walkAll(t.page, SHOTS ? label : "", dorm);
       await t.page.waitForTimeout(300);
       assert.deepStrictEqual(t.errors, []);
+      assert.deepStrictEqual(await t.page.evaluate(() => window.__csp), [], "the security policy blocked something");
       assert.strictEqual(t.posts.length, 1, "expected 1 POST, got " + t.posts.length);
       const r = JSON.parse(t.posts[0]);
       assert.strictEqual(r.version, "since-v1");

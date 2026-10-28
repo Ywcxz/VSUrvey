@@ -20,6 +20,12 @@ assert.ok(HTML.includes('var ENDPOINT = "'), "volunteer.html must declare ENDPOI
 const withEndpoint = h => h.replace(/var ENDPOINT = "[^"]*";/, 'var ENDPOINT = "' + FAKE_ENDPOINT + '";');
 const CLOSED = withEndpoint(HTML);
 const OPENED = CLOSED.replace("var OPEN = false;", "var OPEN = true;");
+/* The pages are served under the live security policy in vercel.json, with the hash of the script actually served (the tests
+   change it, to open the page), so anything the policy would block in production fails here too. */
+const csp = require("../scripts/csp.js");
+const POLICY = csp.current();
+const CSP_WATCH = 'window.__csp = []; document.addEventListener("securitypolicyviolation", function (e) { window.__csp.push(e.violatedDirective + " " + (e.blockedURI || "inline")); });';
+const policyFor = html => POLICY.replace(csp.hashes(HTML)[0], csp.hashes(html)[0]);
 const PROD = "https://survey.projectcampus.org/";
 const VERCEL_PROD = "https://project-campus-vsurvey.vercel.app/";
 const PREVIEW = "https://istorya-preview.example/";
@@ -33,16 +39,23 @@ async function check(name, fn) {
   try { await fn(); passed++; console.log("ok   " + name); }
   catch (e) { failed++; console.log("FAIL " + name + "\n     " + String((e && e.stack) || e).split("\n").slice(0, 10).join("\n     ")); }
 }
+/* The site's own files, the bundled fonts, come from the repository; any other address on the site is the page. */
+function siteFile(u) {
+  const m = /^https:\/\/[^/]+\/(fonts\/[\w.-]+\.woff2)$/.exec(u.split("?")[0]);
+  const f = m && path.join(__dirname, "..", m[1]);
+  return f && fs.existsSync(f) ? { status: 200, contentType: "font/woff2", body: fs.readFileSync(f) } : null;
+}
 async function open(browser, o = {}) {
   const mobile = !!o.mobile;
   const ctx = await browser.newContext({ viewport: mobile ? PHONE : DESKTOP, hasTouch: mobile, isMobile: mobile, reducedMotion: o.reduced ? "reduce" : "no-preference" });
   const page = await ctx.newPage();
+  await page.addInitScript(CSP_WATCH);
   const posts = [], errors = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.route("**/*", route => {
     const req = route.request(), u = req.url();
-    if (u.startsWith(PROD) || u.startsWith(VERCEL_PROD) || u.startsWith(PREVIEW)) return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: o.html || OPENED });
+    if (u.startsWith(PROD) || u.startsWith(VERCEL_PROD) || u.startsWith(PREVIEW)) return route.fulfill(siteFile(u) || { status: 200, contentType: "text/html; charset=utf-8", headers: { "Content-Security-Policy": policyFor(o.html || OPENED) }, body: o.html || OPENED });
     if (u.startsWith("https://script.google.com/")) { posts.push(req.postData()); return route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }); }
     return route.abort();
   });
@@ -105,6 +118,7 @@ async function walk(page, o = {}) {
       assert.deepStrictEqual(keys, ["age18", "consent", "contact", "faculty", "form", "free", "name", "org", "residence", "test", "version", "year"]);
       assert.ok(/I'll message you/.test(await page.textContent("#panel")), "the thank-you says what happens next");
       assert.deepStrictEqual(errors, []);
+      assert.deepStrictEqual(await page.evaluate(() => window.__csp), [], "the security policy blocked something");
       await ctx.close();
     });
   }
