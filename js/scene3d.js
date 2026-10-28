@@ -117,8 +117,10 @@ export function ring(host, tokens) {
   sun.position.set(-5, 7, 12);
   scene.add(sun);
 
+  /* Stood up to face the viewer, then turned a quarter so each face's icon reads upright. */
   const geo = new CylinderGeometry(0.5, 0.5, 0.13, 56);
   geo.rotateX(Math.PI / 2);
+  geo.rotateZ(Math.PI / 2);
   const coins = tokens.map((t, i) => {
     const rim = new MeshStandardMaterial({ color: 0xece8db, roughness: 0.45, metalness: 0.15, transparent: true });
     const face = new MeshStandardMaterial({ map: coinFace(t.color, t.ink, t.icon), roughness: 0.55, metalness: 0.05, transparent: true });
