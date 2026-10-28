@@ -1035,6 +1035,39 @@ function rowOf(r) {
     await u.ctx.close();
   });
 
+  /* The room shows what you've said (D-167): books for your year, your faculty's letters on the bunting, and the rest pinned up. */
+  await check("the Your form room fills with your answers", async () => {
+    const t = await open(browser, {});
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "year");
+    const room = () => t.page.evaluate(() => {
+      const svg = document.querySelector('[data-box="pass"] .scene'), on = sel => [...svg.querySelectorAll(sel)].filter(e => e.classList.contains("on")).length;
+      return { books: on("[data-book]"), flags: [...svg.querySelectorAll("[data-flag]")].map(f => f.textContent).join(""), home: on("#pb-home"), notes: on("[data-org]"), officer: on("#pb-officer"), cards: on("[data-support]"), cert: on("#pb-cert"), fam: on("#pb-fam"), first: on("#pb-first") };
+    });
+    assert.deepStrictEqual(await room(), { books: 0, flags: "", home: 0, notes: 0, officer: 0, cards: 0, cert: 0, fam: 0, first: 0 }, "an empty room before any answer");
+    await t.page.click(btn("year", "3rd"));
+    await at(t.page, "faculty");
+    await t.page.click(btn("faculty", "Faculty of Engineering"));
+    await t.page.evaluate(() => window.__survey.go("home"));
+    await at(t.page, "home");
+    await t.page.click(btn("home", "An on-campus dorm"));
+    await t.page.evaluate(() => window.__survey.go("org"));
+    await at(t.page, "org");
+    await t.page.click(btn("org", "An officer or leader"));
+    await t.page.evaluate(() => window.__survey.go("support"));
+    await at(t.page, "support");
+    await t.page.click(btn("support", "A scholarship or financial aid"));
+    await t.page.click(btn("support", "I work while studying"));
+    await t.page.evaluate(() => window.__survey.go("familyVSU"));
+    await at(t.page, "familyVSU");
+    await t.page.click(btn("familyVSU", "No, I'm the first in my family to study at VSU"));
+    assert.deepStrictEqual(await room(), { books: 3, flags: "FE", home: 1, notes: 3, officer: 1, cards: 1, cert: 1, fam: 0, first: 1 });
+    assert.deepStrictEqual(t.errors, []);
+    await t.ctx.close();
+  });
+
   await check("the Your form scene never fades while she types an answer", async () => {
     const t = await open(browser, {});
     await t.page.click("#start");

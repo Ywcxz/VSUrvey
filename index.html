@@ -595,6 +595,21 @@ a{color:var(--sea)}
 @media (hover:hover){ .tile:hover .art .wake,.vig:hover .art .wake{animation:wake .7s cubic-bezier(.3,1.5,.5,1)} }
 .chip[aria-pressed="true"] svg{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
 
+/* The model campus (D-167): what the room shows from your answers pops in as you answer; she nods as she types. */
+.prop{opacity:0;transition:opacity .25s;transform-box:fill-box;transform-origin:50% 100%}
+.prop.on{opacity:1}
+.prop.pop,.flag.pop{animation:propPop .55s cubic-bezier(.3,1.6,.5,1)}
+.flag{transform-box:fill-box;transform-origin:50% 0}
+@keyframes propPop{from{scale:.3}to{scale:1}}
+.nod{transform-box:fill-box;transform-origin:50% 100%}
+.typing .nod{animation:nod .8s ease-in-out}
+@keyframes nod{30%{rotate:-5deg}65%{rotate:3deg}}
+.wcloud{animation:wcloud 14s ease-in-out infinite alternate}
+@keyframes wcloud{from{translate:0 0}to{translate:16px 0}}
+.leafy{transform-box:fill-box;transform-origin:50% 100%;animation:leafy 5s ease-in-out infinite}
+@keyframes leafy{0%,100%{rotate:-2deg}50%{rotate:2.5deg}}
+[data-box="pass"] .pupil{transform:translate(calc(var(--mx, 0) * .9px),calc(var(--my, 0) * .7px))}
+
 /* The 3D moments draw on a canvas under the text; the drawn ring steps aside once the coins are up. */
 .three{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .9s ease}
 .three.on{opacity:1}
@@ -724,7 +739,8 @@ a{color:var(--sea)}
 
   /* Speech bubbles are HTML laid over the drawing, so their text stays readable at any size.
      Each one points at a spot in the drawing (data-ax, data-ay, in the drawing's own units). */
-  function talkHtml(id, ax, ay, text) { return '<div class="talk" id="' + id + '" data-ax="' + ax + '" data-ay="' + ay + '" aria-hidden="true"><span>' + esc(text) + "</span></div>"; }
+  /* A speech bubble pointing at (ax, ay) on the drawing; it opens to the left of that point, or to the right if side is "right". */
+  function talkHtml(id, ax, ay, text, side) { return '<div class="talk" id="' + id + '" data-ax="' + ax + '" data-ay="' + ay + '"' + (side ? ' data-side="' + side + '"' : "") + ' aria-hidden="true"><span>' + esc(text) + "</span></div>"; }
   function placeTalk(box) {
     var svg = box && box.querySelector(".scene"), stage = box && box.querySelector(".stage");
     if (!svg || !stage) return;
@@ -734,7 +750,7 @@ a{color:var(--sea)}
       var pt = svg.createSVGPoint();
       pt.x = Number(t.dataset.ax); pt.y = Number(t.dataset.ay);
       var p = pt.matrixTransform(ctm), x = p.x - r.left, y = p.y - r.top, w = t.offsetWidth, h = t.offsetHeight;
-      var left = Math.max(6, Math.min(r.width - w - 6, x - w * 0.8));
+      var left = Math.max(6, Math.min(r.width - w - 6, x - w * (t.dataset.side === "right" ? 0.08 : 0.8)));
       t.style.left = left + "px";
       t.style.top = Math.max(4, y - h - 12) + "px";
       t.style.setProperty("--tail", Math.max(16, Math.min(w - 16, x - left)) + "px");
@@ -1014,31 +1030,124 @@ a{color:var(--sea)}
   }
   function gateStage() { return gateSvg("gate-say", "Are you a student?"); }
 
-  /* Your form: you stand at the counter; the staff types in your answers, prints your form, and hands it over. */
+  /* ---------- The model campus ----------
+     Each scene is a small block of a model campus, drawn in isometric view (D-167). A point (x, y, z) on a block, in grid units,
+     lands on the drawing at ox + (x − y)·0.866·s, oy + (x + y)·s/2 − z·s: x runs down to the right, y down to the left, z up.
+     Light comes from the left, so faces turned left are lit, tops are lighter still, and faces turned right are in shade. */
+  function shade(hex, k) {
+    var n = parseInt(hex.slice(1), 16), to = k > 0 ? [255, 255, 255] : [31, 42, 34], m = Math.abs(k);
+    return "#" + [n >> 16, n >> 8 & 255, n & 255].map(function (v, i) { return ("0" + Math.round(v + (to[i] - v) * m).toString(16)).slice(-2); }).join("");
+  }
+  function isoView(ox, oy, s) {
+    var c = 0.866 * s, h = s / 2;
+    function at(x, y, z) { return [ox + (x - y) * c, oy + (x + y) * h - (z || 0) * s]; }
+    function pts(list) { return list.map(function (q) { var p = at(q[0], q[1], q[2]); return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" "); }
+    function face(list, fill) { return '<polygon points="' + pts(list) + '" fill="' + fill + '"/>'; }
+    /* A box from its corner (x, y, z), w along x, d along y, and t tall: its top, its face turned left, its face turned right. */
+    function box(x, y, z, w, d, t, col) {
+      return face([[x, y, z + t], [x + w, y, z + t], [x + w, y + d, z + t], [x, y + d, z + t]], shade(col, .25)) +
+        face([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + t], [x, y + d, z + t]], col) +
+        face([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + t], [x + w, y, z + t]], shade(col, -.18));
+    }
+    /* A flat drawing laid on a face, in its own units (k grid units each), its point (lx, ly) pinned at (x, y, z), its y running
+       down: "y" lays it on a face turned left (a wall along x), "x" on a face turned right (a wall along y), "z" on a top. */
+    function on(plane, x, y, z, k, lx, ly) {
+      var p = at(x, y, z), m;
+      k = k || 1;
+      m = plane === "y" ? [c * k, h * k, 0, s * k] : plane === "x" ? [c * k, -h * k, 0, s * k] : [c * k, h * k, -c * k, h * k];
+      return "matrix(" + m.concat([p[0] - m[0] * (lx || 0) - m[2] * (ly || 0), p[1] - m[1] * (lx || 0) - m[3] * (ly || 0)]).map(function (v) { return +v.toFixed(4); }).join(" ") + ")";
+    }
+    return { at: at, face: face, box: box, on: on };
+  }
+
+  /* Your form: a corner office on the model campus. You stand at the counter; the staff types your answers onto the monitor,
+     prints your form, and hands it over, and the room fills with what you tell her (D-167). */
+  var PASS = isoView(161, 86, 14.5);
+  var PASS_HOME = { "An on-campus dorm": "dorm", "A boarding house or apartment near campus": "door", "My family's home, and I commute": "house", "A relative's or friend's house": "people", "Somewhere else": "pin" };
+  var PASS_SUPPORT = { "My parents or guardians send me money": "house", "A relative supports me": "group", "I work while studying": "case", "My own savings": "coin" };
   function passStage() {
-    var bars = "", keys = "";
-    [0, 180, 60, 240, 120, 300, 30, 210, 90].forEach(function (d, i) { keys += '<rect class="key" x="' + (109 + i * 6.6) + '" y="155.5" width="5" height="5" rx="1.2" fill="#CBD2C4" style="animation-delay:' + d + 'ms"/>'; });
-    /* The monitor shows the form: a colored strip, then one line per question, its label and the answer typed in. */
-    bars = '<rect x="7" y="6" width="62" height="40" rx="1.5" fill="#FFFFFF"/><rect x="7" y="6" width="62" height="4" fill="#2B7385"/>';
-    for (var i = 0; i < 4; i++) bars += '<text x="10" y="' + (17.5 + i * 9) + '" font-size="4.2" font-weight="700" fill="#7E8578" font-family="sans-serif">' + ["Year", "Program", "Resides", "Scholar"][i] + '</text><rect x="29" y="' + (19 + i * 9) + '" width="37" height="0.6" fill="#E7EBE2"/><text class="bar-fill mon-v" data-bar="' + i + '" data-mon="' + i + '" x="29" y="' + (17.8 + i * 9) + '" font-size="4.6" font-weight="700" fill="' + ["#2B7385", "#CE5A45", "#7E68A0", "#3D6C9A"][i] + '" font-family="sans-serif"></text>';
-    return stageSvg(
-      '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.28)"/>' +
-      '<g><rect x="30" y="16" width="46" height="46" rx="5" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><path d="M30 21a5 5 0 0 1 5-5h36a5 5 0 0 1 5 5v9H30Z" fill="#CE5A45" stroke="#1F2A22" stroke-width="1.7"/>' +
-      '<text id="pc-mon" x="53" y="27.5" text-anchor="middle" font-size="9" font-weight="800" fill="#FFFFFF" font-family="sans-serif">Oct</text><text id="pc-day" x="53" y="53" text-anchor="middle" font-size="19" font-weight="800" fill="#1F2A22" font-family="sans-serif">1</text>' +
-      '<circle cx="320" cy="40" r="16" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><path id="pc-h" d="M320 40V32" stroke="#1F2A22" stroke-width="2.21" stroke-linecap="round"/><path id="pc-s" d="M320 43V26" stroke="#CE5A45" stroke-width="1.1" stroke-linecap="round"/><path id="pc-m" d="M320 40V28" stroke="#1F2A22" stroke-width="1.53" stroke-linecap="round"/><circle cx="320" cy="40" r="1.6" fill="#1F2A22"/>' +
-      '<rect x="92" y="16" width="176" height="152" rx="14" fill="#FAF9F4" opacity=".55"/></g>' +
-      '<g><path d="M124 170 C126 134 148 124 180 124 C212 124 234 134 236 170Z" fill="#7E68A0" stroke="#1F2A22" stroke-width="1.27"/>' +
-      '<path d="M167 124 l13 15 l13 -15" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.02"/><path d="M170 126 l10 22 l10 -22" stroke="#E8B23E" stroke-width="2.2" fill="none"/><rect x="173.5" y="146" width="13" height="16" rx="2" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.02"/>' +
-      '<rect x="172" y="108" width="16" height="18" rx="6" fill="#8A5A3C"/>' +
-      '<g><circle cx="180" cy="90" r="24" fill="#8A5A3C"/><path d="M155 92 C152 60 208 60 205 92 C200 76 164 72 155 92Z" fill="#1B1B22"/><circle cx="205" cy="74" r="9" fill="#1B1B22"/>' +
-      '<ellipse class="blush" cx="165" cy="101" rx="3.6" ry="2.1"/><ellipse class="blush" cx="195" cy="101" rx="3.6" ry="2.1"/><g class="eyes"><circle cx="171" cy="94" r="3.8" fill="#FFFFFF"/><circle cx="189" cy="94" r="3.8" fill="#FFFFFF"/><circle class="pupil" cx="171" cy="94" r="2" fill="#1F2A22"/><circle class="pupil" cx="189" cy="94" r="2" fill="#1F2A22"/></g><g class="shut" opacity="0"><path d="M167.2 94.4q3.8 2.47 7.6 0M185.2 94.4q3.8 2.47 7.6 0" fill="none" stroke="#1F2A22" stroke-width="1.5" stroke-linecap="round"/></g>' +
-      '<path d="M174 103 q6 4.5 12 0" stroke="#1F2A22" stroke-width="1.53" fill="none" stroke-linecap="round"/></g></g>' +
-      '<g><g transform="translate(40 108)"><rect width="76" height="52" rx="5" fill="#1F2A22"/><rect x="4" y="4" width="68" height="44" rx="3" fill="#E0EDEE"/>' + bars + '<rect x="33" y="52" width="10" height="8" fill="#1F2A22"/></g>' +
-      '<g transform="translate(244 134)"><rect x="8" y="-7" width="56" height="9" rx="3" fill="#1F2A22"/><rect width="72" height="34" rx="7" fill="#52594C" stroke="#1F2A22" stroke-width="1.27"/><circle class="led" cx="60" cy="12" r="3.5" fill="#8DB37F"/><rect x="10" y="20" width="36" height="5" rx="2.5" fill="#1F2A22" opacity=".5"/></g>' +
-      '<path d="M0 166 H360 V198 a22 22 0 0 1 -22 22 H22 a22 22 0 0 1 -22 -22 Z" fill="#82654B"/><rect y="162" width="360" height="8" fill="#A0704F"/>' +
-      '<g class="kbd"><rect x="106" y="153" width="64" height="10" rx="3" fill="#52594C" stroke="#1F2A22" stroke-width="1.02"/>' + keys + "</g>" +
-      '<g class="hands"><ellipse class="hl" cx="121" cy="153.5" rx="9" ry="5" fill="#8A5A3C" stroke="#1F2A22" stroke-width="1.02"/><ellipse class="hr" cx="151" cy="154.5" rx="9" ry="5" fill="#8A5A3C" stroke="#1F2A22" stroke-width="1.02"/></g></g>') +
-      talkHtml("pass-say", 180, 64, "Morning! Your year?");
+    var V = PASS, at = V.at, box = V.box, face = V.face, on = V.on;
+    var INK = "#1F2A22", WALL = "#F2EEE3", TRIM = "#CFE0D2", WOOD = "#B78A5E", SKIN = "#8A5A3C", HAIR = "#1B1B22";
+    var out = "", i, p;
+    function g(cls, body, tf) { return "<g" + (cls ? ' class="' + cls + '"' : "") + (tf ? ' transform="' + tf + '"' : "") + ">" + body + "</g>"; }
+
+    /* The block: its shadow, a lawn, the office floor, and two walls with a green band along the bottom. */
+    out += face([[0.5, 0.5, -1.3], [9.3, 0.5, -1.3], [9.3, 6.3, -1.3], [0.5, 6.3, -1.3]], "rgba(31,42,34,.13)");
+    out += box(0, 0, -0.7, 8.8, 5.8, 0.7, "#7FA872");
+    out += box(0, 0, 0, 8, 5, 0.06, "#E3D3B5");
+    for (i = 1; i < 8; i++) out += '<path d="M' + at(i, 0, 0.06).join(" ") + "L" + at(i, 5, 0.06).join(" ") + '" stroke="rgba(31,42,34,.06)" stroke-width=".6"/>';
+    for (i = 1; i < 5; i++) out += '<path d="M' + at(0, i, 0.06).join(" ") + "L" + at(8, i, 0.06).join(" ") + '" stroke="rgba(31,42,34,.06)" stroke-width=".6"/>';
+    out += box(-0.25, -0.25, 0, 0.25, 5.25, 4.6, shade(WALL, -0.04)) + box(0, -0.25, 0, 8, 0.25, 4.6, WALL);
+    out += face([[0, 0, 0], [8, 0, 0], [8, 0, 1.1], [0, 0, 1.1]], TRIM) + face([[0, 0, 0], [0, 5, 0], [0, 5, 1.1], [0, 0, 1.1]], shade(TRIM, -0.2));
+
+    /* The back wall: bunting that spells your faculty, the calendar, a certificate for a scholarship, and a window on campus. */
+    var flags = "";
+    for (i = 0; i < 4; i++) flags += '<g transform="translate(' + (6 + i * 17) + ' 3)"><g class="flag"><path d="M0 0H13L6.5 14Z" fill="' + ["#1F5B3F", "#E8B23E", "#CE5A45", "#2B7385"][i] + '"/><text data-flag="' + i + '" x="6.5" y="8" text-anchor="middle" font-size="7" font-weight="800" fill="#FFFFFF" font-family="sans-serif"></text></g></g>';
+    out += g("", '<path d="M0 2Q38 7 76 2" fill="none" stroke="#82654B" stroke-width=".9"/>' + flags, on("y", 0.3, 0, 4.42, 1 / 20));
+    out += g("", '<rect x="30" y="16" width="46" height="46" rx="5" fill="#FAF9F4"/><path d="M30 21a5 5 0 0 1 5-5h36a5 5 0 0 1 5 5v9H30Z" fill="#CE5A45"/>' +
+      '<text id="pc-mon" x="53" y="27.5" text-anchor="middle" font-size="9" font-weight="800" fill="#FFFFFF" font-family="sans-serif">Oct</text><text id="pc-day" x="53" y="53" text-anchor="middle" font-size="19" font-weight="800" fill="#1F2A22" font-family="sans-serif">1</text>', on("y", 0.45, 0, 3.4, 1 / 40, 30, 16));
+    out += g("", '<g class="prop" id="pb-cert"><rect width="23" height="19" rx="1.5" fill="#E8D9A8"/><rect x="2" y="2" width="19" height="15" fill="#FFFFFF"/><rect x="5" y="5" width="13" height="1.6" rx=".8" fill="#9CA497"/><rect x="5" y="8.2" width="10" height="1.2" rx=".6" fill="#CFC9B9"/><rect x="5" y="10.6" width="8" height="1.2" rx=".6" fill="#CFC9B9"/>' +
+      '<path d="M15 12l-1.6 5 2.6-1.4 2.6 1.4-1.6-5" fill="#CE5A45"/><circle cx="16" cy="12" r="2.6" fill="#E8B23E"/></g>', on("y", 1.85, 0, 3.5, 1 / 20));
+    out += g("", '<defs><clipPath id="pass-win"><rect width="46" height="48"/></clipPath></defs><g clip-path="url(#pass-win)"><rect width="46" height="48" fill="#CDE8EC"/>' +
+      '<circle cx="35" cy="11" r="5" fill="#F3CF6E"/><g class="wcloud"><path d="M6 15a4 4 0 0 1 7-2.5 5 5 0 0 1 9 1.5 3 3 0 0 1 .5 6H6.5a2.5 2.5 0 0 1-.5-5Z" fill="#FFFFFF" opacity=".85"/></g>' +
+      '<path d="M0 36Q12 27 24 33T46 30V48H0Z" fill="#8DB37F"/><rect x="25" y="25" width="13" height="13" fill="#FAF9F4"/><path d="M23.5 25.5 31.5 19l8 6.5Z" fill="#CE5A45"/><rect x="28" y="29" width="3" height="3" fill="#B3D7DB"/><rect x="33" y="29" width="3" height="3" fill="#B3D7DB"/>' +
+      '<path d="M8 40v-9M8 33l-3-2M8 35l3-3" stroke="#1F5B3F" stroke-width="1.6" stroke-linecap="round"/></g>' +
+      '<rect x="1" y="1" width="44" height="46" fill="none" stroke="#FFFFFF" stroke-width="2.4"/><path d="M23 1V47M1 24H45" stroke="#FFFFFF" stroke-width="1.4"/>', on("y", 5.25, 0, 3.95, 1 / 20));
+    out += box(5.15, 0, 1.52, 2.5, 0.22, 0.07, "#FFFFFF");
+
+    /* The side wall: the clock, and a board where your place, your orgs, and how you get by are pinned. */
+    out += g("", '<circle cx="320" cy="40" r="16" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><path id="pc-h" d="M320 40V32" stroke="#1F2A22" stroke-width="2.21" stroke-linecap="round"/><path id="pc-s" d="M320 43V26" stroke="#CE5A45" stroke-width="1.1" stroke-linecap="round"/><path id="pc-m" d="M320 40V28" stroke="#1F2A22" stroke-width="1.53" stroke-linecap="round"/><circle cx="320" cy="40" r="1.6" fill="#1F2A22"/>', on("x", 0, 0.85, 3.8, 1 / 28, 320, 40));
+    var cards = "";
+    ["house", "group", "case", "coin"].forEach(function (n, j) {
+      cards += '<g class="prop" data-support="' + n + '"><rect x="' + (5 + j * 9.5) + '" y="21" width="8" height="8.5" rx="1" fill="#FFFFFF"/>' + svgIcon(n, 5.6 + j * 9.5, 21.8, 0.28, INK) + "</g>";
+    });
+    out += g("", '<rect width="48" height="34" rx="2" fill="#A0704F"/><rect x="2" y="2" width="44" height="30" fill="#D9B88A"/>' +
+      '<g class="prop" id="pb-home"><rect x="5" y="4" width="13" height="15" fill="#FFFFFF"/><rect x="6.3" y="5.3" width="10.4" height="9.4" fill="#B3D7DB"/><g id="pb-home-ic"></g><circle cx="11.5" cy="4.6" r="1.1" fill="#CE5A45"/></g>' +
+      '<g class="prop" data-org="1"><rect x="21" y="5" width="7" height="7" fill="#F3CF6E"/></g><g class="prop" data-org="2"><rect x="29.5" y="6" width="7" height="7" fill="#B3D7DB"/></g><g class="prop" data-org="3"><rect x="25" y="13" width="7" height="7" fill="#F2B6A6"/></g>' +
+      '<g class="prop" id="pb-officer"><path d="M39 12l-2 7 3-1.5 3 1.5-2-7" fill="#CE5A45"/><circle cx="40" cy="10" r="4.2" fill="#E8B23E"/><circle cx="40" cy="10" r="2.2" fill="#F7D47A"/></g>' +
+      cards + '<g class="prop" id="pb-first"><path d="m42 21.5 1.4 2.9 3.2.5-2.3 2.2.6 3.2-2.9-1.5-2.9 1.5.6-3.2-2.3-2.2 3.2-.5Z" fill="#E8B23E"/></g>', on("x", 0, 4.15, 3.75, 1 / 20));
+
+    /* The staff, behind the counter: her eyes follow you, and she nods as she types each answer in. */
+    var her = at(4.85, 1.85, 0);
+    out += g("", '<path d="M-13 -18 C-14 -34 -12 -44 0 -45 C12 -44 14 -34 13 -18 Z" fill="#7E68A0"/><path d="M0 -45 C12 -44 14 -34 13 -18 H0 Z" fill="#6A578A"/>' +
+      '<path d="M-5 -44 L0 -37 L5 -44 Z" fill="#FAF9F4"/><path d="M-4 -43 L0 -33 L4 -43" stroke="#E8B23E" stroke-width="1.4" fill="none"/><rect x="-2.6" y="-34" width="5.2" height="6" rx="1" fill="#FAF9F4"/>' +
+      '<rect x="-3" y="-50" width="6" height="7" fill="#7A4E33"/>' +
+      g("nod", '<circle cx="0" cy="-58" r="10.5" fill="' + SKIN + '"/><path d="M-11 -56 C-12 -71 11 -72 11 -57 C6 -64 -6 -64 -11 -56Z" fill="' + HAIR + '"/><circle cx="8" cy="-68" r="4.6" fill="' + HAIR + '"/>' +
+        '<ellipse class="blush" cx="-6.8" cy="-53.6" rx="2" ry="1.2"/><ellipse class="blush" cx="4.4" cy="-53.6" rx="2" ry="1.2"/>' +
+        '<g class="eyes"><circle cx="-4.8" cy="-57.6" r="2.4" fill="#FFFFFF"/><circle cx="2.6" cy="-57.6" r="2.4" fill="#FFFFFF"/><circle class="pupil" cx="-4.8" cy="-57.6" r="1.3" fill="#1F2A22"/><circle class="pupil" cx="2.6" cy="-57.6" r="1.3" fill="#1F2A22"/></g>' +
+        '<g class="shut" opacity="0"><path d="M-7 -57.3q2.2 1.5 4.4 0M.4 -57.3q2.2 1.5 4.4 0" fill="none" stroke="#1F2A22" stroke-width="1" stroke-linecap="round"/></g>' +
+        '<path d="M-3.8 -52.2 q2.6 2 5.2 0" stroke="#1F2A22" stroke-width="1" fill="none" stroke-linecap="round"/>'), "translate(" + her[0].toFixed(1) + " " + her[1].toFixed(1) + ")");
+
+    /* The counter, and on it: books for your year, the monitor with your form, the keyboard, a family photo, the printer. */
+    out += box(0.3, 2.75, 0, 7.4, 0.95, 1.95, WOOD) + face([[0.3, 3.7, 0.9], [7.7, 3.7, 0.9], [7.7, 3.7, 1.1], [0.3, 3.7, 1.1]], "#5E8E5A");
+    out += box(0.2, 2.65, 1.95, 7.6, 1.15, 0.12, "#EFE6D3");
+    var bookCols = ["#2B7385", "#CE5A45", "#E8B23E", "#7E68A0", "#5E8E5A"], books = "";
+    for (i = 0; i < 5; i++) books += '<g class="prop" data-book="' + (i + 1) + '">' + box(0.45 + (i % 2) * 0.08, 2.95, 2.07 + i * 0.19, 0.85, 0.6, 0.17, bookCols[i]) + "</g>";
+    out += books;
+    var bars = '<defs><clipPath id="pass-mon"><rect x="7" y="6" width="62" height="40"/></clipPath></defs><rect x="4" y="4" width="68" height="44" rx="2" fill="#E0EDEE"/><rect x="7" y="6" width="62" height="40" rx="1.5" fill="#FFFFFF"/><rect x="7" y="6" width="62" height="4" fill="#2B7385"/><g clip-path="url(#pass-mon)">';
+    for (i = 0; i < 4; i++) bars += '<text x="10" y="' + (17.5 + i * 9) + '" font-size="4.2" font-weight="700" fill="#7E8578" font-family="sans-serif">' + ["Year", "Program", "Resides", "Scholar"][i] + '</text><rect x="29" y="' + (19 + i * 9) + '" width="37" height="0.6" fill="#E7EBE2"/><text class="bar-fill mon-v" data-bar="' + i + '" data-mon="' + i + '" x="29" y="' + (17.8 + i * 9) + '" font-size="4.6" font-weight="700" fill="' + ["#2B7385", "#CE5A45", "#7E68A0", "#3D6C9A"][i] + '" font-family="sans-serif"></text>';
+    bars += "</g>";
+    out += box(2.45, 2.98, 2.07, 0.9, 0.45, 0.06, "#3A443C") + box(2.75, 3.02, 2.13, 0.3, 0.2, 0.35, "#3A443C");
+    out += box(1.45, 3.08, 2.42, 2.9, 0.12, 1.98, INK) + g("", bars, on("y", 1.45, 3.2, 4.4, 2.9 / 76));
+    var keys = "";
+    [0, 180, 60, 240, 120, 300, 30, 210, 90].forEach(function (d, j) { keys += '<rect class="key" x="' + (0.08 + j * 0.14) + '" y="0.12" width="0.11" height="0.2" rx=".03" fill="#CBD2C4" style="animation-delay:' + d + 'ms"/>'; });
+    out += '<g class="prop" id="pb-fam">' + box(4.6, 3.2, 2.07, 0.5, 0.06, 0.62, "#82654B") + g("", '<rect x="1.5" y="1.5" width="7" height="9" fill="#F6E7C0"/><circle cx="3.6" cy="5" r="1.4" fill="#A0704F"/><circle cx="6.5" cy="5.6" r="1.2" fill="#8A5A3C"/><path d="M1.6 10.5c0-2.4 1-3.4 2-3.4s2 1 2 3.4M4.8 10.5c0-2 .9-3 1.8-3s1.8 1 1.8 3" fill="#2B7385"/>', on("y", 4.6, 3.26, 2.69, 0.05)) + "</g>";
+    out += box(5.3, 2.8, 2.07, 1.3, 0.45, 0.07, "#52594C") + g("kbd", keys, on("z", 5.3, 2.8, 2.14));
+    out += box(6.85, 2.85, 2.07, 0.85, 0.75, 0.55, "#52594C") + box(6.97, 2.95, 2.62, 0.6, 0.3, 0.04, INK) +
+      g("", '<circle class="led" cx="0.7" cy="0.22" r="0.07" fill="#8DB37F"/><rect x="0.1" y="0.3" width="0.42" height="0.07" rx=".03" fill="#1F2A22" opacity=".5"/>', on("y", 6.85, 3.6, 2.62));
+    /* Her arms reach over the counter to the keyboard. */
+    var hl = at(5.65, 3.0, 2.2), hr = at(6.25, 3.0, 2.2), xy = function (pt) { return pt[0].toFixed(1) + " " + pt[1].toFixed(1); };
+    out += '<path d="M' + (her[0] - 12).toFixed(1) + " " + (her[1] - 40).toFixed(1) + "Q" + (her[0] - 17).toFixed(1) + " " + (her[1] - 24).toFixed(1) + " " + xy(hl) +
+      "M" + (her[0] + 12).toFixed(1) + " " + (her[1] - 40).toFixed(1) + "Q" + (her[0] + 15).toFixed(1) + " " + (her[1] - 20).toFixed(1) + " " + xy(hr) + '" stroke="#7E68A0" stroke-width="5" stroke-linecap="round" fill="none"/>';
+    out += g("hands", '<ellipse class="hl" cx="' + hl[0].toFixed(1) + '" cy="' + hl[1].toFixed(1) + '" rx="3.4" ry="2.2" fill="' + SKIN + '"/><ellipse class="hr" cx="' + hr[0].toFixed(1) + '" cy="' + hr[1].toFixed(1) + '" rx="3.4" ry="2.2" fill="' + SKIN + '"/>');
+
+    /* A plant by the door. */
+    out += box(0.35, 4.25, 0, 0.55, 0.55, 0.5, "#CE5A45");
+    p = at(0.62, 4.52, 0.5);
+    out += g("", g("leafy", '<path d="M0 0C-7 -4 -9 -12 -6 -17C-2 -12 -1 -6 0 0ZM0 0C6 -5 9 -12 5 -18C2 -12 0 -6 0 0ZM0 0C-1 -8 1 -16 1 -22C3 -15 2 -7 0 0Z" fill="#5E8E5A"/><path d="M0 0C-3 -6 -3 -10 -6 -17M0 0C3 -6 4 -11 5 -18" stroke="#1F5B3F" stroke-width=".6" fill="none"/>'), "translate(" + p[0].toFixed(1) + " " + p[1].toFixed(1) + ")");
+
+    p = at(4.85, 1.85, 5.15);
+    return stageSvg(out) + talkHtml("pass-say", +(p[0] + 9).toFixed(1), +p[1].toFixed(1), "Morning! Your year?", "right");
   }
   var PASS_CARD = '<div class="idwrap" id="passwrap" aria-hidden="true"><div class="idcard" id="passcard"><div class="id-body"><div class="id-photo"><svg viewBox="-20 -50 40 52"><rect x="-10" y="-22" width="20" height="24" rx="8" fill="#F7F7F1"/><circle cy="-32" r="9" fill="#A0704F"/><path d="M-9.2 -33.5 C-8.4 -44 8.4 -44 9.2 -33.5 C4.2 -37 -4.2 -37 -9.2 -33.5Z" fill="#1B1B22"/><path d="M-4 -22 L0 -11 L4 -22" stroke="#E8B23E" stroke-width="2" fill="none"/></svg></div>' +
     '<div class="id-text"><p class="id-title">VSUrvey form</p><p class="id-sub">Student Life and Services</p><dl class="id-fields"><dt>Year</dt><dd data-f="year"></dd><dt>Program</dt><dd data-f="program"></dd><dt>Resides</dt><dd data-f="residence"></dd><dt>Scholar</dt><dd data-f="scholar"></dd></dl></div></div></div></div>';
@@ -1977,9 +2086,40 @@ a{color:var(--sea)}
   }
   var passSkipped = {};
   function passType() { if (!calm()) replay($(".scene", boxEls.pass), "typing"); }
+  /* The room shows what you've said: books for your year, your faculty on the bunting, your place, your orgs, and how you get
+     by on the board, a certificate for a scholarship, and a family photo, or a star for the first in the family. Whatever is new
+     pops in as you answer. */
+  function passProps(key) {
+    var svg = $(".scene", boxEls.pass);
+    function show(el, yes) {
+      if (!el) return;
+      var was = el.classList.contains("on");
+      el.classList.toggle("on", !!yes);
+      if (yes && !was && key && !calm()) replay(el, "pop");
+    }
+    var yr = OPT.year.map(function (o) { return o[0]; }).indexOf(A.year) + 1;
+    $$("[data-book]", svg).forEach(function (b) { show(b, Number(b.dataset.book) <= yr); });
+    var fac = FACULTIES.filter(function (f) { return "Faculty of " + f[1] === A.faculty; })[0], code = fac ? fac[0] : "";
+    $$("[data-flag]", svg).forEach(function (t, i) {
+      if (t.textContent === code.charAt(i)) return;
+      t.textContent = code.charAt(i);
+      if (key && !calm()) replay(t.parentNode, "pop");
+    });
+    var home = PASS_HOME[A.residence];
+    if (home) $("#pb-home-ic", svg).innerHTML = svgIcon(home, 7.5, 6, 0.33, "#1F2A22");
+    show($("#pb-home", svg), !!home);
+    var notes = { "An officer or leader": 3, "An active member": 3, "A member, but I rarely take part": 1 }[A.org] || 0;
+    $$("[data-org]", svg).forEach(function (o) { show(o, Number(o.dataset.org) <= notes); });
+    show($("#pb-officer", svg), A.org === "An officer or leader");
+    $$("[data-support]", svg).forEach(function (c) { show(c, A.support.some(function (v) { return PASS_SUPPORT[v] === c.dataset.support; })); });
+    show($("#pb-cert", svg), A.support.indexOf("A scholarship or financial aid") >= 0);
+    show($("#pb-fam", svg), /^Yes/.test(A.familyVSU || ""));
+    show($("#pb-first", svg), /^No/.test(A.familyVSU || ""));
+  }
   function passReact(key) {
     var box = boxEls.pass, svg = $(".scene", box);
     fillCard();
+    passProps(key);
     /* A monitor line is typed once its answer is in, and greys out as Prefer not to say once skipped. */
     CARD.forEach(function (k, i) {
       var bar = $('[data-bar="' + i + '"]', svg), t = cardText(k);
