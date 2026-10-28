@@ -12,9 +12,11 @@ Copyright © 2026 Leo M. Subingsubing.
 - the survey's and the sign-up page's wording: questions, answer choices, consent text, and every other screen;
 - the drawn scenes and characters in `index.html` and `volunteer.html`.
 
-The code, the scripts and styles in `index.html` and `volunteer.html`, `survey-receiver.gs`, `volunteer-receiver.gs`, `scripts/`, `tests/`, `.github/`, and `vercel.json`, is under the MIT License.
+The code, the scripts and styles in `index.html` and `volunteer.html`, `js/scene3d.js`, `survey-receiver.gs`, `volunteer-receiver.gs`, `scripts/`, `tests/`, `.github/`, and `vercel.json`, is under the MIT License.
 
 The fonts in `fonts/` are neither: Newsreader, by the Newsreader Project Authors, and Atkinson Hyperlegible, by the Braille Institute of America, are under the SIL Open Font License 1.1, in `fonts/OFL-*.txt`.
+
+three.js, in `js/three.module.min.js`, is by the three.js authors, under their own MIT License, in `js/LICENSE-three.txt`.
 
 ## Credit
 

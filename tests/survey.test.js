@@ -54,19 +54,27 @@ const PHONE_FIT = `window.phoneFit = function (p, bottom) {
   p.scrollTop = 0;
   return bad;
 };`;
-/* The site's own files, the bundled fonts, come from the repository; any other address on the site is the page. */
+/* The site's own files, the bundled fonts and the 3D scripts, come from the repository; any other address on the site is the page. */
+const TYPES = { woff2: "font/woff2", js: "text/javascript; charset=utf-8" };
 function siteFile(u) {
-  const m = /^https:\/\/[^/]+\/(fonts\/[\w.-]+\.woff2)$/.exec(u.split("?")[0]);
+  const m = /^https:\/\/[^/]+\/((?:fonts|js)\/[\w.-]+\.(woff2|js))$/.exec(u.split("?")[0]);
   const f = m && path.join(__dirname, "..", m[1]);
-  return f && fs.existsSync(f) ? { status: 200, contentType: "font/woff2", body: fs.readFileSync(f) } : null;
+  return f && fs.existsSync(f) ? { status: 200, contentType: TYPES[m[2]], body: fs.readFileSync(f) } : null;
 }
+/* The page draws in 3D only with a graphics card, and turns down drawing in software, which is all a test machine may have:
+   SOFT_GL lets software drawing count, NO_GL takes WebGL 2 away, and NET sets what the browser says about the connection. */
+const SOFT_GL = 'var gc = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, o) { return gc.call(this, t, o && Object.assign({}, o, { failIfMajorPerformanceCaveat: false })); };';
+const NO_GL = 'var gc = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (t, o) { return t === "webgl2" ? null : gc.call(this, t, o); };';
+const NET = c => 'Object.defineProperty(navigator, "connection", { configurable: true, value: ' + JSON.stringify(c) + " });";
 async function open(browser, o = {}) {
   const mobile = !!o.mobile;
   const ctx = await browser.newContext({ viewport: o.viewport || (mobile ? PHONE : DESKTOP), hasTouch: mobile, isMobile: mobile, reducedMotion: o.reduced ? "reduce" : "no-preference" });
   const page = await ctx.newPage();
   await page.addInitScript(PHONE_FIT);
   await page.addInitScript(CSP_WATCH);
-  const posts = [], errors = [];
+  for (const init of [].concat(o.init || [])) await page.addInitScript(init);
+  const posts = [], errors = [], asked = [];
+  page.on("request", r => asked.push(r.url()));
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error" && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.route("**/*", route => {
@@ -76,8 +84,10 @@ async function open(browser, o = {}) {
     return route.abort();
   });
   await page.goto((o.host || PROD) + (o.query || ""));
-  return { ctx, page, posts, errors };
+  return { ctx, page, posts, errors, asked };
 }
+/* What a page asked for from js/, the 3D moments' folder. */
+const from3d = t => t.asked.map(u => u.replace(/^https:\/\/[^/]+\//, "").split("?")[0]).filter(u => u.indexOf("js/") === 0);
 
 const current = page => page.evaluate(() => window.__survey.current());
 /* On phones Send sits in the bottom bar; on computers it is the button in the panel. */
@@ -394,7 +404,8 @@ function rowOf(r) {
     assert.ok(!/script-src[^;]*'unsafe-inline'/.test(POLICY), "no inline script runs unless the policy names its hash");
   });
 
-  const browser = await chromium.launch({ executablePath: EXE });
+  /* Test machines have no graphics card: the switch lets the browser draw WebGL in software, which the 3D checks need. */
+  const browser = await chromium.launch({ executablePath: EXE, args: ["--enable-unsafe-swiftshader"] });
 
   /* On a phone the respondent stays with a relative; on a computer, in a VSU dorm. */
   for (const [label, mobile, dorm] of [["phone", true, false], ["desktop", false, true]]) {
@@ -931,21 +942,97 @@ function rowOf(r) {
     const t = await open(browser, {});
     await t.page.click("#start");
     await at(t.page, "consent");
-    await t.page.mouse.move(5, 5);
-    await t.page.mouse.move(1300, 700, { steps: 8 });
-    await t.page.waitForTimeout(700);
-    const moved = await t.page.evaluate(() => {
-      const out = { pupils: 0, others: [] };
-      document.querySelectorAll('[data-box="gate"] svg *').forEach(el => {
-        const tr = getComputedStyle(el).transform;
-        if (!tr || tr === "none" || el.closest(".arm, .say, .wave, .bubble")) return;
-        if (el.classList.contains("pupil")) out.pupils++; else out.others.push(el.tagName + "." + el.getAttribute("class"));
+    /* The scene's idle motion (blinks, clouds, the sun) is paused, so what changes between two pointer positions is what
+       follows the pointer. */
+    const snap = () => t.page.evaluate(() => {
+      document.getAnimations().forEach(a => a.pause());
+      const out = {};
+      document.querySelectorAll('[data-box="gate"] svg *').forEach((el, i) => {
+        if (el.closest(".arm, .say, .wave, .bubble")) return;
+        out[i] = { tr: getComputedStyle(el).transform, pupil: el.classList.contains("pupil"), name: el.tagName + "." + el.getAttribute("class") };
       });
       return out;
     });
-    assert.ok(moved.pupils >= 2, "the guard's eyes follow the pointer");
-    assert.deepStrictEqual(moved.others, [], "nothing else in the scene moves with the pointer");
+    await t.page.mouse.move(5, 5);
+    await t.page.waitForTimeout(700);
+    const a = await snap();
+    await t.page.evaluate(() => document.getAnimations().forEach(x => x.play()));
+    await t.page.mouse.move(1300, 700, { steps: 8 });
+    await t.page.waitForTimeout(700);
+    const b = await snap();
+    const moved = Object.keys(b).filter(k => a[k] && a[k].tr !== b[k].tr);
+    assert.ok(moved.filter(k => b[k].pupil).length >= 2, "the guard's eyes follow the pointer");
+    assert.deepStrictEqual(moved.filter(k => !b[k].pupil).map(k => b[k].name), [], "nothing else in the scene moves with the pointer");
     await t.ctx.close();
+  });
+
+  /* three.js draws two moments, the ring of coins on the first screen and the confetti on the last, only on a computer or a
+     fast connection without data saver, with motion on and a graphics card (D-166). It loads after the first screen shows. */
+  await check("a computer gets the 3D ring of coins on the first screen and the confetti on the last", async () => {
+    const t = await open(browser, { init: SOFT_GL });
+    await t.page.waitForSelector('[data-box="intro"] .stage.has-3d > canvas.three.on', { timeout: 15000 });
+    assert.deepStrictEqual(from3d(t).sort(), ["js/scene3d.js", "js/three.module.min.js"]);
+    await t.page.waitForFunction(() => getComputedStyle(document.querySelector('[data-box="intro"] .hero')).opacity === "0", null, { timeout: 3000 });
+    assert.strictEqual(await t.page.locator('[data-box="intro"] canvas').evaluate(c => getComputedStyle(c).pointerEvents), "none", "the drawing takes no taps");
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.waitForFunction(() => !document.querySelector("canvas"), null, { timeout: 5000 });
+    assert.ok(!(await t.page.locator('[data-box="intro"] .stage').evaluate(s => s.classList.contains("has-3d"))), "the ring gives the drawn one back when it stops");
+    await t.page.click("#prev");
+    await at(t.page, "intro");
+    await t.page.waitForSelector('[data-box="intro"] canvas.three.on', { timeout: 5000 });
+    assert.strictEqual(await t.page.locator("canvas").count(), 1, "the ring starts again, once, on the way back");
+    await t.page.click("#start");
+    await at(t.page, "consent");
+    await t.page.click(inStep("consent", ".agree"));
+    await at(t.page, "year");
+    await t.page.evaluate(() => window.__survey.go("send"));
+    await at(t.page, "send");
+    await sendIt(t.page);
+    await at(t.page, "final");
+    await t.page.waitForSelector('[data-box="final"] .stage > canvas.three.on', { timeout: 5000 });
+    await t.page.waitForFunction(() => !document.querySelector("canvas"), null, { timeout: 12000 });
+    assert.deepStrictEqual(from3d(t).sort(), ["js/scene3d.js", "js/three.module.min.js"], "loaded once");
+    assert.deepStrictEqual(t.errors, []);
+    assert.deepStrictEqual(await t.page.evaluate(() => window.__csp), [], "the security policy blocks nothing");
+    await t.ctx.close();
+  });
+
+  await check("reduced motion, data saver, a slow phone, no graphics card, or a short screen load no 3D at first", async () => {
+    for (const [why, o] of [
+      ["reduced motion", { reduced: true, init: SOFT_GL }],
+      ["data saver", { init: [SOFT_GL, NET({ saveData: true, effectiveType: "4g" })] }],
+      ["a phone on 3G", { mobile: true, init: [SOFT_GL, NET({ saveData: false, effectiveType: "3g" })] }],
+      ["a phone that doesn't report its connection", { mobile: true, init: [SOFT_GL, NET(null)] }],
+      ["no graphics card", { init: NO_GL }],
+      ["a short phone screen, even on a fast connection", { mobile: true, init: [SOFT_GL, NET({ saveData: false, effectiveType: "4g" })] }]
+    ]) {
+      const t = await open(browser, o);
+      await t.page.waitForTimeout(1500);
+      assert.deepStrictEqual(from3d(t), [], why + ": nothing is fetched from js/");
+      assert.strictEqual(await t.page.locator("canvas").count(), 0, why + ": no 3D drawing");
+      assert.ok(await t.page.locator('[data-box="intro"] .hero .t').first().isVisible(), why + ": the drawn ring stays");
+      assert.deepStrictEqual(t.errors, [], why);
+      await t.ctx.close();
+    }
+    const t = await open(browser, { mobile: true, viewport: { width: 390, height: 844 }, init: [SOFT_GL, NET({ saveData: false, effectiveType: "4g" })] });
+    await t.page.waitForSelector('[data-box="intro"] canvas.three.on', { timeout: 15000 });
+    assert.deepStrictEqual(t.errors, [], "a phone on a fast connection, with room around the title, gets the ring");
+    await t.ctx.close();
+    /* A short screen on a fast connection still gets the confetti: three.js loads at the end. */
+    const u = await open(browser, { mobile: true, init: [SOFT_GL, NET({ saveData: false, effectiveType: "4g" })] });
+    await u.page.click("#start");
+    await at(u.page, "consent");
+    await u.page.click(inStep("consent", ".agree"));
+    await at(u.page, "year");
+    await u.page.evaluate(() => window.__survey.go("send"));
+    await at(u.page, "send");
+    assert.deepStrictEqual(from3d(u), [], "nothing is fetched from js/ before the end");
+    await sendIt(u.page);
+    await at(u.page, "final");
+    await u.page.waitForSelector('[data-box="final"] .stage > canvas.three.on', { timeout: 8000 });
+    assert.deepStrictEqual(u.errors, []);
+    await u.ctx.close();
   });
 
   await check("the walk works with reduced motion", async () => {
