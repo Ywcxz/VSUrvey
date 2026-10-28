@@ -23,7 +23,8 @@ function hashes(html) {
 function policy() {
   return [
     "default-src 'none'",
-    "script-src " + PAGES.flatMap(f => hashes(fs.readFileSync(path.join(ROOT, f), "utf8"))).join(" "),
+    // The pages' own inline scripts, by hash, and the site's own files (the 3D moments in js/, D-166).
+    "script-src 'self' " + PAGES.flatMap(f => hashes(fs.readFileSync(path.join(ROOT, f), "utf8"))).join(" "),
     // The drawings set a few inline styles (positions, delays, colors); styles can't run code.
     "style-src 'self' 'unsafe-inline'",
     // The ticks on chosen answers are small inline SVG pictures.
