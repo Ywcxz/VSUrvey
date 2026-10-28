@@ -363,6 +363,18 @@ function rowOf(r) {
 }
 
 (async () => {
+  /* Every decision or evidence ID in the README and licence notes links to its row in the master doc. */
+  await check("register IDs in the README and licence notes link to the master doc", async () => {
+    for (const f of ["README.md", "LICENSE-CONTENT.md"]) {
+      const plain = fs.readFileSync(path.join(__dirname, "..", f), "utf8")
+        .replace(/```[\s\S]*?```/g, "")
+        .replace(/`[^`]*`/g, "")
+        .replace(/\[[DQCEP]-\d{2,3}\]\(https:\/\/docs\.projectcampus\.org\/(decisions|evidence)\.html#[dqcep]-\d{2,3}\)/g, "")
+        .match(/\b[DQCEP]-\d{2,3}\b/g);
+      assert(!plain, f + ": unlinked " + (plain || []).join(", "));
+    }
+  });
+
   const browser = await chromium.launch({ executablePath: EXE });
 
   /* On a phone the respondent stays with a relative; on a computer, in a VSU dorm. */
