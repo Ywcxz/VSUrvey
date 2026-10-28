@@ -546,7 +546,6 @@ a{color:var(--sea)}
 /* ---------- Life in the scenes ----------
    Small motions on long, slow loops, so a scene feels lived in without pulling the eye from the question. Blinks
    change only opacity, so nothing but the eyes follows the pointer. Reduced motion stops all of it (below). */
-.blush{fill:#E58A73;opacity:.36}
 .eyes{animation:eyesOpen 5.2s infinite}
 .shut{animation:eyesShut 5.2s infinite}
 [data-box="gate"] .eyes,[data-box="gate"] .shut{animation-duration:6.4s;animation-delay:-2.1s}
@@ -604,6 +603,8 @@ a{color:var(--sea)}
 .typing .nod{animation:nod .8s ease-in-out}
 @keyframes nod{30%{rotate:-4deg}65%{rotate:2.5deg}}
 .leafy{transform-box:fill-box;transform-origin:30% 100%;animation:leafy 5s ease-in-out infinite}
+.capbob{animation:capbob 3.2s ease-in-out infinite}
+@keyframes capbob{50%{translate:0 -3px}}
 @keyframes leafy{0%,100%{rotate:-2deg}50%{rotate:2.5deg}}
 
 /* The 3D moments draw on a canvas under the text; the drawn ring steps aside once the coins are up. */
@@ -611,7 +612,8 @@ a{color:var(--sea)}
 .three.on{opacity:1}
 .three.now{transition:none}
 .hero{transition:opacity .6s ease}
-.has-3d>.hero{opacity:0}
+.has-3d>.hero,.await-3d>.hero{opacity:0}
+.await-3d>.hero{transition:none}
 .has-3d>.hero *{animation-play-state:paused}
 
 @media (prefers-reduced-motion:reduce){
@@ -622,7 +624,7 @@ a{color:var(--sea)}
 </head>
 <body>
 <noscript><p style="color:#1F2A22;padding:24px">This survey needs JavaScript to run.</p></noscript>
-<svg class="defs" aria-hidden="true" focusable="false"><defs><radialGradient id="scene-light" cx="18%" cy="8%" r="85%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".34"/><stop offset=".65" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="scene-gold" cx="94%" cy="2%" r="62%"><stop offset="0" stop-color="#F7D47A" stop-opacity=".42"/><stop offset=".7" stop-color="#F7D47A" stop-opacity="0"/></radialGradient></defs></svg>
+<svg class="defs" aria-hidden="true" focusable="false"><defs><filter id="paper" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="1.2" dy="2.2" stdDeviation="1.6" flood-color="#1F2A22" flood-opacity=".22"/></filter><filter id="paper-soft" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx=".6" dy="1.4" stdDeviation="1.2" flood-color="#1F2A22" flood-opacity=".12"/></filter><filter id="paper-art" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx=".6" dy="1.3" stdDeviation=".9" flood-color="#1F2A22" flood-opacity=".22"/></filter><clipPath id="paper-panel"><rect width="360" height="220" rx="22"/></clipPath><radialGradient id="scene-light" cx="18%" cy="8%" r="85%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".34"/><stop offset=".65" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="scene-gold" cx="94%" cy="2%" r="62%"><stop offset="0" stop-color="#F7D47A" stop-opacity=".42"/><stop offset=".7" stop-color="#F7D47A" stop-opacity="0"/></radialGradient></defs></svg>
 <div class="app" id="app">
   <header class="bar">
     <button class="chap" id="chap" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" disabled><span class="dots" id="dots" aria-hidden="true"></span><span class="chname" id="chname">Start</span></button>
@@ -762,7 +764,7 @@ a{color:var(--sea)}
   }
 
   /* ---------- Small object drawings for answer tiles (120 x 90) ---------- */
-  function art(body, bg) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 120 90">' + (bg ? '<rect width="120" height="90" fill="' + bg + '"/>' : "") + body + "</svg></span>"; }
+  function art(body, bg) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 120 90">' + (bg ? '<rect width="120" height="90" fill="' + bg + '"/>' : "") + unline(body) + "</svg></span>"; }
   var ground = '<rect y="74" width="120" height="16" fill="#D0DCCB"/>';
   function simLabel(name) {
     var parts = name.split(" · "), lines = name.length > 9 && parts.length > 1 ? [parts.slice(0, Math.ceil(parts.length / 2)).join(" · "), parts.slice(Math.ceil(parts.length / 2)).join(" · ")] : [name];
@@ -931,7 +933,7 @@ a{color:var(--sea)}
   };
 
   /* ---------- Vignettes: small scenes for the news and errand questions (140 x 98) ---------- */
-  function vig(bg, body) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 140 98"><rect width="140" height="98" fill="' + bg + '"/>' + body + "</svg></span>"; }
+  function vig(bg, body) { return '<span class="art" aria-hidden="true"><svg viewBox="0 0 140 98"><rect width="140" height="98" fill="' + bg + '"/>' + unline(body) + "</svg></span>"; }
   function phone(x, y, screen) { return '<g transform="translate(' + x + " " + y + ')"><rect width="46" height="80" rx="8" fill="#1F2A22"/><rect x="4" y="7" width="38" height="66" rx="4" fill="#FAF9F4"/>' + screen + "</g>"; }
   var ping = '<g class="ping"><circle cx="0" cy="0" r="8" fill="#CE5A45" stroke="#FFFFFF" stroke-width="2"/><text x="0" y="3.5" text-anchor="middle" font-size="10" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g>';
   var VIG = {
@@ -988,40 +990,90 @@ a{color:var(--sea)}
   var MAP_V1 = "<svg id=\"map\" viewBox=\"0 0 320 250\" role=\"img\" aria-label=\"Sketch map: Mt. Pangasugan, upper campus, lower campus with the dorms and the VSU market, the highway, and the sea\">\n          <rect class=\"m-land\" width=\"320\" height=\"250\"/>\n          <path class=\"m-hill\" d=\"M0 0H320V24C270 32 230 16 180 22C130 28 90 12 40 20C24 23 10 22 0 20Z\"/>\n          <text class=\"m-lbl\" x=\"214\" y=\"14\">Mt. Pangasugan</text>\n          <rect class=\"m-zone\" x=\"16\" y=\"32\" width=\"288\" height=\"82\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"52\">Upper campus</text>\n          <path class=\"m-road\" d=\"M160 114 C148 124 174 134 160 146\"/>\n          <rect class=\"m-zone\" x=\"16\" y=\"146\" width=\"288\" height=\"68\" rx=\"16\"/>\n          <text class=\"m-zl\" x=\"30\" y=\"166\">Lower campus</text>\n          <g class=\"m-poi\" transform=\"translate(84 180)\"><path d=\"M-9 8V-4L0-10 9-4V8Z\"/><path d=\"M-3 8V2h6v6\"/></g>\n          <text class=\"m-lbl\" x=\"84\" y=\"204\" text-anchor=\"middle\">Dorms</text>\n          <g class=\"m-poi\" transform=\"translate(224 180)\"><path d=\"M-11-4H11L8-10H-8Z\"/><path d=\"M-9-4V8M9-4V8M-11 8H11\"/></g>\n          <text class=\"m-lbl\" x=\"224\" y=\"204\" text-anchor=\"middle\">VSU market</text>\n          <rect class=\"m-roadfill\" x=\"0\" y=\"220\" width=\"320\" height=\"16\"/>\n          <path class=\"m-dash\" d=\"M0 228H320\" stroke-dasharray=\"8 7\"/>\n          <text class=\"m-lbl\" x=\"314\" y=\"216\" text-anchor=\"end\">Highway</text>\n          <rect class=\"m-sea\" x=\"0\" y=\"236\" width=\"320\" height=\"14\"/>\n          <text class=\"m-lbl\" x=\"8\" y=\"247\">Sea</text>\n          <g id=\"map-pins\"></g>\n        </svg>";
 
   /* ---------- Stages: one drawing per place on the walk ---------- */
-  var FRAME = '<rect width="360" height="220" rx="22" fill="rgba(255,255,255,.2)"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>';
   /* Each scene sits on a rounded panel of its part's color (--part, set on its box), lit from the top left like the landing
-     page's corners, with a shadow under it; the drawing's own frame lays over it as before. */
+     page's corners, with a shadow under it; the scene's paper layers lie on it. */
   /* Over the panel, the landing page's touch: a gold glow in the top right corner. */
   var SCENE_BG = '<rect class="scene-shadow" x="4" y="7" width="352" height="220" rx="22"/><rect class="scene-bg" width="360" height="220" rx="22"/><rect width="360" height="220" rx="22" fill="url(#scene-light)"/><rect width="360" height="220" rx="22" fill="url(#scene-gold)"/>';
   function stageSvg(body, cls) { return '<svg class="scene' + (cls ? " " + cls : "") + '" viewBox="0 0 360 220" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + SCENE_BG + body + "</svg>"; }
 
-  /* The guard at the gate: his eyes follow your cursor or your tap. */
+  /* ---------- Layered paper (D-167) ----------
+     The scenes are cut paper: flat shapes without outlines, in up to four layers that slide in at different speeds as a scene
+     arrives (arrive()). lay() makes a layer, piece() a cut-out that casts a soft shadow, backdrop() the far layer in the panel's
+     own color, and paperGround() a strip along the front. unline() takes the outlines off a drawing made with them. */
+  /* The answers' pictures are cut paper too: each piece on a picture's background casts a small shadow (the background and its
+     ground strip, as wide as the picture, don't). */
+  function paperArt(scope) {
+    $$(".art svg", scope).forEach(function (svg) {
+      var w = svg.viewBox.baseVal.width;
+      Array.prototype.forEach.call(svg.children, function (el) {
+        if (el.tagName === "rect" && Number(el.getAttribute("width")) >= w) return;
+        el.setAttribute("filter", "url(#paper-art)");
+      });
+    });
+  }
+  function lay(n, body) { return '<g class="lay l' + n + '">' + body + "</g>"; }
+  function piece(body) { return '<g filter="url(#paper)">' + body + "</g>"; }
+  /* Only thin outlines around filled shapes go; lines that are drawn for themselves, like a handle or a ring, stay. */
+  function unline(markup) {
+    return markup.replace(/<(rect|path|circle|ellipse|polygon)\b([^>]*?) stroke="#1F2A22" stroke-width="([\d.]+)"([^>]*)>/g, function (m, tag, a, w, b) {
+      return +w > 2.6 || !/ fill="(?!none")/.test(a + b) ? m : "<" + tag + (a + b).replace(/ stroke-line(join|cap)="\w+"/g, "") + ">";
+    });
+  }
+  var TONE = ["rgba(255,255,255,.1)", "rgba(255,255,255,.16)", "rgba(255,255,255,.22)"];
+  function backdrop(kind) {
+    var far = '<path d="M0 128C50 106 92 114 140 98S240 98 290 90 344 90 360 96V200H0Z" fill="' + TONE[0] + '"/>';
+    if (kind === "room") return '<g filter="url(#paper-soft)"><rect x="0" y="0" width="360" height="150" fill="' + TONE[0] + '"/><rect x="0" y="146" width="360" height="8" fill="' + TONE[1] + '"/>' +
+      '<rect x="20" y="22" width="60" height="74" rx="6" fill="' + TONE[1] + '"/><path d="M50 26V92M24 58H76" stroke="' + TONE[2] + '" stroke-width="3"/>' +
+      '<rect x="290" y="26" width="50" height="38" rx="3" fill="' + TONE[1] + '"/><rect x="296" y="32" width="38" height="26" fill="' + TONE[0] + '"/><path d="M300 54l10-12 8 8 6-6 8 10Z" fill="' + TONE[2] + '"/>' +
+      '<rect x="286" y="96" width="58" height="4" rx="2" fill="' + TONE[2] + '"/><rect x="292" y="80" width="8" height="16" fill="' + TONE[1] + '"/><rect x="302" y="84" width="8" height="12" fill="' + TONE[1] + '"/><rect x="314" y="78" width="8" height="18" fill="' + TONE[1] + '"/></g>';
+    if (kind === "sky") return '<g filter="url(#paper-soft)">' + far + '<path d="M0 150C70 132 130 140 200 130S310 128 360 136V200H0Z" fill="' + TONE[1] + '"/></g>';
+    return '<g filter="url(#paper-soft)">' + far +
+      '<path d="M86 124h26v-30h20v-12h20v12h18v30h16v-18h30v18h20v40H86Z" fill="' + TONE[1] + '"/><circle cx="68" cy="118" r="12" fill="' + TONE[1] + '"/><rect x="66.5" y="124" width="3" height="16" fill="' + TONE[1] + '"/>' +
+      '<circle cx="262" cy="114" r="14" fill="' + TONE[1] + '"/><rect x="260.5" y="122" width="3" height="18" fill="' + TONE[1] + '"/>' +
+      '<path d="M0 150C70 134 130 142 200 132S310 130 360 138V200H0Z" fill="' + TONE[1] + '"/></g>';
+  }
+  function paperGround(road) {
+    return '<g clip-path="url(#paper-panel)">' + lay(4, '<g filter="url(#paper-soft)"><path d="M0 182C80 176 150 180 220 176S330 178 360 176V220H0Z" fill="' + TONE[2] + '"/>' +
+      (road ? '<path d="M0 202H360" stroke="rgba(255,255,255,.6)" stroke-width="3" stroke-dasharray="14 12"/>' : "") + "</g>") + "</g>";
+  }
+  /* A paper face on a head centred at (x, y), sized by k (1 for a head of radius 23): brows, eyes with a catch-light that
+     blink and follow you, and an open smile. */
+  function paperFace(x, y, k, brow) {
+    function P(dx, dy) { return (x + dx * k).toFixed(1) + " " + (y + dy * k).toFixed(1); }
+    function R(v) { return +(v * k).toFixed(2); }
+    function eye(dx) { return '<ellipse cx="' + (x + dx * k).toFixed(1) + '" cy="' + (y + k).toFixed(1) + '" rx="' + R(4.6) + '" ry="' + R(5.4) + '" fill="#FFFFFF"/>'; }
+    function pupil(dx) { return '<circle class="pupil" cx="' + (x + dx * k).toFixed(1) + '" cy="' + (y + 2 * k).toFixed(1) + '" r="' + R(2.8) + '" fill="#1F2A22"/><circle class="pupil" cx="' + (x + (dx + 1) * k).toFixed(1) + '" cy="' + (y + 0.6 * k).toFixed(1) + '" r="' + R(0.9) + '" fill="#FFFFFF"/>'; }
+    return '<path d="M' + P(-16, -10) + "q" + R(6) + " " + R(-4) + " " + R(11) + " 0M" + P(5, -10) + "q" + R(6) + " " + R(-4) + " " + R(11) + ' 0" stroke="' + (brow || "#1B1B22") + '" stroke-width="' + R(2.2) + '" fill="none" stroke-linecap="round"/>' +
+      '<g class="eyes">' + eye(-10) + eye(10) + pupil(-10) + pupil(10) + "</g>" +
+      '<g class="shut" opacity="0"><path d="M' + P(-14.6, 2) + "q" + R(4.6) + " " + R(3.2) + " " + R(9.2) + " 0M" + P(5.4, 2) + "q" + R(4.6) + " " + R(3.2) + " " + R(9.2) + ' 0" fill="none" stroke="#1F2A22" stroke-width="' + R(1.8) + '" stroke-linecap="round"/></g>' +
+      '<path d="M' + P(-7, 13) + "q" + R(7) + " " + R(7) + " " + R(14) + ' 0Z" fill="#5A2E22"/>';
+  }
+
+  /* The guard at the gate: his eyes follow your cursor or your tap, and he waves you in. */
   function guardSvg() {
-    return '<g><g>' +
-      '<rect x="228" y="150" width="7" height="26" rx="3" fill="#2F3B5E"/><rect x="238" y="150" width="7" height="26" rx="3" fill="#2F3B5E"/>' +
-      '<path d="M223 130 L216 147" stroke="#DDE7EC" stroke-width="7" stroke-linecap="round"/><circle cx="215.5" cy="149" r="3.6" fill="#A0704F"/>' +
-      '<path d="M222 153 V129 a14 14 0 0 1 28 0 V153 Z" fill="#DDE7EC" stroke="#1F2A22" stroke-width="1.27"/>' +
-      '<rect x="222" y="146" width="28" height="7" fill="#2F3B5E"/><circle cx="229" cy="133" r="3" fill="#E8B23E"/><path d="M236 118v28" stroke="#9FB3BF" stroke-width="1.2"/>' +
-      '<g class="wave"><path d="M249 131 L258 116" stroke="#DDE7EC" stroke-width="7" stroke-linecap="round"/><circle cx="259" cy="113" r="4" fill="#A0704F"/></g>' +
-      '<rect x="231" y="117" width="10" height="6" fill="#8A5A3C"/>' +
-      '<circle cx="236" cy="107" r="13" fill="#A0704F"/>' +
-      '<path d="M222 103 a14 13 0 0 1 28 0 Z" fill="#2F3B5E"/><rect x="220" y="101" width="32" height="5" rx="2.5" fill="#24304D"/><circle cx="236" cy="95" r="2.6" fill="#E8B23E"/>' +
-      '<ellipse class="blush" cx="228" cy="113.5" rx="2.6" ry="1.6"/><ellipse class="blush" cx="244" cy="113.5" rx="2.6" ry="1.6"/><g class="eyes"><circle cx="231.5" cy="109" r="2.9" fill="#FFFFFF"/><circle cx="240.5" cy="109" r="2.9" fill="#FFFFFF"/>' +
-      '<circle class="pupil" cx="231.5" cy="109" r="1.5" fill="#1F2A22"/><circle class="pupil" cx="240.5" cy="109" r="1.5" fill="#1F2A22"/></g><g class="shut" opacity="0"><path d="M228.6 109.4q2.9 1.885 5.8 0M237.6 109.4q2.9 1.885 5.8 0" fill="none" stroke="#1F2A22" stroke-width="1.2" stroke-linecap="round"/></g>' +
-      '<path d="M232 115 q4 3.2 8 0" stroke="#1F2A22" stroke-width="1.36" fill="none" stroke-linecap="round"/>' +
-      "</g></g>";
+    var SK = "#A0704F";
+    return piece('<rect x="227" y="150" width="8" height="26" rx="3" fill="#2F3B5E"/><rect x="238" y="150" width="8" height="26" rx="3" fill="#2F3B5E"/><rect x="224" y="173" width="12" height="5" rx="2.5" fill="#1F2A22"/><rect x="237" y="173" width="12" height="5" rx="2.5" fill="#1F2A22"/>' +
+      '<path d="M224 129L217 146" stroke="#C9D6DD" stroke-width="7.5" stroke-linecap="round"/><circle cx="216.5" cy="148.5" r="3.8" fill="' + SK + '"/>' +
+      '<path d="M221 154V131a15 15 0 0 1 30 0V154Z" fill="#DDE7EC"/><path d="M236 116a15 15 0 0 1 15 15V154H236Z" fill="#C9D6DD"/>' +
+      '<rect x="221" y="146" width="30" height="7" fill="#2F3B5E"/><rect x="232" y="146.5" width="8" height="6" rx="1" fill="#E8B23E"/><circle cx="228.5" cy="132" r="3.2" fill="#E8B23E"/><path d="M231 118l5 9 5-9Z" fill="#2F3B5E"/>' +
+      '<g class="wave"><path d="M249 131L258 116" stroke="#DDE7EC" stroke-width="7.5" stroke-linecap="round"/><circle cx="259" cy="113" r="4.2" fill="' + SK + '"/></g>' +
+      '<rect x="231" y="111" width="10" height="8" fill="#8A5A3C"/>' +
+      '<circle cx="236" cy="101" r="15.5" fill="' + SK + '"/><ellipse cx="220.6" cy="103" rx="2.6" ry="3.6" fill="' + SK + '"/><ellipse cx="251.4" cy="103" rx="2.6" ry="3.6" fill="' + SK + '"/>' +
+      '<path d="M220.5 93a15.5 13 0 0 1 31 0Z" fill="#2F3B5E"/><rect x="217" y="90.5" width="38" height="5.5" rx="2.75" fill="#24304D"/><circle cx="236" cy="84.5" r="2.8" fill="#E8B23E"/>' +
+      paperFace(236, 104, 0.6));
   }
   function gateSvg(sayId, text) {
-    return stageSvg(FRAME +
-      '<g class="cloud c1"><path d="M56 40a8 8 0 0 1 14-5 10 10 0 0 1 18 3 6 6 0 0 1 1 12H57a5 5 0 0 1-1-10Z" fill="#FFFFFF" opacity=".7"/></g><g class="cloud c2"><path d="M168 26a6 6 0 0 1 11-4 8 8 0 0 1 14 2 5 5 0 0 1 1 9h-25a4 4 0 0 1-1-7Z" fill="#FFFFFF" opacity=".55"/></g>' +
-      '<g><circle class="halo" cx="300" cy="44" r="19" fill="#FBE6AC" opacity=".9"/><circle cx="300" cy="44" r="12" fill="#E8B23E"/>' +
-      '<path d="M0 132 C50 108 92 116 140 100 C190 84 240 100 290 92 C320 87 344 92 360 98 V176 H0 Z" fill="#1F5B3F" opacity=".28"/></g>' +
-      '<g><rect x="24" y="84" width="30" height="92" rx="3" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.27"/><rect x="19" y="74" width="40" height="13" rx="3" fill="#DDAE4E" stroke="#1F2A22" stroke-width="1.27"/>' +
-      '<rect x="268" y="96" width="70" height="80" rx="4" fill="#E7EBE2" stroke="#1F2A22" stroke-width="1.27"/><path d="M261 98 h84 l-7 -15 h-70 z" fill="#2B7385" stroke="#1F2A22" stroke-width="1.27" stroke-linejoin="round"/><rect x="280" y="108" width="46" height="30" rx="3" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.02"/><rect x="292" y="146" width="22" height="30" fill="#82654B"/></g>' +
-      '<path d="M0 198 H360" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-dasharray="14 12"/>' +
-      '<g><rect x="80" y="140" width="10" height="36" rx="2" fill="#52594C"/>' +
-      '<g class="arm"><rect x="84" y="138" width="128" height="10" rx="5" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.27"/><g fill="#CE5A45"><rect x="104" y="139" width="14" height="8"/><rect x="132" y="139" width="14" height="8"/><rect x="160" y="139" width="14" height="8"/><rect x="188" y="139" width="14" height="8"/></g></g>' +
-      '<circle cx="85" cy="143" r="5" fill="#1F2A22"/>' + guardSvg() + "</g>") + talkHtml(sayId, 232, 92, text);
+    return stageSvg(
+      lay(1, backdrop("campus") +
+        '<g class="cloud c1"><path d="M56 40a8 8 0 0 1 14-5 10 10 0 0 1 18 3 6 6 0 0 1 1 12H57a5 5 0 0 1-1-10Z" fill="#FFFFFF" opacity=".75"/></g><g class="cloud c2"><path d="M168 26a6 6 0 0 1 11-4 8 8 0 0 1 14 2 5 5 0 0 1 1 9h-25a4 4 0 0 1-1-7Z" fill="#FFFFFF" opacity=".6"/></g>' +
+        '<circle class="halo" cx="300" cy="44" r="19" fill="#FBE6AC" opacity=".9"/><circle cx="300" cy="44" r="12" fill="#E8B23E"/>') +
+      lay(2, piece('<rect x="24" y="84" width="30" height="92" rx="3" fill="#FAF9F4"/><rect x="40" y="84" width="14" height="92" fill="#E7EBE2"/><rect x="19" y="74" width="40" height="13" rx="3" fill="#E8B23E"/><rect x="19" y="83" width="40" height="4" fill="#C9962F"/>') +
+        piece('<rect x="268" y="96" width="70" height="80" rx="4" fill="#E7EBE2"/><rect x="318" y="96" width="20" height="80" fill="#D6DCD0"/><path d="M261 98h84l-7-15h-70Z" fill="#2B7385"/><path d="M261 98h84v4h-84Z" fill="#1F5A68"/>' +
+          '<rect x="280" y="108" width="46" height="30" rx="3" fill="#B3D7DB"/><path d="M286 132l14-18M298 132l10-13" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".55"/><rect x="292" y="146" width="22" height="30" fill="#82654B"/><circle cx="309" cy="161" r="1.6" fill="#E8B23E"/>')) +
+      lay(3, piece('<rect x="80" y="140" width="10" height="38" rx="2" fill="#52594C"/>' +
+          '<g class="arm"><rect x="84" y="138" width="128" height="10" rx="5" fill="#FAF9F4"/><g fill="#CE5A45"><rect x="104" y="138" width="14" height="10"/><rect x="132" y="138" width="14" height="10"/><rect x="160" y="138" width="14" height="10"/><rect x="188" y="138" width="14" height="10"/></g></g>' +
+          '<circle cx="85" cy="143" r="5.5" fill="#1F2A22"/>') + guardSvg()) +
+      paperGround(true)) + talkHtml(sayId, 232, 86, text);
   }
   function gateStage() { return gateSvg("gate-say", "Are you a student?"); }
 
@@ -1037,10 +1089,9 @@ a{color:var(--sea)}
     for (i = 0; i < 4; i++) bars += '<text x="10" y="' + (17.5 + i * 9) + '" font-size="4.2" font-weight="700" fill="#7E8578" font-family="sans-serif">' + ["Year", "Program", "Resides", "Scholar"][i] + '</text><rect x="28" y="' + (19 + i * 9) + '" width="38" height="0.6" fill="#E7EBE2"/><text class="bar-fill mon-v" data-bar="' + i + '" data-mon="' + i + '" x="28" y="' + (17.8 + i * 9) + '" font-size="4" font-weight="700" fill="' + ["#2B7385", "#CE5A45", "#7E68A0", "#3D6C9A"][i] + '" font-family="sans-serif"></text>';
     bars += "</g>";
     return stageSvg(
-      '<defs><filter id="pass-paper" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="1.2" dy="2.2" stdDeviation="1.6" flood-color="#1F2A22" flood-opacity=".22"/></filter>' +
-      '<clipPath id="pass-win"><rect x="118" y="16" width="124" height="92" rx="8"/></clipPath><clipPath id="pass-mon"><rect x="7" y="6" width="62" height="40"/></clipPath><clipPath id="pass-panel"><rect width="360" height="220" rx="22"/></clipPath></defs>' +
+      '<defs><clipPath id="pass-win"><rect x="118" y="16" width="124" height="92" rx="8"/></clipPath><clipPath id="pass-mon"><rect x="7" y="6" width="62" height="40"/></clipPath></defs>' +
       /* The wall: a calendar, the clock, a shelf of binders, and a window onto campus, its hills cut in layers. */
-      '<g class="lay l1" filter="url(#pass-paper)">' +
+      '<g class="lay l1" filter="url(#paper)">' +
         '<rect x="30" y="16" width="46" height="46" rx="5" fill="#FAF9F4"/><path d="M30 21a5 5 0 0 1 5-5h36a5 5 0 0 1 5 5v9H30Z" fill="#CE5A45"/><circle cx="41" cy="18" r="1.6" fill="#1F2A22"/><circle cx="65" cy="18" r="1.6" fill="#1F2A22"/>' +
         '<text id="pc-mon" x="53" y="27.5" text-anchor="middle" font-size="9" font-weight="800" fill="#FFFFFF" font-family="sans-serif">Oct</text><text id="pc-day" x="53" y="53" text-anchor="middle" font-size="19" font-weight="800" fill="#1F2A22" font-family="sans-serif">1</text>' +
         '<circle cx="320" cy="40" r="17" fill="#FAF9F4"/><circle cx="320" cy="40" r="13.5" fill="#F2EEE3"/><path id="pc-h" d="M320 40V32" stroke="#1F2A22" stroke-width="2.4" stroke-linecap="round"/><path id="pc-s" d="M320 43V26" stroke="#CE5A45" stroke-width="1.1" stroke-linecap="round"/><path id="pc-m" d="M320 40V28" stroke="#1F2A22" stroke-width="1.6" stroke-linecap="round"/><circle cx="320" cy="40" r="1.8" fill="#1F2A22"/>' +
@@ -1053,7 +1104,7 @@ a{color:var(--sea)}
         '<rect x="113" y="103" width="134" height="8" rx="3" fill="#FAF9F4"/>' +
       "</g>" +
       /* The staff: her eyes follow you, she blinks, and she nods as she types each answer in. */
-      '<g class="lay l2" filter="url(#pass-paper)">' +
+      '<g class="lay l2" filter="url(#paper)">' +
         '<path d="M140 156C140 128 154 116 180 116S220 128 220 156Z" fill="#7E68A0"/><path d="M180 116C206 116 220 128 220 156H196C200 138 194 124 180 116Z" fill="#6A578A"/>' +
         '<path d="M170 117l10 14 10-14Z" fill="#FAF9F4"/><path d="M172 118l8 22 8-22" stroke="#E8B23E" stroke-width="2.2" fill="none"/><rect x="173.5" y="138" width="13" height="15" rx="2" fill="#FAF9F4"/><rect x="176" y="141" width="8" height="2.4" rx="1" fill="#2B7385"/><rect x="176" y="145.5" width="6" height="1.6" rx=".8" fill="#CFC9B9"/>' +
         '<rect x="173" y="102" width="14" height="16" rx="5" fill="#74472F"/>' +
@@ -1061,14 +1112,13 @@ a{color:var(--sea)}
           '<circle cx="180" cy="84" r="23" fill="' + SKIN + '"/><ellipse cx="157" cy="87" rx="3.5" ry="5" fill="' + SKIN + '"/><ellipse cx="203" cy="87" rx="3.5" ry="5" fill="' + SKIN + '"/>' +
           '<path d="M156 86C152 56 205 50 205 82C198 70 186 64 172 66C164 70 160 76 156 86Z" fill="' + HAIR + '"/><circle cx="203" cy="62" r="10" fill="' + HAIR + '"/><path d="M196 52l14 6" stroke="#E8B23E" stroke-width="2.4" stroke-linecap="round"/>' +
           '<path d="M164 74q6-4 11 0M185 74q6-4 11 0" stroke="' + HAIR + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-          '<ellipse class="blush" cx="163" cy="95" rx="4.4" ry="2.6"/><ellipse class="blush" cx="197" cy="95" rx="4.4" ry="2.6"/>' +
           '<g class="eyes"><ellipse cx="170" cy="85" rx="4.6" ry="5.4" fill="#FFFFFF"/><ellipse cx="190" cy="85" rx="4.6" ry="5.4" fill="#FFFFFF"/><circle class="pupil" cx="170" cy="86" r="2.8" fill="#1F2A22"/><circle class="pupil" cx="190" cy="86" r="2.8" fill="#1F2A22"/><circle class="pupil" cx="171" cy="84.6" r=".9" fill="#FFFFFF"/><circle class="pupil" cx="191" cy="84.6" r=".9" fill="#FFFFFF"/></g>' +
           '<g class="shut" opacity="0"><path d="M165.4 86q4.6 3.2 9.2 0M185.4 86q4.6 3.2 9.2 0" fill="none" stroke="#1F2A22" stroke-width="1.8" stroke-linecap="round"/></g>' +
           '<path d="M173 97q7 7 14 0Z" fill="#5A2E22"/><path d="M175.5 99.6q4.5 2.6 9 0" fill="none" stroke="#E58A73" stroke-width="1.6" stroke-linecap="round"/>' +
         "</g>" +
       "</g>" +
       /* The counter, its top, the monitor with your form, the keyboard and her hands, and the printer. */
-      '<g class="lay l3" filter="url(#pass-paper)">' +
+      '<g class="lay l3" filter="url(#paper)">' +
         '<path d="M0 154H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="#B78A5E"/><rect y="176" width="360" height="6" fill="#5E8E5A"/><rect y="146" width="360" height="10" rx="2" fill="#EFE6D3"/><rect y="155" width="360" height="2.4" fill="#A0704F" opacity=".5"/>' +
         '<rect x="74" y="140" width="22" height="7" rx="2" fill="#3A443C"/><rect x="81" y="128" width="8" height="14" fill="#3A443C"/>' +
         '<g transform="translate(36 70) scale(1.27)"><rect width="76" height="52" rx="5" fill="#1F2A22"/><rect x="4" y="4" width="68" height="44" rx="3" fill="#E0EDEE"/>' + bars + "</g>" +
@@ -1078,7 +1128,7 @@ a{color:var(--sea)}
         '<rect x="252" y="122" width="70" height="26" rx="6" fill="#52594C"/><rect x="260" y="116" width="54" height="8" rx="3" fill="#3A443C"/><rect x="266" y="112" width="42" height="6" fill="#FAF9F4"/><circle class="led" cx="310" cy="135" r="3" fill="#8DB37F"/><rect x="262" y="138" width="34" height="4" rx="2" fill="#1F2A22" opacity=".45"/>' +
       "</g>" +
       /* In front: a plant at the end of the counter. */
-      '<g clip-path="url(#pass-panel)"><g class="lay l4" filter="url(#pass-paper)"><g class="leafy">' +
+      '<g clip-path="url(#paper-panel)"><g class="lay l4" filter="url(#paper)"><g class="leafy">' +
         '<path d="M344 196C326 178 324 152 334 132C344 150 350 172 344 196Z" fill="#5E8E5A"/><path d="M346 198C350 170 360 150 372 142C372 166 364 186 346 198Z" fill="#8DB37F"/><path d="M342 198C328 188 314 182 300 184C312 196 328 202 342 198Z" fill="#7FA872"/>' +
       '</g><path d="M326 196h40v24h-40Z" fill="#CE5A45"/><rect x="322" y="192" width="48" height="8" rx="2" fill="#B04A38"/></g></g>') +
       talkHtml("pass-say", 180, 58, "Morning! Your year?");
@@ -1089,25 +1139,33 @@ a{color:var(--sea)}
   /* Mobile data: a phone, its load, and how it gets online. */
   function dataStage() {
     var circ = 2 * Math.PI * 24;
-    return stageSvg(FRAME +
-      '<g><g transform="translate(22 70)"><path d="M0 22 h86 v-10 h-86 z" fill="#FAF9F4"/><g fill="#CE5A45"><path d="M0 12 h14 v10 h-14z"/><path d="M28 12 h14 v10 h-14z"/><path d="M56 12 h14 v10 h-14z"/></g><rect x="4" y="22" width="78" height="62" fill="#E9C27D" stroke="#1F2A22" stroke-width="1.27"/><rect x="14" y="34" width="58" height="22" rx="4" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.02"/><text x="43" y="50" text-anchor="middle" font-size="13" font-weight="800" fill="#1F2A22" font-family="sans-serif">LOAD</text><rect x="4" y="64" width="78" height="22" fill="#82654B"/></g>' +
-      '<g transform="translate(262 62)"><rect width="78" height="114" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.27"/><path d="M-6 0 h90 l-8 -12 h-74z" fill="#2B7385" stroke="#1F2A22" stroke-width="1.27" stroke-linejoin="round"/><g fill="#B3D7DB"><rect x="10" y="14" width="16" height="14"/><rect x="31" y="14" width="16" height="14"/><rect x="52" y="14" width="16" height="14"/><rect x="10" y="38" width="16" height="14"/><rect x="31" y="38" width="16" height="14"/><rect x="52" y="38" width="16" height="14"/></g>' +
-      '<g id="dt-campus" fill="none" stroke="#FAF9F4" stroke-width="4" stroke-linecap="round" opacity=".35"><path d="M14 -40a36 36 0 0 1 50 0"/><path d="M24 -30a22 22 0 0 1 30 0"/><circle cx="39" cy="-20" r="2" fill="#FAF9F4"/></g></g></g>' +
-      '<g><rect x="138" y="20" width="84" height="170" rx="15" fill="#1F2A22"/><rect x="144" y="32" width="72" height="148" rx="7" fill="#F5F1E6"/>' +
+    return stageSvg(lay(1, backdrop("campus")) +
+      lay(2, piece(unline('<g transform="translate(22 70)"><path d="M0 22 h86 v-10 h-86 z" fill="#FAF9F4"/><g fill="#CE5A45"><path d="M0 12 h14 v10 h-14z"/><path d="M28 12 h14 v10 h-14z"/><path d="M56 12 h14 v10 h-14z"/></g><rect x="4" y="22" width="78" height="62" fill="#E9C27D" stroke="#1F2A22" stroke-width="1.27"/><rect x="14" y="34" width="58" height="22" rx="4" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.02"/><text x="43" y="50" text-anchor="middle" font-size="13" font-weight="800" fill="#1F2A22" font-family="sans-serif">LOAD</text><rect x="4" y="64" width="78" height="22" fill="#82654B"/></g>')) + piece(unline('<g transform="translate(262 62)"><rect width="78" height="114" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.27"/><path d="M-6 0 h90 l-8 -12 h-74z" fill="#2B7385" stroke="#1F2A22" stroke-width="1.27" stroke-linejoin="round"/><g fill="#B3D7DB"><rect x="10" y="14" width="16" height="14"/><rect x="31" y="14" width="16" height="14"/><rect x="52" y="14" width="16" height="14"/><rect x="10" y="38" width="16" height="14"/><rect x="31" y="38" width="16" height="14"/><rect x="52" y="38" width="16" height="14"/></g>' +
+      '<g id="dt-campus" fill="none" stroke="#FAF9F4" stroke-width="4" stroke-linecap="round" opacity=".35"><path d="M14 -40a36 36 0 0 1 50 0"/><path d="M24 -30a22 22 0 0 1 30 0"/><circle cx="39" cy="-20" r="2" fill="#FAF9F4"/></g></g>'))) +
+      lay(3, piece(unline('<g><rect x="138" y="20" width="84" height="170" rx="15" fill="#1F2A22"/><rect x="144" y="32" width="72" height="148" rx="7" fill="#F5F1E6"/>' +
       '<g id="dt-bars">' + [0, 1, 2, 3].map(function (i) { return '<rect x="' + (151 + i * 5) + '" y="' + (46 - i * 3) + '" width="3.4" height="' + (4 + i * 3) + '" rx="1" fill="#1F2A22"/>'; }).join("") + "</g>" +
       '<g id="dt-wifi" fill="none" stroke="#1F2A22" stroke-width="1.7" stroke-linecap="round"><path d="M195 43a11 11 0 0 1 15 0"/><path d="M198.5 46.5a6 6 0 0 1 8 0"/><circle cx="202.5" cy="49.5" r=".9" fill="#1F2A22"/></g>' +
       '<path id="dt-nonet" d="M150 38 L214 52" stroke="#CE5A45" stroke-width="3" stroke-linecap="round" opacity="0"/>' +
       '<circle cx="180" cy="98" r="24" fill="none" stroke="#E2E6DC" stroke-width="9"/><circle id="dt-arc" cx="180" cy="98" r="24" fill="none" stroke="#2B7385" stroke-width="9" stroke-linecap="round" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + circ.toFixed(1) + '" transform="rotate(-90 180 98)" style="transition:stroke-dashoffset .7s cubic-bezier(.3,1.1,.5,1)"/>' +
       '<text id="dt-pct" x="180" y="103" text-anchor="middle" font-size="13" font-weight="800" fill="#1F2A22" font-family="sans-serif">?</text>' +
       '<g id="dt-card"><rect x="152" y="138" width="56" height="32" rx="6" fill="#2B7385"/><rect x="158" y="146" width="10" height="8" rx="1.5" fill="#E8B23E"/><text id="dt-amt" x="202" y="164" text-anchor="end" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">₱ ?</text></g></g>' +
-      '<g><path d="M128 220 C126 196 132 176 146 168 L156 172 C150 184 150 200 154 220Z" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/><path d="M232 220 C234 198 230 182 216 172 L206 178 C212 190 212 204 208 220Z" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/></g>');
+      '<g><path d="M128 220 C126 196 132 176 146 168 L156 172 C150 184 150 200 154 220Z" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/><path d="M232 220 C234 198 230 182 216 172 L206 178 C212 190 212 204 208 220Z" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/></g>'))) + paperGround());
   }
 
-  /* One scene from the day: v1 props with its calendar (how often) and backpack (how much). */
+  /* One scene from the day, in paper: a backdrop, the scene's drawing cut out and floating, and a strip in front. The seniors'
+     scene is redrawn with faces; the others are the v1 drawings without their outlines. */
+  var PAPER_PROPS = {
+    l: '<rect x="139" y="154" width="5" height="22" rx="2" fill="#1F2A22"/><rect x="149" y="154" width="5" height="22" rx="2" fill="#1F2A22"/><rect x="126" y="120" width="11" height="25" rx="4" fill="#2B7385"/>' +
+      '<rect x="134" y="115" width="25" height="43" rx="11" fill="#FAF9F4"/><path d="M146.5 115a12.5 12.5 0 0 1 12.5 12.5V147a11 11 0 0 1-11 11h-1.5Z" fill="#1F2A22" opacity=".1"/>' +
+      '<rect x="142.5" y="108" width="7" height="9" fill="#8A5A3C"/><circle cx="146" cy="102" r="11.5" fill="#A0704F"/><path d="M134.6 100c0-9 5-13 11.4-13s11.4 4 11.4 13c-3-5-7-6.5-11.4-6.5s-8.4 1.5-11.4 6.5Z" fill="#1B1B22"/>' + paperFace(146, 103.5, 0.46) +
+      '<path d="M196 176v-54a18 18 0 0 1 36 0v54Z" fill="#1F2A22"/><path d="M214 104a18 18 0 0 1 18 18v54h-18Z" fill="#000000" opacity=".18"/><path d="M207 106l7 9 7-9Z" fill="#E8B23E"/>' +
+      '<rect x="209.5" y="94" width="9" height="12" fill="#74472F"/><circle cx="214" cy="88" r="12.5" fill="#8A5A3C"/>' + paperFace(214, 90, 0.5) +
+      '<g class="capbob"><path d="M195 74l19-9.5 19 9.5-19 9.5Z" fill="#1F2A22"/><path d="M226 75v10" stroke="#CE5A45" stroke-width="2.5" stroke-linecap="round"/></g>' +
+      '<rect x="160" y="66" width="32" height="18" rx="9" fill="#FAF9F4"/><path d="M168 82l-4 7 9-5Z" fill="#FAF9F4"/><g class="dots3" fill="#1F2A22"><circle cx="168" cy="75" r="2.2"/><circle cx="176" cy="75" r="2.2"/><circle cx="184" cy="75" r="2.2"/></g>'
+  };
   function momentStage(s) {
-    var panelFill = BOXES["m-" + s.k].ink === "light" ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.28)";
-    return stageSvg('<rect width="360" height="220" rx="22" fill="' + panelFill + '"/><path d="M0 176H360V198a22 22 0 0 1-22 22H22A22 22 0 0 1 0 198Z" fill="rgba(0,0,0,.12)"/>' +
-      '<g><g class="hero2">' + s.props + "</g></g>");
+    return stageSvg(lay(1, backdrop(s.k === "i" || s.k === "l" ? "campus" : "room")) +
+      lay(2, '<g class="hero2">' + piece(PAPER_PROPS[s.k] || unline(s.props)) + "</g>") + paperGround());
   }
 
   /* The campus map, as in v1, drawn bigger. */
@@ -1141,47 +1199,56 @@ a{color:var(--sea)}
       checkPost: '<g transform="translate(52 40)"><rect width="80" height="92" rx="6" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><circle cx="18" cy="18" r="8" fill="#A65E7E"/><path d="M32 14h36M32 22h24M12 40h56M12 50h48M12 60h52" stroke="#CFC9B9" stroke-width="3" stroke-linecap="round"/>' +
         '<g transform="translate(70 72)"><circle r="18" fill="#FFFFFF" stroke="#1F2A22" stroke-width="2.55"/><path d="M13 13l14 14" stroke="#1F2A22" stroke-width="5" stroke-linecap="round"/><text y="7" text-anchor="middle" font-size="20" font-weight="800" fill="#A65E7E" font-family="sans-serif">?</text></g></g>'
     };
-    return stageSvg(FRAME +
-      Object.keys(T).map(function (k) { return '<g class="topic" data-topic="' + k + '">' + T[k] + "</g>"; }).join("") +
-      '<g transform="translate(232 34)"><rect width="76" height="134" rx="12" fill="#1F2A22"/><rect x="6" y="12" width="64" height="112" rx="6" fill="#FAF9F4"/>' +
+    return stageSvg(lay(1, backdrop("room")) +
+      lay(2, Object.keys(T).map(function (k) { return '<g class="topic" data-topic="' + k + '">' + piece(unline(T[k])) + "</g>"; }).join("")) +
+      lay(3, piece('<g transform="translate(232 34)"><rect width="76" height="134" rx="12" fill="#1F2A22"/><rect x="6" y="12" width="64" height="112" rx="6" fill="#FAF9F4"/>' +
       '<rect x="11" y="22" width="54" height="22" rx="5" fill="#E9E2EF"/><rect x="16" y="28" width="30" height="4" rx="2" fill="#7E68A0"/><rect x="16" y="35" width="40" height="3" rx="1.5" fill="#CFC9B9"/>' +
       '<rect x="11" y="50" width="54" height="22" rx="5" fill="#DCE8D2"/><rect x="16" y="56" width="26" height="4" rx="2" fill="#5E8E5A"/><rect x="16" y="63" width="36" height="3" rx="1.5" fill="#CFC9B9"/>' +
       '<rect x="11" y="78" width="54" height="22" rx="5" fill="#F4DFD8"/><rect x="16" y="84" width="32" height="4" rx="2" fill="#CE5A45"/><rect x="16" y="91" width="30" height="3" rx="1.5" fill="#CFC9B9"/>' +
-      '<g transform="translate(70 8)"><circle class="badge" r="10" fill="#CE5A45" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g></g>');
+      '<g transform="translate(70 8)"><circle class="badge" r="10" fill="#CE5A45" stroke="#FFFFFF" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF" font-family="sans-serif">1</text></g></g>')) + paperGround());
   }
   /* Reaching VSU: an office window, a bell, and a note waiting for an answer. */
   /* Daily life: a boarding house, a food stall, and a phone with something for sale. */
   function dailyStage() {
-    return stageSvg(FRAME +
-      '<g><path d="M30 92 L76 60 L122 92 V170 H30Z" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M22 96 L76 56 L130 96" fill="none" stroke="#CE5A45" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<rect x="42" y="106" width="20" height="18" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.27"/><rect x="90" y="106" width="20" height="18" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.27"/><rect x="66" y="132" width="20" height="38" fill="#82654B" stroke="#1F2A22" stroke-width="1.27"/><rect x="38" y="134" width="24" height="12" rx="2" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.02"/></g>' +
-      '<g><rect x="150" y="104" width="86" height="66" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><path d="M142 104h102l-8-26h-86Z" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M162 78l-4 26M184 78v26M206 78l4 26" stroke="#1F2A22" stroke-width="1.27"/>' +
-      '<rect x="150" y="122" width="86" height="10" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/><circle cx="170" cy="117" r="7" fill="#D97A62" stroke="#1F2A22" stroke-width="1.02"/><circle cx="190" cy="117" r="7" fill="#8DB37F" stroke="#1F2A22" stroke-width="1.02"/><circle cx="210" cy="117" r="7" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.02"/></g>' +
-      '<g><rect x="262" y="70" width="52" height="96" rx="9" fill="#1F2A22"/><rect x="267" y="80" width="42" height="76" rx="4" fill="#FAF9F4"/><rect x="273" y="88" width="30" height="20" rx="3" fill="#B3D7DB"/><path d="M273 116h30M273 124h22" stroke="#CFC9B9" stroke-width="3" stroke-linecap="round"/><path d="M276 132h16l6 6-6 6h-16Z" fill="#CE5A45"/><circle cx="281" cy="138" r="1.8" fill="#FFFFFF"/></g>' +
-      '<g class="sway"><path d="M318 128h28l-4 42h-20Z" fill="#E9C27D" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M326 128v-6a6 6 0 0 1 12 0v6" fill="none" stroke="#1F2A22" stroke-width="1.7"/></g>');
+    return stageSvg(lay(1, backdrop("campus")) +
+      lay(2, piece(unline('<g><path d="M30 92 L76 60 L122 92 V170 H30Z" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M22 96 L76 56 L130 96" fill="none" stroke="#CE5A45" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<rect x="42" y="106" width="20" height="18" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.27"/><rect x="90" y="106" width="20" height="18" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.27"/><rect x="66" y="132" width="20" height="38" fill="#82654B" stroke="#1F2A22" stroke-width="1.27"/><rect x="38" y="134" width="24" height="12" rx="2" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.02"/></g>')) +
+      piece(unline('<g><rect x="150" y="104" width="86" height="66" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><path d="M142 104h102l-8-26h-86Z" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M162 78l-4 26M184 78v26M206 78l4 26" stroke="#1F2A22" stroke-width="1.27"/>' +
+      '<rect x="150" y="122" width="86" height="10" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/><circle cx="170" cy="117" r="7" fill="#D97A62" stroke="#1F2A22" stroke-width="1.02"/><circle cx="190" cy="117" r="7" fill="#8DB37F" stroke="#1F2A22" stroke-width="1.02"/><circle cx="210" cy="117" r="7" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.02"/></g>'))) +
+      lay(3, piece('<g><rect x="262" y="70" width="52" height="96" rx="9" fill="#1F2A22"/><rect x="267" y="80" width="42" height="76" rx="4" fill="#FAF9F4"/><rect x="273" y="88" width="30" height="20" rx="3" fill="#B3D7DB"/><path d="M273 116h30M273 124h22" stroke="#CFC9B9" stroke-width="3" stroke-linecap="round"/><path d="M276 132h16l6 6-6 6h-16Z" fill="#CE5A45"/><circle cx="281" cy="138" r="1.8" fill="#FFFFFF"/></g>') +
+      piece(unline('<g class="sway"><path d="M318 128h28l-4 42h-20Z" fill="#E9C27D" stroke="#1F2A22" stroke-width="1.7" stroke-linejoin="round"/><path d="M326 128v-6a6 6 0 0 1 12 0v6" fill="none" stroke="#1F2A22" stroke-width="1.7"/></g>'))) + paperGround());
   }
   function errandStage() {
-    return stageSvg(FRAME +
-      '<g><rect x="70" y="26" width="220" height="140" rx="8" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><rect x="70" y="26" width="220" height="26" rx="8" fill="#2B7385" stroke="#1F2A22" stroke-width="1.7"/><rect x="146" y="34" width="68" height="10" rx="5" fill="#FAF9F4" opacity=".85"/>' +
+    return stageSvg(lay(1, backdrop("campus")) +
+      lay(2, piece(unline('<g><rect x="70" y="26" width="220" height="140" rx="8" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/><rect x="70" y="26" width="220" height="26" rx="8" fill="#2B7385" stroke="#1F2A22" stroke-width="1.7"/><rect x="146" y="34" width="68" height="10" rx="5" fill="#FAF9F4" opacity=".85"/>' +
       '<rect x="110" y="62" width="140" height="70" rx="4" fill="#B3D7DB" stroke="#1F2A22" stroke-width="1.7"/><path d="M180 62v70" stroke="#1F2A22" stroke-width="1.27"/><path d="M118 70l20 20M190 70l16 16" stroke="#FAF9F4" stroke-width="4" stroke-linecap="round" opacity=".6"/>' +
-      '<rect x="96" y="132" width="168" height="12" rx="3" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/>' +
-      '<g transform="translate(128 120)"><path d="M0 12a12 12 0 0 1 24 0Z" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.27"/><rect x="-3" y="12" width="30" height="3" rx="1.5" fill="#1F2A22"/><circle cx="12" cy="-2" r="2.5" fill="#1F2A22"/></g>' +
+      '<rect x="96" y="132" width="168" height="12" rx="3" fill="#A0704F" stroke="#1F2A22" stroke-width="1.27"/></g>'))) +
+      lay(3, piece(unline('<g transform="translate(128 120)"><path d="M0 12a12 12 0 0 1 24 0Z" fill="#E8B23E" stroke="#1F2A22" stroke-width="1.27"/><rect x="-3" y="12" width="30" height="3" rx="1.5" fill="#1F2A22"/><circle cx="12" cy="-2" r="2.5" fill="#1F2A22"/></g>' +
       '<g transform="translate(206 106) rotate(-6)"><rect width="34" height="26" rx="2" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.27"/><path d="M6 8h22M6 14h16M6 20h18" stroke="#CFC9B9" stroke-width="2.5" stroke-linecap="round"/></g>' +
-      '<g transform="translate(250 92)"><path d="M0 0h30a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7H14l-7 6v-6H0a7 7 0 0 1-7-7V7a7 7 0 0 1 7-7Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><g class="dots3" fill="#D97A62"><circle cx="8" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="24" cy="12" r="2.5"/></g></g></g>');
+      '<g transform="translate(250 92)"><path d="M0 0h30a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7H14l-7 6v-6H0a7 7 0 0 1-7-7V7a7 7 0 0 1 7-7Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><g class="dots3" fill="#D97A62"><circle cx="8" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="24" cy="12" r="2.5"/></g></g>'))) + paperGround());
   }
   /* Students and alumni: classmates trading questions and answers. */
   function peersStage() {
-    function kid(x, skin, hair, shirt) { return '<g transform="translate(' + x + ' 0)"><g class="bob" style="animation-delay:' + (-x / 70).toFixed(1) + 's"><circle cx="0" cy="104" r="20" fill="' + skin + '"/><path d="M-20 100c2-24 38-24 40 0-8-8-32-8-40 0Z" fill="' + hair + '"/><ellipse class="blush" cx="-11" cy="112" rx="3.2" ry="1.9"/><ellipse class="blush" cx="11" cy="112" rx="3.2" ry="1.9"/><g class="eyes"><circle cx="-7" cy="106" r="2.6" fill="#1F2A22"/><circle cx="7" cy="106" r="2.6" fill="#1F2A22"/></g><g class="shut" opacity="0"><path d="M-9.6 106.4q2.6 1.69 5.2 0M4.4 106.4q2.6 1.69 5.2 0" fill="none" stroke="#1F2A22" stroke-width="1.6" stroke-linecap="round"/></g><path d="M-5 115q5 4 10 0" stroke="#1F2A22" stroke-width="1.53" fill="none" stroke-linecap="round"/><path d="M-36 176c2-36 70-36 72 0Z" fill="' + shirt + '"/></g></g>'; }
-    return stageSvg(FRAME + kid(100, "#8A5A3C", "#1B1B22", "#2B7385") + kid(180, "#A0704F", "#3A2A20", "#E8B23E") + kid(260, "#7A4E33", "#1B1B22", "#CE5A45") +
-      '<g transform="translate(118 28)"><path d="M0 0h44a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H20l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><text class="peers-typing" x="22" y="23" text-anchor="middle" font-size="18" font-weight="800" fill="#5E8E5A" font-family="sans-serif">?</text></g>' +
-      '<g transform="translate(206 38)"><path d="M0 0h52a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8H38l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><path d="M6 10h40M6 18h28" stroke="#5E8E5A" stroke-width="3.5" stroke-linecap="round"/></g>');
+    /* A classmate in paper: a shirt with its shaded side, a face that blinks, and one of three haircuts; each bobs on its own beat. */
+    function kid(x, skin, hair, shirt, cut) {
+      var hairs = ['<path d="M-20 102c0-16 9-24 20-24s20 8 20 24c-5-8-12-11-20-11s-15 3-20 11Z" fill="' + hair + '"/>',
+        '<path d="M-22 114c-3-24 6-38 22-38s25 14 22 38c-2-10-5-17-9-21-7 5-19 6-27 2-4 4-7 11-8 19Z" fill="' + hair + '"/>',
+        '<circle cx="13" cy="84" r="8" fill="' + hair + '"/><path d="M-20 102c0-16 9-24 20-24s20 8 20 24c-5-9-12-13-20-13s-15 4-20 13Z" fill="' + hair + '"/>'];
+      return '<g transform="translate(' + x + ' 0)"><g class="bob" style="animation-delay:' + (-x / 70).toFixed(1) + 's">' + piece(
+        '<path d="M-36 178c2-36 70-36 72 0Z" fill="' + shirt + '"/><path d="M0 144c19 0 34 13 36 34H6Z" fill="#1F2A22" opacity=".12"/><path d="M-8 145l8 9 8-9Z" fill="#FAF9F4"/>' +
+        '<rect x="-6" y="130" width="12" height="22" fill="' + skin + '"/><rect x="-6" y="130" width="12" height="9" fill="#1F2A22" opacity=".15"/>' +
+        '<g transform="translate(0 14)"><ellipse cx="-20" cy="106" rx="3" ry="4" fill="' + skin + '"/><ellipse cx="20" cy="106" rx="3" ry="4" fill="' + skin + '"/><circle cx="0" cy="104" r="20" fill="' + skin + '"/>' + hairs[cut] +
+        paperFace(0, 106, 0.82, hair) + "</g>") + "</g></g>";
+    }
+    return stageSvg(lay(1, backdrop("campus")) +
+      lay(2, kid(100, "#8A5A3C", "#1B1B22", "#2B7385", 0) + kid(180, "#A0704F", "#3A2A20", "#E8B23E", 1) + kid(260, "#7A4E33", "#1B1B22", "#CE5A45", 2)) +
+      lay(3, piece(unline('<g transform="translate(118 28)"><path d="M0 0h44a8 8 0 0 1 8 8v16a8 8 0 0 1-8 8H20l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><text class="peers-typing" x="22" y="23" text-anchor="middle" font-size="18" font-weight="800" fill="#5E8E5A" font-family="sans-serif">?</text></g>' + '<g transform="translate(206 38)"><path d="M0 0h52a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8H38l-10 9v-9H0a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8Z" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/><path d="M6 10h40M6 18h28" stroke="#5E8E5A" stroke-width="3.5" stroke-linecap="round"/></g>'))) + paperGround());
   }
 
   /* Posting anonymously: a post card behind a mask, or not. */
   function anonStage() {
-    return stageSvg(FRAME +
-      '<g class="drift" fill="rgba(255,255,255,.2)"><rect x="34" y="40" width="70" height="14" rx="7"/><rect x="262" y="58" width="64" height="14" rx="7"/><rect x="40" y="126" width="54" height="14" rx="7"/></g>' +
-      '<g><rect x="118" y="36" width="124" height="128" rx="18" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/>' +
+    return stageSvg(lay(1, backdrop("sky") + '<g class="drift" fill="rgba(255,255,255,.2)"><rect x="34" y="40" width="70" height="14" rx="7"/><rect x="262" y="58" width="64" height="14" rx="7"/><rect x="40" y="126" width="54" height="14" rx="7"/></g>') +
+      lay(2, piece(unline('<g><rect x="118" y="36" width="124" height="128" rx="18" fill="#FAF9F4" stroke="#1F2A22" stroke-width="1.7"/>' +
       '<g class="mode" data-mode="none"><circle cx="146" cy="66" r="15" fill="#E2E6DC"/><text x="146" y="72" text-anchor="middle" font-size="16" font-weight="800" fill="#52594C" font-family="sans-serif">?</text></g>' +
       '<g class="mode" data-mode="Yes"><circle cx="146" cy="66" r="15" fill="#7E68A0"/><path d="M133 63c4-3 22-3 26 0-1 5-5 7-7 7-2 0-3-2-6-2s-4 2-6 2c-2 0-6-2-7-7Z" fill="#1F2A22"/></g>' +
       '<g class="mode" data-mode="No"><circle cx="146" cy="66" r="15" fill="#A0704F"/><path d="M134 62c1-11 23-11 24 0-5-4-19-4-24 0Z" fill="#1B1B22"/><circle cx="141" cy="68" r="1.6" fill="#1F2A22"/><circle cx="151" cy="68" r="1.6" fill="#1F2A22"/></g>' +
@@ -1189,7 +1256,7 @@ a{color:var(--sea)}
       '<g class="mode" data-mode="Prefer not to say"><circle cx="146" cy="66" r="15" fill="#CFC9B9"/><rect x="128" y="60" width="36" height="12" rx="6" fill="#FAF9F4" opacity=".85"/></g>' +
       '<rect x="168" y="58" width="58" height="8" rx="4" fill="#1F2A22"/><rect x="168" y="70" width="40" height="6" rx="3" fill="#CFC9B9"/>' +
       '<rect x="132" y="94" width="96" height="8" rx="4" fill="#E2E6DC"/><rect x="132" y="108" width="80" height="8" rx="4" fill="#E2E6DC"/><rect x="132" y="122" width="88" height="8" rx="4" fill="#E2E6DC"/>' +
-      '<rect x="132" y="140" width="34" height="12" rx="6" fill="#B3D7DB"/></g>');
+      '<rect x="132" y="140" width="34" height="12" rx="6" fill="#B3D7DB"/></g>'))) + paperGround());
   }
 
   /* A network VSU runs: a phone that fills with what would draw you, then shows how you'd post and what keeps you away. */
@@ -1198,8 +1265,8 @@ a{color:var(--sea)}
     for (var i = 0; i < 6; i++) rows += '<g class="feat" data-slot="' + i + '"><circle cx="164" cy="' + (64 + i * 21) + '" r="7.5" fill="#E8B23E"/><g class="feat-ic"></g><rect x="176" y="' + (60 + i * 21) + '" width="' + [40, 32, 44, 36, 30, 42][i] + '" height="7" rx="3.5" fill="#CFC9B9"/></g>';
     var warnSpots = [[96, 52], [92, 112], [104, 168], [262, 50], [268, 110], [256, 166], [86, 84]];
     var warns = warnSpots.map(function (p, i) { return '<g class="warn" data-warn="' + i + '"><circle cx="' + p[0] + '" cy="' + p[1] + '" r="15" fill="#FFFFFF" stroke="#CE5A45" stroke-width="2.5"/><g class="warn-ic"></g></g>'; }).join("");
-    return stageSvg(FRAME +
-      '<g><rect x="132" y="12" width="96" height="190" rx="16" fill="#1F2A22"/><rect x="138" y="24" width="84" height="166" rx="8" fill="#FAF9F4"/>' +
+    return stageSvg(lay(1, backdrop("campus")) +
+      lay(2, piece('<g><rect x="132" y="12" width="96" height="190" rx="16" fill="#1F2A22"/><rect x="138" y="24" width="84" height="166" rx="8" fill="#FAF9F4"/>' +
       '<rect x="138" y="24" width="84" height="22" rx="8" fill="#1F5B3F"/><rect x="138" y="36" width="84" height="10" fill="#1F5B3F"/><text x="180" y="39" text-anchor="middle" font-size="9" font-weight="700" fill="#FAF9F4" font-family="sans-serif">Network idea</text>' +
       '<g id="nw-rows">' + rows + "</g>" +
       '<g id="nw-post" opacity="0" style="transition:opacity .3s"><rect x="144" y="54" width="72" height="72" rx="10" fill="#FFFFFF" stroke="#1F2A22" stroke-width="1.27"/>' +
@@ -1207,8 +1274,8 @@ a{color:var(--sea)}
       '<g class="mode" data-mode="pen"><circle cx="160" cy="72" r="9" fill="#7E68A0"/><path d="M152 70c3-2 13-2 16 0-1 3-3 4-4 4-1 0-2-1-4-1s-3 1-4 1c-1 0-3-1-4-4Z" fill="#1F2A22"/><rect x="173" y="67" width="36" height="6" rx="3" fill="#7E68A0"/></g>' +
       '<g class="mode" data-mode="none"><circle cx="160" cy="72" r="9" fill="none" stroke="#7E8578" stroke-width="2" stroke-dasharray="3 3"/><rect x="173" y="67" width="36" height="6" rx="3" fill="none" stroke="#7E8578" stroke-width="1.5" stroke-dasharray="3 2"/></g>' +
       '<g class="mode" data-mode="unsure"><circle cx="160" cy="72" r="9" fill="#E2E6DC"/><text x="160" y="76.5" text-anchor="middle" font-size="11" font-weight="800" fill="#52594C" font-family="sans-serif">?</text><rect x="173" y="67" width="36" height="6" rx="3" fill="#E2E6DC"/></g>' +
-      '<rect x="152" y="90" width="56" height="5" rx="2.5" fill="#E2E6DC"/><rect x="152" y="100" width="46" height="5" rx="2.5" fill="#E2E6DC"/><rect x="152" y="110" width="50" height="5" rx="2.5" fill="#E2E6DC"/></g></g>' +
-      '<g>' + warns + "</g>");
+      '<rect x="152" y="90" width="56" height="5" rx="2.5" fill="#E2E6DC"/><rect x="152" y="100" width="46" height="5" rx="2.5" fill="#E2E6DC"/><rect x="152" y="110" width="50" height="5" rx="2.5" fill="#E2E6DC"/></g></g>')) +
+      lay(3, piece(warns)) + paperGround());
   }
 
   /* The last scene: the tick, among confetti that flutters in place. Each piece turns inside its own group, so its
@@ -1223,8 +1290,12 @@ a{color:var(--sea)}
       }
       return out;
     }
-    return stageSvg('<g opacity=".55">' + bits(14, 7, 4) + '</g><g>' + bits(18, 0, 6) + "</g>" +
-      '<g class="check"><circle cx="180" cy="110" r="46" fill="#E8B23E" stroke="#1F2A22" stroke-width="2.55"/><path d="M160 111l14 14 28-30" fill="none" stroke="#1F2A22" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>');
+    var rays = "";
+    for (var i = 0; i < 12; i++) rays += '<path d="M180 110L' + (180 + 260 * Math.cos((i * 30 - 6) * Math.PI / 180)).toFixed(1) + " " + (110 + 260 * Math.sin((i * 30 - 6) * Math.PI / 180)).toFixed(1) + "L" + (180 + 260 * Math.cos((i * 30 + 6) * Math.PI / 180)).toFixed(1) + " " + (110 + 260 * Math.sin((i * 30 + 6) * Math.PI / 180)).toFixed(1) + 'Z" fill="' + TONE[0] + '"/>';
+    return stageSvg('<g clip-path="url(#paper-panel)">' + lay(1, rays + '<circle cx="180" cy="110" r="70" fill="' + TONE[0] + '"/>') + "</g>" +
+      lay(2, '<g opacity=".55">' + bits(14, 7, 4) + "</g>") +
+      lay(3, piece('<g class="check"><circle cx="180" cy="110" r="46" fill="#E8B23E"/><path d="M180 64a46 46 0 0 1 0 92Z" fill="#D9A22F"/><circle cx="180" cy="110" r="36" fill="none" stroke="#F7D47A" stroke-width="2" opacity=".6"/><path d="M160 111l14 14 28-30" fill="none" stroke="#1F2A22" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>')) +
+      lay(4, piece(bits(18, 0, 6))));
   }
 
   /* The opening: every scene of the day, scattered around the title. */
@@ -1838,6 +1909,7 @@ a{color:var(--sea)}
     view.appendChild(el);
     boxEls[id] = el;
   });
+  paperArt(view);
 
   /* ---------- Answering ---------- */
   function isOn(key, v) {
@@ -2257,7 +2329,7 @@ a{color:var(--sea)}
     if (s.box === "net") netReact();
     if (s.box === "send") buildSend();
     if (s.box === "final") buildFinal();
-    if (s.box === "intro") afterLoad(intro3d);
+    if (s.box === "intro") { hold3d(want3dOnce() && roomFor3d()); afterLoad(intro3d); }
     if (s.box === "final") setTimeout(final3d, 250);
     syncStep(s);
   }
@@ -2712,14 +2784,23 @@ a{color:var(--sea)}
     if (!(window.matchMedia && matchMedia("(pointer: fine) and (min-width: 900px)").matches) && c.effectiveType !== "4g") return false;
     return hasGPU();
   }
+  var wants3d = null;
+  function want3dOnce() { if (wants3d === null) wants3d = want3d(); return wants3d; }
   function load3d() {
-    if (!three) three = want3d() ? import("./js/scene3d.js?v=2").catch(function () { return null; }) : Promise.resolve(null);
+    if (!three) three = want3dOnce() ? import("./js/scene3d.js?v=2").catch(function () { return null; }) : Promise.resolve(null);
     return three;
   }
   if (mqReduce && mqReduce.addEventListener) mqReduce.addEventListener("change", function () { if (calm() && ring3d) ring3d.stop(); });
-  function afterLoad(fn) {
-    if (doc.readyState === "complete") setTimeout(fn, 300);
-    else window.addEventListener("load", function () { setTimeout(fn, 300); }, { once: true });
+  /* Runs once the first screen has been painted. */
+  function afterLoad(fn) { requestAnimationFrame(function () { setTimeout(fn, 0); }); }
+  /* Where the ring will be drawn in 3D, the drawn ring stays hidden, so the coins don't change before your eyes. It shows if the
+     3D can't start, or hasn't within four seconds. */
+  var holdTimer = 0;
+  function hold3d(on) {
+    var st = $(".stage", boxEls.intro);
+    clearTimeout(holdTimer);
+    st.classList.toggle("await-3d", !!on);
+    if (on) holdTimer = setTimeout(function () { if (!st.classList.contains("has-3d")) st.classList.remove("await-3d"); }, 4000);
   }
   /* The coins need room above and below the title. On a short screen the drawn ring stays, and three.js waits for the end. */
   function roomFor3d() {
@@ -2727,13 +2808,14 @@ a{color:var(--sea)}
     return !!tt && st.clientHeight - tt.offsetHeight >= 110;
   }
   function intro3d() {
-    if (curId !== "intro" || !roomFor3d()) return;
+    if (curId !== "intro" || !roomFor3d()) { hold3d(false); return; }
     load3d().then(function (m) {
       /* The ring stops itself once the first screen is left, and starts again on the way back. */
-      if (!m || calm() || curId !== "intro" || (ring3d && !ring3d.done())) return;
+      if (curId !== "intro" || (ring3d && !ring3d.done())) return;
+      if (!m || calm()) { hold3d(false); return; }
       try {
         ring3d = m.ring($(".stage", boxEls.intro), MOMENTS.map(function (s) { return { color: s.bg, ink: s.ink === "light" ? "#F7F7F1" : "#1F2A22", icon: ICON[s.icon] }; }));
-      } catch (e) { ring3d = null; }
+      } catch (e) { ring3d = null; hold3d(false); }
     });
   }
   function final3d() {
