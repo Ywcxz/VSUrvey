@@ -2,7 +2,9 @@
 
 VSUrvey (formerly Istorya sa VSU): the Project CAMPUS student survey about student life and VSU's services, an interactive page of drawn scenes ([D-037](https://docs.projectcampus.org/decisions.html#d-037)). Version `since-v1` asks about each problem in the respondent's time at VSU, which the first screen names once, with all that have happened picked, in place of how often and how serious ([D-132](https://docs.projectcampus.org/decisions.html#d-132), revising [D-038](https://docs.projectcampus.org/decisions.html#d-038)). It is one walk in the order of `scenes-v3`, and long by choice: the first screen says it takes 20 to 25 minutes, and any question can be skipped ([D-133](https://docs.projectcampus.org/decisions.html#d-133)).
 
-- `index.html` is the whole survey: one self-contained page.
+- `index.html` is the whole survey: one page, in the look of the landing page and the master document, with its fonts in `fonts/`.
+- `fonts/` holds Newsreader (the questions) and Atkinson Hyperlegible (everything else), Latin only, with their licences, so the pages load nothing from another site.
+- `vercel.json` serves the pages under a strict security policy: only their own scripts run, named by hash, and answers can go only to the Apps Script receivers. After changing either page's script, run `node scripts/csp.js` and commit `vercel.json` with it; the tests serve the pages under that policy and fail until the two agree.
 - `survey-receiver.gs` is the Apps Script that writes each answer to a private Google Sheet. Its first lines say how to set it up or update it.
 - `volunteer.html` is the interview sign-up, in the survey's look, linked from the survey's last screen. It is its own page, so it can be shared on its own too.
 - `volunteer-receiver.gs` is the sign-up's own Apps Script, in its own private Google Sheet, apart from the survey's, so contact details never meet survey answers ([D-039](https://docs.projectcampus.org/decisions.html#d-039), [D-143](https://docs.projectcampus.org/decisions.html#d-143)). It deletes each sign-up once the interview is ticked as done, or three months after signing up ([D-111](https://docs.projectcampus.org/decisions.html#d-111)). It replaces the Google Form the survey's script used to build.
@@ -59,6 +61,7 @@ Tick every item before `OPEN` becomes `true`. The checklist stays until the surv
 
 - [ ] The survey's receiver is deployed and tested against `since-v1`, with a `?test=1` answer reaching the "Responses since" tab. (By hand)
 - [ ] The sign-up's receiver is deployed in its own sheet, its address is in `volunteer.html`'s `ENDPOINT`, its daily clean-up is installed (`setup()`), and a `?test=1` sign-up reaches "Sign-ups". The old Google Form no longer accepts responses. (By hand)
+- [ ] The live site sends its security headers (`curl -sI https://survey.projectcampus.org/student-life | grep -i content-security`), and the `?test=1` answer and sign-up above reached their sheets under them. (By hand; the tests serve the pages under the same policy)
 - [ ] Interview sign-ups go to the sign-up's own sheet, never into the survey sheet, and nothing in a sign-up ties it to a survey answer. (Tests; the two separate sheets by hand)
 - [ ] Test answers are marked and are deleted from the survey sheet before analysis. (By hand)
 - [ ] Comments are never quoted, and a comment that shows its writer is under 18 removes the whole record. (By hand)

@@ -14,5 +14,6 @@ This repository is the Project CAMPUS student survey (D-037), kept apart from th
 cd tests && npm install && npm test
 ```
 
+- Changed a page's script? Run `node scripts/csp.js` and commit `vercel.json` with it. The security policy names each script by its hash, and the tests fail until they match.
 - Work on a branch and open a pull request; the owner merges.
 - Name your branch `claude/` plus a short topic, such as `claude/coins-wording`. ChatGPT's branches start with `chatgpt/`, so each pull request shows who made it (D-131).
