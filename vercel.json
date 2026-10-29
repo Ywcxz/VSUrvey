@@ -11,7 +11,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'none'; script-src 'self' 'sha256-4+yZi0mKS3UYTmSiYr4xR23nHH1/IFZ0ng6iFbzVVZE=' 'sha256-jWxGmnGqbfdamIebXS7IJIBj8E4jzD7OHE34XtbJgvs='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" },
+        { "key": "Content-Security-Policy", "value": "default-src 'none'; script-src 'self' 'sha256-SvrnhKfWi47mrOThs4dCoTeollzmh0r8tIVpMvDqP3w=' 'sha256-jWxGmnGqbfdamIebXS7IJIBj8E4jzD7OHE34XtbJgvs='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
