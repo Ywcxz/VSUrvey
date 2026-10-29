@@ -36,6 +36,7 @@ var VARIANT = "since";
 var VERSION_PREFIX = "since-v1";
 /* Each problem is asked about since the respondent started at VSU, with all that have happened picked. */
 var CLASS_NEWS = ["Before the class time", "On the way, or when I got to the room", "Only after the class time", "It hasn't happened"];
+var CLASS_HOW = ["From the teacher, in class or by message", "A class group chat", "A classmate told me", "An official VSU page or website", "An unofficial group, like a freedom wall", "I got to the room and no one was there", "Somewhere else"];
 var OFFICIAL_TELL = ["Yes, right away", "Not at first, so I checked", "I couldn't tell", "I haven't seen one"];
 var SCENARIO = ["Asked in a student Facebook group", "Messaged a friend or a senior", "Walked over and asked around", "Checked the official website or page", "Something else", "It hasn't happened to me"];
 var OFFICE = ["Registrar or records", "Cashier or accounting", "My college or department office", "Student affairs or services", "Scholarships or financial aid", "Library, clinic, or another service", "Not sure"];
@@ -71,11 +72,12 @@ var CHECK_POST = ["Checked VSU's official page or website", "Asked a friend or c
 var WHY_QUIET = ["I didn't know where to raise it", "I didn't think it would change anything", "I worried about the consequences",
   "It would take too much time or effort", "Someone else had already raised it", "Other"];
 var JARS = ["online", "facilities", "news", "academic", "offices", "health", "services", "heard", "rooms", "teachers", "safety", "guides", "around", "aid", "housing", "storms", "food", "market"];  // 25 coins, up to 10 a jar
-var HEARD = ["Yes, and it was fixed", "Yes, but it wasn't fixed", "It's still being looked into", "No, I never heard back"];
+var HEARD = ["Yes, and it was addressed", "Yes, but it wasn't addressed", "It's still being looked into", "No, I never heard back"];
 var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
 var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
 var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "I don't buy or sell with people on campus"];
-var WHO_JOIN = ["Faculty", "Office staff", "Student orgs and councils", "Alumni", "Incoming students", "Parents, relatives, or friends", "Only students"];
+var FORM_LIKE = ["One like this, and I'd like to see more", "A plain Google Form", "Either is fine"];
+var WHO_JOIN = ["Faculty", "Office staff", "Alumni", "Aspiring students", "Parents, relatives, or friends", "Outsiders", "Only students"];
 var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
   "Only talked about it with friends", "It hasn't happened"];
@@ -123,6 +125,7 @@ function headers_() {
   h.push("groupChats");
   multiHeaders_(h, "officialHow", OFFICIAL_HOW);
   multiHeaders_(h, "classNews", CLASS_NEWS);
+  multiHeaders_(h, "classHow", CLASS_HOW);
   multiHeaders_(h, "officialTell", OFFICIAL_TELL);
   multiHeaders_(h, "checkPost", CHECK_POST);
   multiHeaders_(h, "missedLate", MISSED_LATE);
@@ -154,7 +157,7 @@ function headers_() {
   multiHeaders_(h, "whoJoin", WHO_JOIN);
   h.push("postPreference", "wantBack", "whoRuns");
   multiHeaders_(h, "away", AWAY);
-  h.push("comment", "raw");
+  h.push("formLike", "comment", "raw");
   return h;
 }
 
@@ -211,6 +214,7 @@ function row_(r, now) {
   row.push(cell_(r.groupChats));
   multiCells_(row, r.officialHow, OFFICIAL_HOW, "");
   multiCells_(row, r.classNews, CLASS_NEWS, "");
+  multiCells_(row, r.classHow, CLASS_HOW, "");
   multiCells_(row, r.officialTell, OFFICIAL_TELL, "");
   multiCells_(row, r.checkPost, CHECK_POST, r.checkPostOther);
   multiCells_(row, r.missedLate, MISSED_LATE, "");
@@ -242,7 +246,7 @@ function row_(r, now) {
   multiCells_(row, r.whoJoin, WHO_JOIN, "");
   row.push(cell_(r.postPreference), cell_(r.wantBack), cell_(r.whoRuns));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
-  row.push(cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
+  row.push(cell_(FORM_LIKE.indexOf(r.formLike) >= 0 ? r.formLike : null), cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
 }
 
@@ -289,4 +293,4 @@ function sheet_() {
 
 function setup() { sheet_(); }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, DATA_USE: DATA_USE, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, DATA_USE: DATA_USE, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, CLASS_HOW: CLASS_HOW, FORM_LIKE: FORM_LIKE, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };

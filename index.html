@@ -136,6 +136,7 @@ button,a,input,textarea{touch-action:manipulation}
 .statement:focus{outline:none}
 .statement:focus-visible{outline:3px solid var(--brass);outline-offset:4px;border-radius:6px}
 .note{font-size:14px;color:var(--ink-soft);margin:12px 0 0}
+.ask{font-weight:700;margin:20px 0 10px}
 .answers{margin-top:14px}
 
 /* Desktop: stage on the left, sheet on the right */
@@ -1314,13 +1315,13 @@ a{color:var(--sea)}
     residence: null, dormPart: null, barangay: null, year: null, faculty: null, program: null, org: null, orgKinds: [], orgKindsOther: "", orgRun: [], orgRunOther: "", orgKeep: [], orgKeepOther: "", orgWhy: [], orgWhyOther: "", orgNone: [], orgNoneOther: "", support: [], familyVSU: null,
     networks: [], twoSims: [], twoSimsOther: "", dataUse: [], dataUseOther: "", untilExpiry: null, reload: null, reloadWhy: [], reloadWhyOther: "", dataSpend: null, dataSchool: null, signal: null, onlineCampus: [], onlineHome: [], wifiSpend: null,
     firstClasses: [], firstSuspensions: [], firstDocuments: [], firstEvents: [], firstScholarships: [], firstAnnouncements: [], groupChats: null, officialHow: [], checkPost: [], checkPostOther: "",
-    classNews: [], officialTell: [], missedLate: [],
+    classNews: [], classHow: [], officialTell: [], missedLate: [],
     scenario: [], whichOffice: [], visitsTook: [], reachWhy: [], reachHard: [], missClass: null, concern: [], whyQuiet: [], whyQuietOther: "", concernHeard: [],
     askFirst: [], answerRight: [], oldAnswer: [], guideSteps: [], seniorFind: [],
     coins: {},
     fbPosting: [], getAround: [], commute: [], whereFound: null, housingSince: null, cantGoOut: [], buySell: [], scamSince: null, whoJoin: [], whoRuns: null, hostedPay: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
-    comment: ""
+    formLike: null, comment: ""
   };
   var sent = false, sending = false, printed = false;
   window.__survey = { answers: A };
@@ -1355,7 +1356,9 @@ a{color:var(--sea)}
     office: [["Registrar or records", "folder"], ["Cashier or accounting", "coin"], ["My college or department office", "cap"], ["Student affairs or services", "people"], ["Scholarships or financial aid", "star"], ["Library, clinic, or another service", "office"], ["Not sure", "other"]],
     visits: [["Just one", 1], ["Two or three", 3], ["Four or more", 5], ["It still isn't done", 0]],
     missClass: [["Yes, more than once", "stack"], ["Yes, once", "calendar"], ["No", "cap"]],
-    heard: [["Yes, and it was fixed", "spark"], ["Yes, but it wasn't fixed", "ban"], ["It's still being looked into", "snail"], ["No, I never heard back", "mail"]],
+    /* Asked on the Send screen, so it goes with the answers: would they rather answer one like this, or a plain form (D-169). */
+    formLike: [["One like this, and I'd like to see more", "spark"], ["A plain Google Form", "pen"], ["Either is fine", "other"]],
+    heard: [["Yes, and it was addressed", "spark"], ["Yes, but it wasn't addressed", "ban"], ["It's still being looked into", "snail"], ["No, I never heard back", "mail"]],
     fbPosting: [["Yes, under my real name", "people"], ["Yes, under a nickname", "tag"], ["Yes, anonymously", "mask"], ["No, I only read", "eye"], ["No, I'm not in any", "other"]],
     whereFound: [["Word of mouth: friends, family, or seniors", "people"], ["A Facebook group or post", "group"], ["A sign or tarpaulin outside", "flagpage"], ["Walking around and asking", "walk"], ["Applied for a VSU dorm", "dorm"], ["Family arranged it", "house"], ["Other", "other"]],
     cantGoOut: [["Ask a friend or classmate to buy it", "people"], ["Use a pasabuy or delivery", "jeep"], ["Wait until I can go", "calendar"], ["Go without", "ban"], ["It doesn't happen to me", "other"]],
@@ -1386,12 +1389,13 @@ a{color:var(--sea)}
     wantBack: [["That it was received", "received"], ["An answer", "answer"], ["A fix, or a reason it can't be fixed", "fix"], ["Only to be heard", "heard"], ["Not sure", "unsure"]],
     post: [["Under my real name", "name"], ["Under a made-up name other members can't link to me", "pen"], ["Without my name shown to other members", "none"], ["Not sure", "unsure"]],
     pull: [["Official answers from offices", "office"], ["Easier to reach faculty and staff", "door"], ["Notices and deadlines in one place", "board"], ["Scholarships and opportunities in one place", "star"], ["Events in one place", "flag"], ["Questions about my subjects", "guide"], ["My class schedule and rooms in one place", "calendar"], ["A verified marketplace", "tag"], ["No ads or endless feeds", "ban"], ["Works on little mobile data", "signal"], ["Other", "other"]],
-    whoJoin: [["Faculty", "cap"], ["Office staff", "office"], ["Student orgs and councils", "flag"], ["Alumni", "star"], ["Incoming students", "guide"], ["Parents, relatives, or friends", "house"], ["Only students", "people"]],
+    whoJoin: [["Faculty", "cap"], ["Office staff", "office"], ["Alumni", "star"], ["Aspiring students", "guide"], ["Parents, relatives, or friends", "house"], ["Outsiders", "globe"], ["Only students", "people"]],
     whoRuns: [["VSU", "seal"], ["Students, with VSU's support", "people"], ["A student council or org", "flag"], ["An outside company", "tag"], ["None of these", "ban"], ["Not sure", "other"]],
     familyVSU: [["Yes, a parent or guardian", "house"], ["Yes, a brother or sister", "people"], ["Yes, another relative", "group"], ["No, I'm the first in my family to study at VSU", "star"], ["Not sure", "other"]],
     hostedPay: [["Use it only if it's free", "coin"], ["Pay a small fee to use it on campus", "tag"], ["Keep using my own mobile data instead", "signal"], ["I wouldn't use it", "ban"], ["Not sure", "other"]],
     /* Each situation since the respondent started at VSU, all that happened (D-038, as proposed for revision): the answers that count
        as the problem are named in PROBLEM. */
+    classHow: [["From the teacher, in class or by message", "cap"], ["A class group chat", "chat"], ["A classmate told me", "people"], ["An official VSU page or website", "seal"], ["An unofficial group, like a freedom wall", "group"], ["I got to the room and no one was there", "walk"], ["Somewhere else", "other"]],
     classNews: [["Before the class time", "spark"], ["On the way, or when I got to the room", "walk"], ["Only after the class time", "calendar"], ["It hasn't happened", "other"]],
     officialTell: [["Yes, right away", "seal"], ["Not at first, so I checked", "search"], ["I couldn't tell", "ban"], ["I haven't seen one", "other"]],
     missedLate: [["A deadline or requirement, like for enrollment or clearance", "calendar"], ["An event I wanted to join", "flag"], ["An org meeting or activity", "people"], ["A seminar, training, or competition", "cap"], ["A scholarship or financial aid", "star"], ["A part-time job or student assistant post", "case"], ["An OJT host", "office"], ["None of these", "ban"]],
@@ -1425,6 +1429,8 @@ a{color:var(--sea)}
   /* A concern raised with someone who could act on it, or posted online, brings "Did you learn what happened to it?" (D-126). */
   var NOT_RAISED = [KEPT, "Only talked about it with friends", "It hasn't happened"];
   function raised(x) { return NOT_RAISED.indexOf(x) < 0; }
+  /* A class of theirs was moved or cancelled: they picked when they found out (owner, 29 October 2026). */
+  function classChanged() { return A.classNews.some(function (v) { return v !== NOT_YET; }); }
   function raisedIt() { return A.concern.some(raised); }
   /* Finding where you stay is asked of dorm residents, renters, and "somewhere else", not of those with family or relatives. */
   function rents() { return ["An on-campus dorm", "A boarding house or apartment near campus", "Somewhere else"].indexOf(A.residence) >= 0; }
@@ -1552,7 +1558,7 @@ a{color:var(--sea)}
     onlineCampus: "Online on campus", onlineHome: "Online where you reside", wifiSpend: "Wi‑Fi in a month", hostedPay: "Hosted on campus",
     firstClasses: "Class changes", firstSuspensions: "Suspensions and emergencies", firstDocuments: "Documents to submit", firstEvents: "Events",
     firstScholarships: "Scholarships and jobs", firstAnnouncements: "Org announcements", groupChats: "Your group chats",
-    officialHow: "VSU's official pages", classNews: "A class change", officialTell: "Official or not", checkPost: "Checking a post", missedLate: "Heard too late",
+    officialHow: "VSU's official pages", classNews: "A class change", classHow: "How you found out", officialTell: "Official or not", checkPost: "Checking a post", missedLate: "Heard too late",
     scenario: "A new office", whichOffice: "Which office", visitsTook: "Tries it took", reachWhy: "Reaching a teacher or staff", reachHard: "What made it hard",
     missClass: "Missing class", concern: "A concern", whyQuiet: "Why you kept it", concernHeard: "Hearing back",
     askFirst: "Asking first", answerRight: "Was it right?", oldAnswer: "Finding an old answer", guideSteps: "How-to guides", seniorFind: "Advice from seniors",
@@ -1586,7 +1592,7 @@ a{color:var(--sea)}
      only the tag. */
   var FU = {
     twoSims: ["networks"], reload: ["untilExpiry"], reloadWhy: ["reload"], wifiSpend: ["onlineHome"],
-    checkPost: ["officialTell"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
+    classHow: ["classNews"], checkPost: ["officialTell"], whyQuiet: ["concern"], concernHeard: ["concern"], answerRight: ["askFirst"],
     whereFound: ["home"], housingSince: ["home"], barangay: ["home"], dormPart: ["home"], commute: ["home"], whichOffice: ["scenario"], visitsTook: ["scenario"], missClass: ["scenario"], reachHard: ["reachWhy"], program: ["faculty"], orgKinds: ["org"], orgRun: ["org"], orgKeep: ["org"], orgWhy: ["org"], orgNone: ["org"]
   };
   /* Some answers only fit what the respondent said before: a VSU dorm application only for dorm residents, signs and walking
@@ -1692,7 +1698,8 @@ a{color:var(--sea)}
     { id: "groupChats", box: "news", kind: "tiles", key: "groupChats", cols: "t3", size: "short", prompt: "How many active group chats for classes, orgs, or friends are you in?", lede: "Count only the ones that still get messages.", core: true,
       opts: OPT.groupChats.map(function (o) { return { v: o[0], art: function () { return TILE.chats(o[1]); } }; }) },
     { id: "officialHow", box: "news", kind: "chipsMulti", key: "officialHow", exclusive: NO_REACH, size: "bare", prompt: "How do posts from VSU's official pages or website usually reach you?", lede: "Pick all that apply.", core: true, opts: OPT.officialHow },
-    { id: "classNews", box: "m-d", kind: "chipsMulti", key: "classNews", exclusive: NOT_YET, size: "bare", prompt: "When a class of yours was moved or cancelled, or the teacher didn't come, when did you find out?", lede: ALL_HAPPENED, core: true, opts: OPT.classNews, hint: "moment" },
+    { id: "classNews", box: "m-d", kind: "chipsMulti", key: "classNews", exclusive: NOT_YET, size: "bare", prompt: "When a class of yours was moved or cancelled, when did you find out?", lede: ALL_HAPPENED, core: true, opts: OPT.classNews, hint: "moment" },
+    { id: "classHow", box: "m-d", kind: "chipsMulti", key: "classHow", size: "bare", prompt: "How did you find out?", lede: ALL_APPLY, core: true, opts: OPT.classHow, when: classChanged },
     { id: "officialTell", box: "m-o", kind: "chipsMulti", key: "officialTell", exclusive: "I haven't seen one", size: "bare", prompt: "When you saw a post about a class suspension or another VSU matter, could you tell whether it was official?", lede: ALL_HAPPENED, core: true, opts: OPT.officialTell },
     { id: "checkPost", box: "m-o", kind: "chipsMulti", key: "checkPost", exclusive: NO_CHECK, size: "bare", other: "checkPostOther", otherPh: "Other: what did you do? (optional)", prompt: "When you couldn't tell, what did you do to check?", lede: ALL_APPLY, core: true, opts: OPT.checkPost, when: function () { return isProblem("officialTell"); } },
     { id: "missedLate", box: "m-g", kind: "chipsMulti", key: "missedLate", exclusive: NONE_OF_THESE, size: "bare", prompt: "Have you missed any of these below because you heard about them too late?", lede: "Pick all that apply.", core: true, opts: OPT.missedLate }
@@ -1735,7 +1742,7 @@ a{color:var(--sea)}
   step({ id: "coins", box: "coins", ch: 7, kind: "coins", kicker: "Your say", prompt: "You have 25 coins. Which campus concerns would you like to get more attention?", lede: TAP + " a jar to drop a coin in, up to 10 in one jar.", spareLede: true, hint: "jars" });
   step({ id: "worksWell", box: "net", ch: 8, kind: "chipsMulti", key: "worksWell", exclusive: NOTHING_MUCH, size: "bare", other: "worksWellOther", otherPh: "Other: what else? (optional)", kicker: "What works now", prompt: "For VSU matters, what do Messenger GCs and Facebook groups do well?", lede: "Pick any that apply.", opts: OPT.works });
   step({ id: "wouldUse", box: "net", ch: 8, kind: "chipsMulti", key: "wouldUse", size: "bare", other: "wouldUseOther", otherPh: "Other: what would? (optional)", kicker: "What would bring you", prompt: "Imagine VSU had its own online network for students, faculty, and staff. What would make you use it?", lede: "An idea being explored independently, not a VSU service or plan. Pick any that apply.", opts: OPT.pull });
-  step({ id: "whoJoin", box: "net", ch: 8, kind: "chipsMulti", key: "whoJoin", exclusive: "Only students", size: "bare", kicker: "Who should be there", prompt: "Besides students, who should be able to join it?", lede: "Pick any that apply.", core: true, opts: OPT.whoJoin });
+  step({ id: "whoJoin", box: "net", ch: 8, kind: "chipsMulti", key: "whoJoin", exclusive: "Only students", size: "bare", kicker: "Who should be there", prompt: "Besides students, who should be able to join it?", lede: "Pick any that apply. Aspiring students are high school students hoping to study at VSU, and college students hoping to transfer.", core: true, opts: OPT.whoJoin });
   step({ id: "postPreference", box: "net", ch: 8, kind: "tiles", key: "postPreference", size: "bare", kicker: "How you'd post", prompt: "You want to raise a concern about a campus service there. How would you post?", core: true,
     opts: OPT.post.map(function (o) { return { v: o[0], art: function () { return TILE.face(o[1]); } }; }) });
   step({ id: "wantBack", box: "net", ch: 8, kind: "tiles", key: "wantBack", cols: "t3", size: "bare", kicker: "What you'd want back", prompt: "You raise a concern about a campus service there. What would you most want back?", core: true,
@@ -1848,6 +1855,7 @@ a{color:var(--sea)}
       return head(s) + '<p class="lede">Optional. A campus problem we didn\'t ask about, or anything else for the researcher. Then send.</p>' +
         '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="h-send" placeholder="Write it here."></textarea>' +
         '<p class="note">Leave out names and anything that could identify anyone. For a reply, text Leo at <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a>.</p>" +
+        '<p class="ask" id="h-formLike">Next time, would you rather answer a survey like this one, or a plain Google Form?</p>' + chipGrid({ id: "formLike", key: "formLike", opts: OPT.formLike }) +
         '<p class="skipped" id="skipped"></p>' +
         '<div class="sendrow"><button type="button" class="btn" id="send">Send my answers</button></div><p class="note" id="send-note" aria-live="polite"></p>';
     },
@@ -1999,6 +2007,7 @@ a{color:var(--sea)}
     if (soleProgram()) A.program = soleProgram();
     else if (!hasPrograms() || programOf(A.program) !== facultyName()) A.program = null;
     if (!offCampus()) { A.barangay = null; A.commute.length = 0; }
+    if (!classChanged()) A.classHow.length = 0;
     if (!isProblem("officialTell")) { A.checkPost.length = 0; A.checkPostOther = ""; }
     if (!newOffice()) { A.whichOffice.length = 0; A.visitsTook.length = 0; A.missClass = null; }
     if (!reached()) A.reachHard.length = 0;
