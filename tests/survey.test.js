@@ -375,6 +375,8 @@ async function walkAll(page, shot, dorm) {
   assert.strictEqual(await page.locator(inStep("send", "h2")).textContent(), "Anything we missed?", "Send goes straight to the comment");
   assert.strictEqual(await page.locator("#strip").count(), 0, "no summary panels");
   await page.fill("#comment", "Will the results be shared with students?");
+  assert.strictEqual(await page.locator("#h-formLike").textContent(), "Next time, would you rather answer a survey like this one, or a plain Google Form?", "asked before Send, so it goes with the answers");
+  await page.click(btn("send", "One like this, and I'd like to see more"));
   await sendIt(page);
   await at(page, "final", shot);
   assert.strictEqual(await page.locator("#story-link").getAttribute("href"), "https://docs.projectcampus.org/", "the thank-you link leads to what CAMPUS proposes");
@@ -494,6 +496,7 @@ function rowOf(r) {
       assert.strictEqual(r.hostedPay, "Pay a small fee to use it on campus");
       assert.deepStrictEqual(r.keepAway, ["Uses too much mobile data"]);
       assert.strictEqual(r.comment, "Will the results be shared with students?");
+      assert.strictEqual(r.formLike, "One like this, and I'd like to see more");
       for (const k of ["board", "lunch", "story", "mayQuote", "trust", "postedAnonymously", "channelOrder", "mainSource", "sources", "online", "dataRunsOut", "pins"]) assert.ok(!(k in r), k + " is gone");
       assert.deepStrictEqual(r.networks, ["Smart", "DITO"]);
       assert.deepStrictEqual(r.twoSims, ["To switch when one has weak signal", "I pick each network's promo by need, like exam week"]);
@@ -576,6 +579,7 @@ function rowOf(r) {
       assert.strictEqual(row.age18, true);
       assert.strictEqual(row.test, false);
       assert.strictEqual(row.comment, "Will the results be shared with students?");
+      assert.strictEqual(row.formLike, "One like this, and I'd like to see more");
       assert.strictEqual(receiver.refusal_(r), "");
       await t.ctx.close();
     });
@@ -585,7 +589,7 @@ function rowOf(r) {
     const t = await open(browser, {});
     const vals = await t.page.evaluate(() => {
       const get = (step, key) => Array.from(document.querySelectorAll('[data-step="' + step + '"] [data-key="' + key + '"] [data-v]')).map(b => b.dataset.v);
-      return { missed: get("missedLate", "missedLate"), classNews: get("classNews", "classNews"), classHow: get("classHow", "classHow"), officialTell: get("officialTell", "officialTell"), scenario: get("scenario", "scenario"), office: get("whichOffice", "whichOffice"), visits: get("visitsTook", "visitsTook"), reachWhy: get("reachWhy", "reachWhy"), reachHard: get("reachHard", "reachHard"), askFirst: get("askFirst", "askFirst"), answerRight: get("answerRight", "answerRight"), oldAnswer: get("oldAnswer", "oldAnswer"), guideSteps: get("guideSteps", "guideSteps"), seniorFind: get("seniorFind", "seniorFind"), getAround: get("getAround", "getAround"), commute: get("commute", "commute"), orgWhy: get("orgWhy", "orgWhy"), orgKinds: get("orgKinds", "orgKinds"), orgRun: get("orgRun", "orgRun"), orgKeep: get("orgKeep", "orgKeep"), orgNone: get("orgNone", "orgNone"), support: get("support", "support"), join: get("whoJoin", "whoJoin"), heard: get("concernHeard", "concernHeard"), fb: get("fbPosting", "fbPosting"), cant: get("cantGoOut", "cantGoOut"), buy: get("buySell", "buySell"), officialHow: get("officialHow", "officialHow"), checkPost: get("checkPost", "checkPost"), whyQuiet: get("whyQuiet", "whyQuiet"), reloadWhy: get("reloadWhy", "reloadWhy"), twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), dataUse: get("dataUse", "dataUse"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway") };
+      return { missed: get("missedLate", "missedLate"), classNews: get("classNews", "classNews"), classHow: get("classHow", "classHow"), officialTell: get("officialTell", "officialTell"), scenario: get("scenario", "scenario"), office: get("whichOffice", "whichOffice"), visits: get("visitsTook", "visitsTook"), reachWhy: get("reachWhy", "reachWhy"), reachHard: get("reachHard", "reachHard"), askFirst: get("askFirst", "askFirst"), answerRight: get("answerRight", "answerRight"), oldAnswer: get("oldAnswer", "oldAnswer"), guideSteps: get("guideSteps", "guideSteps"), seniorFind: get("seniorFind", "seniorFind"), getAround: get("getAround", "getAround"), commute: get("commute", "commute"), orgWhy: get("orgWhy", "orgWhy"), orgKinds: get("orgKinds", "orgKinds"), orgRun: get("orgRun", "orgRun"), orgKeep: get("orgKeep", "orgKeep"), orgNone: get("orgNone", "orgNone"), support: get("support", "support"), join: get("whoJoin", "whoJoin"), formLike: get("send", "formLike"), heard: get("concernHeard", "concernHeard"), fb: get("fbPosting", "fbPosting"), cant: get("cantGoOut", "cantGoOut"), buy: get("buySell", "buySell"), officialHow: get("officialHow", "officialHow"), checkPost: get("checkPost", "checkPost"), whyQuiet: get("whyQuiet", "whyQuiet"), reloadWhy: get("reloadWhy", "reloadWhy"), twoSims: get("twoSims", "twoSims"), networks: get("networks", "networks"), oc: get("onlineCampus", "onlineCampus"), oh: get("onlineHome", "onlineHome"), dataUse: get("dataUse", "dataUse"), concern: get("concern", "concern"), works: get("worksWell", "worksWell"), pull: get("wouldUse", "wouldUse"), away: get("keepAway", "keepAway") };
     });
     assert.deepStrictEqual(vals.concern.slice().sort(), receiver.CONCERN.slice().sort());
     assert.deepStrictEqual(vals.heard.slice().sort(), receiver.HEARD.slice().sort());
@@ -593,6 +597,7 @@ function rowOf(r) {
       ["askFirst", "ASK_FIRST"], ["answerRight", "ANSWER_RIGHT"], ["oldAnswer", "OLD_ANSWER"], ["guideSteps", "GUIDE_STEPS"], ["seniorFind", "SENIOR_FIND"], ["getAround", "GET_AROUND"], ["commute", "COMMUTE"], ["orgWhy", "ORG_WHY"], ["orgKinds", "ORG_KINDS"], ["orgRun", "ORG_RUN"], ["orgKeep", "ORG_KEEP"], ["orgNone", "ORG_NONE"], ["support", "SUPPORT"]])
       assert.deepStrictEqual(vals[k].slice().sort(), receiver[list].slice().sort(), k + " matches the receiver's " + list);
     assert.deepStrictEqual(vals.join.slice().sort(), receiver.WHO_JOIN.slice().sort());
+    assert.deepStrictEqual(vals.formLike.slice().sort(), receiver.FORM_LIKE.slice().sort());
     assert.deepStrictEqual(vals.fb.slice().sort(), receiver.FB_POSTING.slice().sort());
     assert.deepStrictEqual(vals.cant.slice().sort(), receiver.CANT_GO_OUT.slice().sort());
     assert.deepStrictEqual(vals.buy.slice().sort(), receiver.BUY_SELL.slice().sort());
@@ -734,7 +739,7 @@ function rowOf(r) {
     assert.strictEqual(r.familyVSU, null);
     assert.strictEqual(t.posts.length, 1);
     assert.ok(!("pins" in r) && !("board" in r));
-    for (const k of ["groupChats", "wifiSpend", "whereFound", "housingSince", "scamSince", "whoRuns", "hostedPay"]) assert.strictEqual(r[k], null, k);
+    for (const k of ["groupChats", "wifiSpend", "whereFound", "housingSince", "scamSince", "whoRuns", "hostedPay", "formLike"]) assert.strictEqual(r[k], null, k);
     for (const k of ["firstClasses", "firstSuspensions", "firstDocuments", "firstEvents", "firstScholarships", "firstAnnouncements", "officialHow", "classNews", "classHow", "officialTell", "checkPost", "missedLate",
       "scenario", "whichOffice", "visitsTook", "reachWhy", "reachHard", "whyQuiet", "concernHeard", "askFirst", "answerRight", "oldAnswer", "guideSteps", "seniorFind", "fbPosting", "getAround", "commute", "cantGoOut", "buySell", "whoJoin"]) assert.deepStrictEqual(r[k], [], k);
     for (const k of ["year", "faculty", "org", "familyVSU", "dormPart"]) assert.strictEqual(r[k], null, k + " can be skipped");

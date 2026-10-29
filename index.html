@@ -136,6 +136,7 @@ button,a,input,textarea{touch-action:manipulation}
 .statement:focus{outline:none}
 .statement:focus-visible{outline:3px solid var(--brass);outline-offset:4px;border-radius:6px}
 .note{font-size:14px;color:var(--ink-soft);margin:12px 0 0}
+.ask{font-weight:700;margin:20px 0 10px}
 .answers{margin-top:14px}
 
 /* Desktop: stage on the left, sheet on the right */
@@ -1320,7 +1321,7 @@ a{color:var(--sea)}
     coins: {},
     fbPosting: [], getAround: [], commute: [], whereFound: null, housingSince: null, cantGoOut: [], buySell: [], scamSince: null, whoJoin: [], whoRuns: null, hostedPay: null,
     worksWell: [], worksWellOther: "", wouldUse: [], wouldUseOther: "", postPreference: null, wantBack: null, keepAway: [], keepAwayOther: "",
-    comment: ""
+    formLike: null, comment: ""
   };
   var sent = false, sending = false, printed = false;
   window.__survey = { answers: A };
@@ -1355,6 +1356,8 @@ a{color:var(--sea)}
     office: [["Registrar or records", "folder"], ["Cashier or accounting", "coin"], ["My college or department office", "cap"], ["Student affairs or services", "people"], ["Scholarships or financial aid", "star"], ["Library, clinic, or another service", "office"], ["Not sure", "other"]],
     visits: [["Just one", 1], ["Two or three", 3], ["Four or more", 5], ["It still isn't done", 0]],
     missClass: [["Yes, more than once", "stack"], ["Yes, once", "calendar"], ["No", "cap"]],
+    /* Asked on the Send screen, so it goes with the answers: would they rather answer one like this, or a plain form (D-169). */
+    formLike: [["One like this, and I'd like to see more", "spark"], ["A plain Google Form", "pen"], ["Either is fine", "other"]],
     heard: [["Yes, and it was addressed", "spark"], ["Yes, but it wasn't addressed", "ban"], ["It's still being looked into", "snail"], ["No, I never heard back", "mail"]],
     fbPosting: [["Yes, under my real name", "people"], ["Yes, under a nickname", "tag"], ["Yes, anonymously", "mask"], ["No, I only read", "eye"], ["No, I'm not in any", "other"]],
     whereFound: [["Word of mouth: friends, family, or seniors", "people"], ["A Facebook group or post", "group"], ["A sign or tarpaulin outside", "flagpage"], ["Walking around and asking", "walk"], ["Applied for a VSU dorm", "dorm"], ["Family arranged it", "house"], ["Other", "other"]],
@@ -1852,6 +1855,7 @@ a{color:var(--sea)}
       return head(s) + '<p class="lede">Optional. A campus problem we didn\'t ask about, or anything else for the researcher. Then send.</p>' +
         '<textarea class="field" id="comment" maxlength="1000" aria-labelledby="h-send" placeholder="Write it here."></textarea>' +
         '<p class="note">Leave out names and anything that could identify anyone. For a reply, text Leo at <a href="' + PHONE_HREF + '">' + PHONE_TEXT + "</a>.</p>" +
+        '<p class="ask" id="h-formLike">Next time, would you rather answer a survey like this one, or a plain Google Form?</p>' + chipGrid({ id: "formLike", key: "formLike", opts: OPT.formLike }) +
         '<p class="skipped" id="skipped"></p>' +
         '<div class="sendrow"><button type="button" class="btn" id="send">Send my answers</button></div><p class="note" id="send-note" aria-live="polite"></p>';
     },

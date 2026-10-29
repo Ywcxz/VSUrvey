@@ -76,6 +76,7 @@ var HEARD = ["Yes, and it was addressed", "Yes, but it wasn't addressed", "It's 
 var FB_POSTING = ["Yes, under my real name", "Yes, under a nickname", "Yes, anonymously", "No, I only read", "No, I'm not in any"];
 var CANT_GO_OUT = ["Ask a friend or classmate to buy it", "Use a pasabuy or delivery", "Wait until I can go", "Go without", "It doesn't happen to me"];
 var BUY_SELL = ["Facebook groups or Marketplace", "Group chats", "In person on campus", "I don't buy or sell with people on campus"];
+var FORM_LIKE = ["One like this, and I'd like to see more", "A plain Google Form", "Either is fine"];
 var WHO_JOIN = ["Faculty", "Office staff", "Alumni", "Aspiring students", "Parents, relatives, or friends", "Outsiders", "Only students"];
 var CONCERN = ["Kept it to myself", "Told the office directly", "Told a teacher or adviser", "Went to the student council or an org",
   "Used a suggestion box or feedback form", "Raised it at a forum or dialogue", "Posted about it online",
@@ -156,7 +157,7 @@ function headers_() {
   multiHeaders_(h, "whoJoin", WHO_JOIN);
   h.push("postPreference", "wantBack", "whoRuns");
   multiHeaders_(h, "away", AWAY);
-  h.push("comment", "raw");
+  h.push("formLike", "comment", "raw");
   return h;
 }
 
@@ -245,7 +246,7 @@ function row_(r, now) {
   multiCells_(row, r.whoJoin, WHO_JOIN, "");
   row.push(cell_(r.postPreference), cell_(r.wantBack), cell_(r.whoRuns));
   multiCells_(row, r.keepAway, AWAY, r.keepAwayOther);
-  row.push(cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
+  row.push(cell_(FORM_LIKE.indexOf(r.formLike) >= 0 ? r.formLike : null), cell_(r.comment, 1000), cell_(JSON.stringify(r), 45000));
   return row;
 }
 
@@ -292,4 +293,4 @@ function sheet_() {
 
 function setup() { sheet_(); }
 
-if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, DATA_USE: DATA_USE, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, CLASS_HOW: CLASS_HOW, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
+if (typeof module !== "undefined") module.exports = { headers_: headers_, row_: row_, cell_: cell_, refusal_: refusal_, FIRSTS: FIRSTS, OFFICIAL_HOW: OFFICIAL_HOW, CHECK_POST: CHECK_POST, WHY_QUIET: WHY_QUIET, CONCERN: CONCERN, WORKS: WORKS, NETWORKS: NETWORKS, DATA_USE: DATA_USE, TWO_SIMS: TWO_SIMS, RELOAD_WHY: RELOAD_WHY, ONLINE_CAMPUS: ONLINE_CAMPUS, ONLINE_HOME: ONLINE_HOME, WOULD_USE: WOULD_USE, AWAY: AWAY, JARS: JARS, MISSED_LATE: MISSED_LATE, CLASS_NEWS: CLASS_NEWS, CLASS_HOW: CLASS_HOW, FORM_LIKE: FORM_LIKE, OFFICIAL_TELL: OFFICIAL_TELL, SCENARIO: SCENARIO, OFFICE: OFFICE, VISITS: VISITS, REACH_WHY: REACH_WHY, REACH_HARD: REACH_HARD, ASK_FIRST: ASK_FIRST, ANSWER_RIGHT: ANSWER_RIGHT, OLD_ANSWER: OLD_ANSWER, GUIDE_STEPS: GUIDE_STEPS, SENIOR_FIND: SENIOR_FIND, GET_AROUND: GET_AROUND, ORG_KINDS: ORG_KINDS, ORG_RUN: ORG_RUN, ORG_KEEP: ORG_KEEP, ORG_WHY: ORG_WHY, ORG_NONE: ORG_NONE, SUPPORT: SUPPORT, COMMUTE: COMMUTE, WHO_JOIN: WHO_JOIN, HEARD: HEARD, FB_POSTING: FB_POSTING, CANT_GO_OUT: CANT_GO_OUT, BUY_SELL: BUY_SELL };
