@@ -379,7 +379,7 @@ async function walkAll(page, shot, dorm) {
   await page.click(btn("send", "One like this, and I'd like to see more"));
   await sendIt(page);
   await at(page, "final", shot);
-  assert.strictEqual(await page.locator("#story-link").getAttribute("href"), "https://docs.projectcampus.org/", "the thank-you link leads to what CAMPUS proposes");
+  assert.strictEqual(await page.locator("#story-link").getAttribute("href"), "https://explore.projectcampus.org/?present", "the thank-you link leads to the interactive site, past its notice for students (D-176)");
 }
 
 function h_has_pins() { return receiver.headers_().some(k => /^pin\d/.test(k)); }
