@@ -1231,15 +1231,17 @@ a{color:var(--sea)}
   /* Students and alumni: classmates trading questions and answers. */
   function peersStage() {
     /* A classmate in paper: a shirt with its shaded side, a face that blinks, and one of three haircuts; each bobs on its own beat. */
+    /* Each blinks on its own rhythm: a different interval and starting point. */
     function kid(x, skin, hair, shirt, cut) {
+      var blink = [[4.3, -0.6], [6.1, -3.4], [5.2, -1.9]][cut];
       var hairs = ['<path d="M-20 102c0-16 9-24 20-24s20 8 20 24c-5-8-12-11-20-11s-15 3-20 11Z" fill="' + hair + '"/>',
         '<path d="M-22 114c-3-24 6-38 22-38s25 14 22 38c-2-10-5-17-9-21-7 5-19 6-27 2-4 4-7 11-8 19Z" fill="' + hair + '"/>',
         '<circle cx="13" cy="84" r="8" fill="' + hair + '"/><path d="M-20 102c0-16 9-24 20-24s20 8 20 24c-5-9-12-13-20-13s-15 4-20 13Z" fill="' + hair + '"/>'];
       return '<g transform="translate(' + x + ' 0)"><g class="bob" style="animation-delay:' + (-x / 70).toFixed(1) + 's">' + piece(
-        '<path d="M-36 178c2-36 70-36 72 0Z" fill="' + shirt + '"/><path d="M0 144c19 0 34 13 36 34H6Z" fill="#1F2A22" opacity=".12"/><path d="M-8 145l8 9 8-9Z" fill="#FAF9F4"/>' +
-        '<rect x="-6" y="130" width="12" height="22" fill="' + skin + '"/><rect x="-6" y="130" width="12" height="9" fill="#1F2A22" opacity=".15"/>' +
+        '<path d="M-36 178c2-36 70-36 72 0Z" fill="' + shirt + '"/><path d="M0 144c19 0 34 13 36 34H6Z" fill="#1F2A22" opacity=".12"/>' +
+        '<rect x="-6" y="130" width="12" height="22" fill="' + skin + '"/><rect x="-6" y="130" width="12" height="9" fill="#1F2A22" opacity=".15"/><path d="M-8 145l8 9 8-9Z" fill="#FAF9F4"/>' +
         '<g transform="translate(0 14)"><ellipse cx="-20" cy="106" rx="3" ry="4" fill="' + skin + '"/><ellipse cx="20" cy="106" rx="3" ry="4" fill="' + skin + '"/><circle cx="0" cy="104" r="20" fill="' + skin + '"/>' + hairs[cut] +
-        paperFace(0, 106, 0.82, hair) + "</g>") + "</g></g>";
+        paperFace(0, 106, 0.82, hair).replace(/class="(eyes|shut)"/g, 'class="$1" style="animation-duration:' + blink[0] + "s;animation-delay:" + blink[1] + 's"') + "</g>") + "</g></g>";
     }
     return stageSvg(lay(1, backdrop("campus")) +
       lay(2, kid(100, "#8A5A3C", "#1B1B22", "#2B7385", 0) + kid(180, "#A0704F", "#3A2A20", "#E8B23E", 1) + kid(260, "#7A4E33", "#1B1B22", "#CE5A45", 2)) +
